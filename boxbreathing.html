@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+  }
+
+  @keyframes expand-contract {
+    0%, 25% { transform: scale(0.5); opacity: 0.9; }
+    25%, 50% { transform: scale(2); opacity: 0.4; }
+    75%, 100% { transform: scale(0.5); opacity: 0.9; }
+  }
+  
+  .circle {
+    width: 100px;
+    height: 100px;
+    background-color: blue;
+    border-radius: 50%;
+    animation: expand-contract 24s ease-in-out infinite;
+  }
+
+  .duration-display {
+    margin-top: 50px;
+    font-size: 16px;
+  }
+
+  .btn-container {
+    margin-top: 10px;
+  }
+
+  button {
+    padding: 10px 20px;
+    font-size: 16px;
+    margin: 5px;
+  }
+</style>
+</head>
+<body>
+  <div class="circle"></div>
+
+  <div class="duration-display">
+    Current duration: <span id="current-duration">6 seconds</span>
+  </div>
+
+  <div class="btn-container">
+    <button onclick="decreaseDuration()">-</button>
+    <button onclick="increaseDuration()">+</button>
+  </div>
+
+  <script>
+    let currentDuration = 24; // Initial duration in seconds
+
+    function changeDuration(seconds) {
+      currentDuration = seconds;
+      const circle = document.querySelector('.circle');
+      circle.style.animationDuration = `${seconds}s`;
+      updateDurationDisplay();
+    }
+
+    function increaseDuration() {
+      currentDuration += 4;
+      const circle = document.querySelector('.circle');
+      circle.style.animationDuration = `${currentDuration}s`;
+      updateDurationDisplay();
+    }
+
+    function decreaseDuration() {
+      if (currentDuration > 4) {
+        currentDuration -= 4;
+        const circle = document.querySelector('.circle');
+        circle.style.animationDuration = `${currentDuration}s`;
+        updateDurationDisplay();
+      }
+    }
+
+    function updateDurationDisplay() {
+      const durationDisplay = document.getElementById('current-duration');
+      durationDisplay.textContent = `${currentDuration/4} seconds`;
+    }
+  </script>
+</body>
+</html>
