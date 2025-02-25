@@ -14,35 +14,34 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            min-height: 100vh;  /* Ensure content fills at least the viewport height */
+            min-height: 100vh;
         }
 
         #container {
-            width: 90%;  /* Adjust as needed for responsiveness */
-            max-width: 600px; /* Limit maximum width */
+            width: 90%;
+            max-width: 600px;
             background-color: white;
             border-radius: 8px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
             padding: 20px;
-            box-sizing: border-box; /* Include padding in width */
-            overflow: hidden; /* Prevent content overflow */
+            box-sizing: border-box;
+            overflow: hidden;
         }
 
         #image-container {
             width: 100%;
-            height: 200px; /* Adjust as needed */
+            height: 200px;
             display: flex;
-            justify-content: center; /* Center the image horizontally */
-            align-items: center;   /* Center the image vertically */
-            overflow: hidden;  /*Hide parts of the image that overflow the box*/
-
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
         }
 
         #image {
             max-width: 100%;
-            max-height: 100%; /* Image will scale down to fit container */
-            display: block;  /* Removes extra space below inline elements */
-            margin: 0 auto;  /*Horizontally centers image, redundant with flexbox, but good practice */
+            max-height: 100%;
+            display: block;
+            margin: 0 auto;
         }
 
         #title {
@@ -57,32 +56,43 @@
             line-height: 1.4;
             text-align: justify;
         }
+
+        #article-link {
+            display: block; /* Make the link a block element */
+            text-align: center; /* Center the link text */
+            margin-top: 10px; /* Add some space above the link */
+            color: #007bff; /* Link color */
+            text-decoration: none; /* Remove underline by default */
+        }
+        #article-link:hover {
+            text-decoration: underline; /* Underline on hover */
+        }
+
+
         #loading {
             text-align: center;
             margin-top: 20px;
-            display: none; /* Hidden by default */
+            display: none;
         }
+
         .hidden {
             display: none;
         }
 
-        /* Style for the instructions */
         #instructions {
-            position: fixed; /* Fixed position relative to the viewport */
-            bottom: 0;      /* Positioned at the bottom */
+            position: fixed;
+            bottom: 0;
             left: 0;
             width: 100%;
-            background-color: rgba(0, 0, 0, 0.7); /* Semi-transparent black */
+            background-color: rgba(0, 0, 0, 0.7);
             color: white;
             text-align: center;
             padding: 10px;
-            box-sizing: border-box; /* Include padding in width */
-            z-index: 1000;         /* Ensure it's on top */
-            transition: opacity 0.5s ease; /* Smooth fade-out */
-            opacity: 1; /* Initially visible */
+            box-sizing: border-box;
+            z-index: 1000;
+            transition: opacity 0.5s ease;
+            opacity: 1;
         }
-
-
     </style>
 </head>
 <body>
@@ -93,10 +103,10 @@
         <img id="image" src="" alt="Article Image">
     </div>
     <p id="summary"></p>
+    <a id="article-link" href="#" target="_blank" rel="noopener noreferrer">Read More on Wikipedia</a>
 </div>
 <div id="loading">Loading...</div>
 <div id="instructions">Swipe up for a new article, left for a random link, down/right to go back.</div>
-
 
 <script>
     const titleElement = document.getElementById('title');
@@ -104,6 +114,7 @@
     const summaryElement = document.getElementById('summary');
     const loadingElement = document.getElementById('loading');
     const containerElement = document.getElementById('container');
+    const articleLinkElement = document.getElementById('article-link'); // Get the link element
     const instructionsElement = document.getElementById('instructions');
 
     let history = [];
@@ -112,39 +123,60 @@
     async function fetchRandomArticle() {
         showLoading(true);
         try {
-            // Step 1: Get a random page title
-            const randomPageResponse = await fetch('https://en.wikipedia.org/w/api.php?action=query&format=json&list=random&rnnamespace=0&rnlimit=1&origin=*'); //CORS fix with origin=*
+            const randomPageResponse = await fetch('https://en.wikipedia.org/w/api.php?action=query&format=json&list=random&rnnamespace=0&rnlimit=1&origin=*');
             const randomPageData = await randomPageResponse.json();
             const pageTitle = randomPageData.query.random[0].title;
 
-            // Step 2 & 3:  Get page content, summary, and main image.
-            const pageContentResponse = await fetch(`https://en.wikipedia.org/w/api.php?action=query&format=json&prop=extracts|pageimages&exintro&explaintext&piprop=original&titles=${encodeURIComponent(pageTitle)}&origin=*`);
+            // Use prop=pageimages|images to get *all* images, not just the pageimage
+            const pageContentResponse = await fetch(`https://en.wikipedia.org/w/api.php?action=query&format=json&prop=extracts|pageimages|images&exintro&explaintext&piprop=original&titles=${encodeURIComponent(pageTitle)}&origin=*`);
             const pageContentData = await pageContentResponse.json();
 
             const pageId = Object.keys(pageContentData.query.pages)[0];
             const page = pageContentData.query.pages[pageId];
 
-              // Check if the page is missing
             if (page.missing !== undefined) {
                 console.warn("Page is missing, fetching another...");
-                await fetchRandomArticle(); // Fetch another article
-                return; // Important: Stop execution here
+                await fetchRandomArticle();
+                return;
             }
 
             const summary = page.extract;
-            const imageUrl = page.original ? page.original.source : null;  //Get full-size image.
-            const articleUrl = `https://en.wikipedia.org/wiki/${encodeURIComponent(pageTitle)}`;
+            let imageUrl = null;
 
+            // Prioritize pageimage, but fallback to other images if necessary
+            if (page.original && page.original.source) {
+                imageUrl = page.original.source;
+            } else if (page.images && page.images.length > 0) {
+                // If no pageimage, try to find an image from the 'images' array
+                // This is a simplistic approach; you could add more sophisticated logic
+                // to choose the "best" image (e.g., based on filename, size, etc.)
+                for (const img of page.images) {
+                    const imgTitle = img.title;
+                    // Fetch image info to get the URL (another API request)
+                    const imageInfoResponse = await fetch(`https://en.wikipedia.org/w/api.php?action=query&format=json&prop=imageinfo&iiprop=url&titles=${encodeURIComponent(imgTitle)}&origin=*`);
+                    const imageInfoData = await imageInfoResponse.json();
+                    const imageInfoPageId = Object.keys(imageInfoData.query.pages)[0];
+                    const imageInfo = imageInfoData.query.pages[imageInfoPageId];
+                   if (imageInfo.imageinfo && imageInfo.imageinfo[0] && imageInfo.imageinfo[0].url) {
+                        imageUrl = imageInfo.imageinfo[0].url;
+                        break; // Use the first valid image found
+                    }
+
+                }
+            }
+
+
+            const articleUrl = `https://en.wikipedia.org/wiki/${encodeURIComponent(pageTitle)}`;
 
             displayArticle(pageTitle, imageUrl, summary, articleUrl);
             addToHistory({ title: pageTitle, imageUrl, summary, url: articleUrl });
-
 
         } catch (error) {
             console.error('Error fetching article:', error);
             summaryElement.textContent = 'Failed to load article. Please try again.';
             titleElement.textContent = 'Error';
             imageElement.src = '';
+            articleLinkElement.href = '#'; // Reset link
         } finally {
             showLoading(false);
         }
@@ -154,28 +186,24 @@
     function displayArticle(title, imageUrl, summary, articleUrl) {
         titleElement.textContent = title;
         summaryElement.textContent = summary;
+        articleLinkElement.href = articleUrl; // Set the link's href attribute
+
 
         if (imageUrl) {
             imageElement.src = imageUrl;
             imageElement.alt = `Image of ${title}`;
-            imageElement.onload = () => { // Ensure image dimensions are handled after loading
-                //imageElement.style.display = 'block'; // Ensure it's displayed
-            };
+            imageElement.onload = () => {};
             imageElement.onerror = () => {
-                //imageElement.style.display = 'none'; // Hide if there's an error
-                imageElement.src=""; //clear broken image
+                imageElement.src = "";
             }
         } else {
-            //imageElement.style.display = 'none'; // Hide if no image
-            imageElement.src = ""; //clear image.
+            imageElement.src = "";
         }
-         currentArticle = { title, imageUrl, summary, url: articleUrl };
+        currentArticle = { title, imageUrl, summary, url: articleUrl };
     }
 
 
-
     function addToHistory(article) {
-        // Only add to history if it's different from the last entry
         if (history.length === 0 || history[history.length - 1].url !== article.url) {
             history.push(article);
         }
@@ -189,7 +217,7 @@
             const linksResponse = await fetch(`https://en.wikipedia.org/w/api.php?action=query&format=json&prop=links&titles=${encodeURIComponent(currentArticle.title)}&pllimit=max&origin=*`);
             const linksData = await linksResponse.json();
             const pageId = Object.keys(linksData.query.pages)[0];
-            const links = linksData.query.pages[pageId].links;
+			const links = linksData.query.pages[pageId]?.links;
 
 
             if (links && links.length > 0) {
@@ -197,27 +225,49 @@
                 const linkedPageTitle = randomLink.title;
 
                 // Now fetch content for the linked page (similar to fetchRandomArticle)
-                const pageContentResponse = await fetch(`https://en.wikipedia.org/w/api.php?action=query&format=json&prop=extracts|pageimages&exintro&explaintext&piprop=original&titles=${encodeURIComponent(linkedPageTitle)}&origin=*`);
+                const pageContentResponse = await fetch(`https://en.wikipedia.org/w/api.php?action=query&format=json&prop=extracts|pageimages|images&exintro&explaintext&piprop=original&titles=${encodeURIComponent(linkedPageTitle)}&origin=*`);
                 const pageContentData = await pageContentResponse.json();
 
                 const linkedPageId = Object.keys(pageContentData.query.pages)[0];
                 const linkedPage = pageContentData.query.pages[linkedPageId];
 
-                //Check for missing page.
                 if (linkedPage.missing !== undefined) {
                     console.warn("Linked page is missing, fetching another link...");
-                    await loadRandomLinkFromCurrent(); // Try another link
+                    await loadRandomLinkFromCurrent();
                     return;
                 }
 
                 const linkedSummary = linkedPage.extract;
-                const linkedImageUrl = linkedPage.original ? linkedPage.original.source : null;
+				let linkedImageUrl = null;
+
+                // Prioritize pageimage
+                if (linkedPage.original && linkedPage.original.source) {
+                    linkedImageUrl = linkedPage.original.source;
+                } else if (linkedPage.images && linkedPage.images.length > 0) {
+                    // Fallback to other images if no pageimage. VERY IMPORTANT.
+                    for (const img of linkedPage.images) {
+                        const imgTitle = img.title;
+                         const imageInfoResponse = await fetch(`https://en.wikipedia.org/w/api.php?action=query&format=json&prop=imageinfo&iiprop=url&titles=${encodeURIComponent(imgTitle)}&origin=*`);
+                        const imageInfoData = await imageInfoResponse.json();
+                        const imageInfoPageId = Object.keys(imageInfoData.query.pages)[0];
+                        const imageInfo = imageInfoData.query.pages[imageInfoPageId];
+
+                        if (imageInfo.imageinfo && imageInfo.imageinfo[0] && imageInfo.imageinfo[0].url)
+                        {
+                            linkedImageUrl = imageInfo.imageinfo[0].url;
+                            break;
+                        }
+                    }
+                }
                 const linkedArticleUrl = `https://en.wikipedia.org/wiki/${encodeURIComponent(linkedPageTitle)}`;
+
                 displayArticle(linkedPageTitle, linkedImageUrl, linkedSummary, linkedArticleUrl);
                 addToHistory({ title: linkedPageTitle, imageUrl: linkedImageUrl, summary: linkedSummary, url: linkedArticleUrl });
 
             } else {
                 summaryElement.textContent = 'No links found on this page.';
+                 articleLinkElement.href = '#'; // Reset link
+
             }
 
         } catch (error) {
@@ -225,6 +275,8 @@
             summaryElement.textContent = 'Failed to load linked article. Please try again.';
             titleElement.textContent = 'Error';
             imageElement.src = '';
+            articleLinkElement.href = '#'; // Reset link
+
 
         } finally {
             showLoading(false);
@@ -234,35 +286,34 @@
 
     function goBack() {
         if (history.length > 1) {
-            history.pop(); // Remove current article
-            const previousArticle = history.pop(); // Get the previous one.  Pop again to remove it.
+            history.pop();
+            const previousArticle = history.pop();
             displayArticle(previousArticle.title, previousArticle.imageUrl, previousArticle.summary, previousArticle.url);
-            addToHistory(previousArticle); // Re-add it, so we don't skip it if going back multiple times.
+            addToHistory(previousArticle);
 
         }
     }
 
-   function showLoading(show) {
+    function showLoading(show) {
         loadingElement.style.display = show ? 'block' : 'none';
-        containerElement.style.display = show ? 'none' : 'block'; //Hide main content during loading.
+        containerElement.style.display = show ? 'none' : 'block';
     }
 
-     // --- Swipe detection ---
+    // --- Swipe detection ---
     let touchstartX = 0;
     let touchstartY = 0;
     let touchendX = 0;
     let touchendY = 0;
 
-    const threshold = 50; // Minimum swipe distance
+    const threshold = 50;
 
     containerElement.addEventListener('touchstart', function(event) {
         touchstartX = event.changedTouches[0].screenX;
         touchstartY = event.changedTouches[0].screenY;
-          // Hide instructions on first touch
         instructionsElement.style.opacity = '0';
         setTimeout(() => {
-            instructionsElement.style.display = 'none'; // Remove it completely
-        }, 500); // Match transition duration
+            instructionsElement.style.display = 'none';
+        }, 500);
     }, false);
 
     containerElement.addEventListener('touchend', function(event) {
@@ -275,20 +326,16 @@
         const deltaX = touchendX - touchstartX;
         const deltaY = touchendY - touchstartY;
 
-        if (Math.abs(deltaX) > Math.abs(deltaY)) { // Horizontal swipe
+        if (Math.abs(deltaX) > Math.abs(deltaY)) {
             if (deltaX > threshold) {
-                // Right swipe
                 goBack();
             } else if (deltaX < -threshold) {
-                // Left swipe
-               loadRandomLinkFromCurrent();
+                loadRandomLinkFromCurrent();
             }
-        } else { // Vertical swipe
+        } else {
             if (deltaY > threshold) {
-                // Down swipe
                 goBack();
             } else if (deltaY < -threshold) {
-                // Up swipe
                 fetchRandomArticle();
             }
         }
@@ -296,7 +343,6 @@
 
     // Initial load
     fetchRandomArticle();
-
 </script>
 </body>
 </html>
