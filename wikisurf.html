@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>WikiSwipe</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;  /* Ensure content fills at least the viewport height */
+        }
+
+        #container {
+            width: 90%;  /* Adjust as needed for responsiveness */
+            max-width: 600px; /* Limit maximum width */
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            box-sizing: border-box; /* Include padding in width */
+            overflow: hidden; /* Prevent content overflow */
+        }
+
+        #image-container {
+            width: 100%;
+            height: 200px; /* Adjust as needed */
+            display: flex;
+            justify-content: center; /* Center the image horizontally */
+            align-items: center;   /* Center the image vertically */
+            overflow: hidden;  /*Hide parts of the image that overflow the box*/
+
+        }
+
+        #image {
+            max-width: 100%;
+            max-height: 100%; /* Image will scale down to fit container */
+            display: block;  /* Removes extra space below inline elements */
+            margin: 0 auto;  /*Horizontally centers image, redundant with flexbox, but good practice */
+        }
+
+        #title {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 0.5em;
+            text-align: center;
+        }
+
+        #summary {
+            font-size: 1em;
+            line-height: 1.4;
+            text-align: justify;
+        }
+        #loading {
+            text-align: center;
+            margin-top: 20px;
+            display: none; /* Hidden by default */
+        }
+        .hidden {
+            display: none;
+        }
+
+        /* Style for the instructions */
+        #instructions {
+            position: fixed; /* Fixed position relative to the viewport */
+            bottom: 0;      /* Positioned at the bottom */
+            left: 0;
+            width: 100%;
+            background-color: rgba(0, 0, 0, 0.7); /* Semi-transparent black */
+            color: white;
+            text-align: center;
+            padding: 10px;
+            box-sizing: border-box; /* Include padding in width */
+            z-index: 1000;         /* Ensure it's on top */
+            transition: opacity 0.5s ease; /* Smooth fade-out */
+            opacity: 1; /* Initially visible */
+        }
+
+
+    </style>
+</head>
+<body>
+
+<div id="container">
+    <h1 id="title"></h1>
+    <div id="image-container">
+        <img id="image" src="" alt="Article Image">
+    </div>
+    <p id="summary"></p>
+</div>
+<div id="loading">Loading...</div>
+<div id="instructions">Swipe up for a new article, left for a random link, down/right to go back.</div>
+
+
+<script>
+    const titleElement = document.getElementById('title');
+    const imageElement = document.getElementById('image');
+    const summaryElement = document.getElementById('summary');
+    const loadingElement = document.getElementById('loading');
+    const containerElement = document.getElementById('container');
+    const instructionsElement = document.getElementById('instructions');
+
+    let history = [];
+    let currentArticle = null;
+
+    async function fetchRandomArticle() {
+        showLoading(true);
+        try {
+            // Step 1: Get a random page title
+            const randomPageResponse = await fetch('https://en.wikipedia.org/w/api.php?action=query&format=json&list=random&rnnamespace=0&rnlimit=1&origin=*'); //CORS fix with origin=*
+            const randomPageData = await randomPageResponse.json();
+            const pageTitle = randomPageData.query.random[0].title;
+
+            // Step 2 & 3:  Get page content, summary, and main image.
+            const pageContentResponse = await fetch(`https://en.wikipedia.org/w/api.php?action=query&format=json&prop=extracts|pageimages&exintro&explaintext&piprop=original&titles=${encodeURIComponent(pageTitle)}&origin=*`);
+            const pageContentData = await pageContentResponse.json();
+
+            const pageId = Object.keys(pageContentData.query.pages)[0];
+            const page = pageContentData.query.pages[pageId];
+
+              // Check if the page is missing
+            if (page.missing !== undefined) {
+                console.warn("Page is missing, fetching another...");
+                await fetchRandomArticle(); // Fetch another article
+                return; // Important: Stop execution here
+            }
+
+            const summary = page.extract;
+            const imageUrl = page.original ? page.original.source : null;  //Get full-size image.
+            const articleUrl = `https://en.wikipedia.org/wiki/${encodeURIComponent(pageTitle)}`;
+
+
+            displayArticle(pageTitle, imageUrl, summary, articleUrl);
+            addToHistory({ title: pageTitle, imageUrl, summary, url: articleUrl });
+
+
+        } catch (error) {
+            console.error('Error fetching article:', error);
+            summaryElement.textContent = 'Failed to load article. Please try again.';
+            titleElement.textContent = 'Error';
+            imageElement.src = '';
+        } finally {
+            showLoading(false);
+        }
+    }
+
+
+    function displayArticle(title, imageUrl, summary, articleUrl) {
+        titleElement.textContent = title;
+        summaryElement.textContent = summary;
+
+        if (imageUrl) {
+            imageElement.src = imageUrl;
+            imageElement.alt = `Image of ${title}`;
+            imageElement.onload = () => { // Ensure image dimensions are handled after loading
+                //imageElement.style.display = 'block'; // Ensure it's displayed
+            };
+            imageElement.onerror = () => {
+                //imageElement.style.display = 'none'; // Hide if there's an error
+                imageElement.src=""; //clear broken image
+            }
+        } else {
+            //imageElement.style.display = 'none'; // Hide if no image
+            imageElement.src = ""; //clear image.
+        }
+         currentArticle = { title, imageUrl, summary, url: articleUrl };
+    }
+
+
+
+    function addToHistory(article) {
+        // Only add to history if it's different from the last entry
+        if (history.length === 0 || history[history.length - 1].url !== article.url) {
+            history.push(article);
+        }
+    }
+
+    async function loadRandomLinkFromCurrent() {
+      if (!currentArticle) return;
+
+        showLoading(true);
+        try {
+            const linksResponse = await fetch(`https://en.wikipedia.org/w/api.php?action=query&format=json&prop=links&titles=${encodeURIComponent(currentArticle.title)}&pllimit=max&origin=*`);
+            const linksData = await linksResponse.json();
+            const pageId = Object.keys(linksData.query.pages)[0];
+            const links = linksData.query.pages[pageId].links;
+
+
+            if (links && links.length > 0) {
+                const randomLink = links[Math.floor(Math.random() * links.length)];
+                const linkedPageTitle = randomLink.title;
+
+                // Now fetch content for the linked page (similar to fetchRandomArticle)
+                const pageContentResponse = await fetch(`https://en.wikipedia.org/w/api.php?action=query&format=json&prop=extracts|pageimages&exintro&explaintext&piprop=original&titles=${encodeURIComponent(linkedPageTitle)}&origin=*`);
+                const pageContentData = await pageContentResponse.json();
+
+                const linkedPageId = Object.keys(pageContentData.query.pages)[0];
+                const linkedPage = pageContentData.query.pages[linkedPageId];
+
+                //Check for missing page.
+                if (linkedPage.missing !== undefined) {
+                    console.warn("Linked page is missing, fetching another link...");
+                    await loadRandomLinkFromCurrent(); // Try another link
+                    return;
+                }
+
+                const linkedSummary = linkedPage.extract;
+                const linkedImageUrl = linkedPage.original ? linkedPage.original.source : null;
+                const linkedArticleUrl = `https://en.wikipedia.org/wiki/${encodeURIComponent(linkedPageTitle)}`;
+                displayArticle(linkedPageTitle, linkedImageUrl, linkedSummary, linkedArticleUrl);
+                addToHistory({ title: linkedPageTitle, imageUrl: linkedImageUrl, summary: linkedSummary, url: linkedArticleUrl });
+
+            } else {
+                summaryElement.textContent = 'No links found on this page.';
+            }
+
+        } catch (error) {
+             console.error('Error fetching linked article:', error);
+            summaryElement.textContent = 'Failed to load linked article. Please try again.';
+            titleElement.textContent = 'Error';
+            imageElement.src = '';
+
+        } finally {
+            showLoading(false);
+        }
+    }
+
+
+    function goBack() {
+        if (history.length > 1) {
+            history.pop(); // Remove current article
+            const previousArticle = history.pop(); // Get the previous one.  Pop again to remove it.
+            displayArticle(previousArticle.title, previousArticle.imageUrl, previousArticle.summary, previousArticle.url);
+            addToHistory(previousArticle); // Re-add it, so we don't skip it if going back multiple times.
+
+        }
+    }
+
+   function showLoading(show) {
+        loadingElement.style.display = show ? 'block' : 'none';
+        containerElement.style.display = show ? 'none' : 'block'; //Hide main content during loading.
+    }
+
+     // --- Swipe detection ---
+    let touchstartX = 0;
+    let touchstartY = 0;
+    let touchendX = 0;
+    let touchendY = 0;
+
+    const threshold = 50; // Minimum swipe distance
+
+    containerElement.addEventListener('touchstart', function(event) {
+        touchstartX = event.changedTouches[0].screenX;
+        touchstartY = event.changedTouches[0].screenY;
+          // Hide instructions on first touch
+        instructionsElement.style.opacity = '0';
+        setTimeout(() => {
+            instructionsElement.style.display = 'none'; // Remove it completely
+        }, 500); // Match transition duration
+    }, false);
+
+    containerElement.addEventListener('touchend', function(event) {
+        touchendX = event.changedTouches[0].screenX;
+        touchendY = event.changedTouches[0].screenY;
+        handleSwipe();
+    }, false);
+
+    function handleSwipe() {
+        const deltaX = touchendX - touchstartX;
+        const deltaY = touchendY - touchstartY;
+
+        if (Math.abs(deltaX) > Math.abs(deltaY)) { // Horizontal swipe
+            if (deltaX > threshold) {
+                // Right swipe
+                goBack();
+            } else if (deltaX < -threshold) {
+                // Left swipe
+               loadRandomLinkFromCurrent();
+            }
+        } else { // Vertical swipe
+            if (deltaY > threshold) {
+                // Down swipe
+                goBack();
+            } else if (deltaY < -threshold) {
+                // Up swipe
+                fetchRandomArticle();
+            }
+        }
+    }
+
+    // Initial load
+    fetchRandomArticle();
+
+</script>
+</body>
+</html>
