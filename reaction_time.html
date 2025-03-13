@@ -4,128 +4,154 @@
 <title>Lights Out Reaction Time Game</title>
 <style>
 body {
-  font-family: sans-serif;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-  margin: 0;
-  background-color: #f0f0f0;
+    font-family: sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
+    background-color: #f0f0f0;
 }
 
-#light {
-  width: 200px;
-  height: 200px;
-  border-radius: 50%;
-  background-color: red;
-  margin: 20px;
-  cursor: pointer; /* Indicate it's clickable */
+.lights-container {
+    display: flex; /* Horizontal row */
+    margin: 20px;
 }
+
+.light {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background-color: black; /* Start black */
+    margin: 0 10px; /* Spacing between circles */
+    transition: background-color 0.2s ease; /* Smooth transition */
+}
+
+.light.green {
+    background-color: green;
+}
+
 
 #results {
-  margin-top: 20px;
-  text-align: center;
-}
-
-#start-button {
-    padding: 15px 30px;
-    font-size: 18px;
-    background-color: #4CAF50; /* Green */
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-#start-button:disabled {
-    background-color: #cccccc; /* Gray */
-    cursor: not-allowed;
+    margin-top: 20px;
+    text-align: center;
 }
 
 .hidden {
     display: none;
 }
 
+#current-time {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+#scores-list {
+    list-style: none; /* Remove bullet points */
+    padding: 0;
+}
+
+#scores-list li {
+    margin-bottom: 5px;
+}
 </style>
 </head>
 <body>
 
 <h1>Lights Out Reaction Time Test</h1>
 
-<button id="start-button">Start Game</button>
-
-<div id="light"></div>
-
-<div id="results" class="hidden">
-  <h2>Results</h2>
-  <ul id="scores-list"></ul>
-  <p>Minimum: <span id="min-score"></span> ms</p>
-  <p>Maximum: <span id="max-score"></span> ms</p>
-  <p>Average: <span id="avg-score"></span> ms</p>
-  <button id="restart-button" >Restart</button>
+<div class="lights-container">
+    <div class="light"></div>
+    <div class="light"></div>
+    <div class="light"></div>
 </div>
 
-
+<div id="results" class="hidden">
+    <h2>Results</h2>
+    <p id="current-time"></p>  <ul id="scores-list"></ul>
+    <p>Minimum: <span id="min-score"></span> ms</p>
+    <p>Maximum: <span id="max-score"></span> ms</p>
+    <p>Average: <span id="avg-score"></span> ms</p>
+</div>
 
 <script>
-const light = document.getElementById('light');
-const startButton = document.getElementById('start-button');
+const lightsContainer = document.querySelector('.lights-container');
+const lights = document.querySelectorAll('.light');
 const resultsDiv = document.getElementById('results');
+const currentTimeDisplay = document.getElementById('current-time');
 const scoresList = document.getElementById('scores-list');
 const minScoreSpan = document.getElementById('min-score');
 const maxScoreSpan = document.getElementById('max-score');
 const avgScoreSpan = document.getElementById('avg-score');
-const restartButton = document.getElementById('restart-button');
-
 
 let startTime;
 let scores = [];
 const numTests = 5;
 let currentTest = 0;
+let lightsOut = false; //Flag if lights are out
 
 
 function startGame() {
     currentTest = 0;
     scores = [];
     scoresList.innerHTML = ''; // Clear previous scores
-    resultsDiv.classList.add('hidden'); // Hide results
-    startButton.disabled = true;
+    resultsDiv.classList.add('hidden');
     runTest();
 }
 
-
 function runTest() {
     if (currentTest < numTests) {
-        light.style.backgroundColor = 'red'; // Reset to red
-        const randomDelay = Math.random() * 3000 + 1000; // 1-4 seconds
+        lightsOut = false; //Lights are not out yet
+        // Reset lights to black
+        lights.forEach(light => light.style.backgroundColor = 'black');
+
+        // Turn lights green one by one with a short delay
+        lights.forEach((light, index) => {
+            setTimeout(() => {
+                light.classList.add('green'); //Use class for smoother transition
+            }, index * 500); // 500ms delay between each light
+        });
+
+        // Calculate a random delay (2-10 seconds) *after* all lights are green
+        const allGreenDelay = lights.length * 500; // Time for all lights to turn green
+        const randomDelay = Math.random() * 8000 + 2000; // 2000-10000 ms (2-10 seconds)
 
         setTimeout(() => {
-            light.style.backgroundColor = 'green';
+            // Turn all lights black simultaneously
+            lights.forEach(light => {
+                light.classList.remove('green');  // Remove the 'green' class
+                light.style.backgroundColor = 'black';
+            });
             startTime = Date.now();
-        }, randomDelay);
+            lightsOut = true; //Lights are now out!
+        }, allGreenDelay + randomDelay); // Apply the total delay
     } else {
         displayResults();
     }
 }
 
+function recordReaction(event) {
+    if (lightsOut) {
+      // Check if it was a touch end event (finger lift)
+        if (event.type === 'touchend' || event.type === 'mouseup') { //Also handle mouse
+            const endTime = Date.now();
+            const reactionTime = endTime - startTime;
+            scores.push(reactionTime);
+            currentTimeDisplay.textContent = `Current Reaction Time: ${reactionTime} ms`; // Show the time
 
-function recordReaction() {
-  if (light.style.backgroundColor === 'green') { //Important: only if it's green
-    const endTime = Date.now();
-    const reactionTime = endTime - startTime;
-    scores.push(reactionTime);
+            // Add the score to the list (for immediate feedback)
+            const listItem = document.createElement('li');
+            listItem.textContent = `Test ${currentTest + 1}: ${reactionTime} ms`;
+            scoresList.appendChild(listItem);
 
-    // Add the score to the list (for immediate feedback)
-        const listItem = document.createElement('li');
-        listItem.textContent = `Test ${currentTest + 1}: ${reactionTime} ms`;
-        scoresList.appendChild(listItem);
-
-    currentTest++;
-    runTest();  //Next Test!
-  }
+            currentTest++;
+            lightsOut = false; //Reset for next touch
+            resultsDiv.classList.remove('hidden');  // Show Results section
+        }
+    }
 }
-
 
 function displayResults() {
     const min = Math.min(...scores);
@@ -135,20 +161,31 @@ function displayResults() {
 
     minScoreSpan.textContent = min;
     maxScoreSpan.textContent = max;
-    avgScoreSpan.textContent = avg.toFixed(2); // Two decimal places
+    avgScoreSpan.textContent = avg.toFixed(2);
 
-    resultsDiv.classList.remove('hidden'); // Show results
-    startButton.disabled = false;
+    //resultsDiv.classList.remove('hidden'); // No longer hide automatically
 }
 
-function restartGame() {
-    resultsDiv.classList.add('hidden');
-    startGame();
-}
 
-light.addEventListener('click', recordReaction);
-startButton.addEventListener('click', startGame);
-restartButton.addEventListener('click', restartGame);
+// Event listener for touch/mouse events on the *entire body* (or a specific container)
+document.body.addEventListener('touchend', recordReaction);
+document.body.addEventListener('mouseup', recordReaction); //For mouse
+
+// Event listener to restart a test
+document.body.addEventListener('touchstart', (event) => {
+    if (currentTest < numTests && !lightsOut && scores.length === currentTest) { //Only restart if ready
+        runTest();
+    }
+});
+document.body.addEventListener('mousedown', (event) => { //For mouse
+    if (currentTest < numTests && !lightsOut && scores.length === currentTest) {
+        runTest();
+    }
+});
+
+
+// Initial start of the game
+startGame();
 
 </script>
 
