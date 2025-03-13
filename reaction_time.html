@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Lights Out Reaction Time Game</title>
+<style>
+body {
+  font-family: sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  margin: 0;
+  background-color: #f0f0f0;
+}
+
+#light {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background-color: red;
+  margin: 20px;
+  cursor: pointer; /* Indicate it's clickable */
+}
+
+#results {
+  margin-top: 20px;
+  text-align: center;
+}
+
+#start-button {
+    padding: 15px 30px;
+    font-size: 18px;
+    background-color: #4CAF50; /* Green */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#start-button:disabled {
+    background-color: #cccccc; /* Gray */
+    cursor: not-allowed;
+}
+
+.hidden {
+    display: none;
+}
+
+</style>
+</head>
+<body>
+
+<h1>Lights Out Reaction Time Test</h1>
+
+<button id="start-button">Start Game</button>
+
+<div id="light"></div>
+
+<div id="results" class="hidden">
+  <h2>Results</h2>
+  <ul id="scores-list"></ul>
+  <p>Minimum: <span id="min-score"></span> ms</p>
+  <p>Maximum: <span id="max-score"></span> ms</p>
+  <p>Average: <span id="avg-score"></span> ms</p>
+  <button id="restart-button" >Restart</button>
+</div>
+
+
+
+<script>
+const light = document.getElementById('light');
+const startButton = document.getElementById('start-button');
+const resultsDiv = document.getElementById('results');
+const scoresList = document.getElementById('scores-list');
+const minScoreSpan = document.getElementById('min-score');
+const maxScoreSpan = document.getElementById('max-score');
+const avgScoreSpan = document.getElementById('avg-score');
+const restartButton = document.getElementById('restart-button');
+
+
+let startTime;
+let scores = [];
+const numTests = 5;
+let currentTest = 0;
+
+
+function startGame() {
+    currentTest = 0;
+    scores = [];
+    scoresList.innerHTML = ''; // Clear previous scores
+    resultsDiv.classList.add('hidden'); // Hide results
+    startButton.disabled = true;
+    runTest();
+}
+
+
+function runTest() {
+    if (currentTest < numTests) {
+        light.style.backgroundColor = 'red'; // Reset to red
+        const randomDelay = Math.random() * 3000 + 1000; // 1-4 seconds
+
+        setTimeout(() => {
+            light.style.backgroundColor = 'green';
+            startTime = Date.now();
+        }, randomDelay);
+    } else {
+        displayResults();
+    }
+}
+
+
+function recordReaction() {
+  if (light.style.backgroundColor === 'green') { //Important: only if it's green
+    const endTime = Date.now();
+    const reactionTime = endTime - startTime;
+    scores.push(reactionTime);
+
+    // Add the score to the list (for immediate feedback)
+        const listItem = document.createElement('li');
+        listItem.textContent = `Test ${currentTest + 1}: ${reactionTime} ms`;
+        scoresList.appendChild(listItem);
+
+    currentTest++;
+    runTest();  //Next Test!
+  }
+}
+
+
+function displayResults() {
+    const min = Math.min(...scores);
+    const max = Math.max(...scores);
+    const sum = scores.reduce((acc, val) => acc + val, 0);
+    const avg = sum / scores.length;
+
+    minScoreSpan.textContent = min;
+    maxScoreSpan.textContent = max;
+    avgScoreSpan.textContent = avg.toFixed(2); // Two decimal places
+
+    resultsDiv.classList.remove('hidden'); // Show results
+    startButton.disabled = false;
+}
+
+function restartGame() {
+    resultsDiv.classList.add('hidden');
+    startGame();
+}
+
+light.addEventListener('click', recordReaction);
+startButton.addEventListener('click', startGame);
+restartButton.addEventListener('click', restartGame);
+
+</script>
+
+</body>
+</html>
