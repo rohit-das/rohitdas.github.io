@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Generative Pursuit: An Interactive Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Warm Neutrals with Earth Tones -->
+    <!-- Application Structure Plan: A dashboard-style, single-page application. The core structure is a filterable grid of "hobby cards." This non-linear design was chosen to empower users to explore based on personal constraints (cost, space, messiness) rather than following the report's linear structure. The user flow is: 1. See all hobbies. 2. Use interactive filters to narrow choices. 3. Click a card to open a modal for a deep-dive. This prioritizes discovery and personal relevance, making the content a utility rather than just a document. -->
+    <!-- Visualization & Content Choices: Report Info: Hobby characteristics (cost, space, etc.). Goal: Compare hobbies quickly. Viz: Radar chart in a modal. Interaction: View a hobby's "fingerprint." Justification: Radar charts excel at comparing multiple variables for a single subject. Library: Chart.js. Report Info: Hobby categories. Goal: Organize and filter. Presentation: Interactive buttons. Interaction: Click to filter grid. Justification: A simple, intuitive UI for sorting content. Method: JS + Tailwind. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #FDFBF8;
+            color: #3D352E;
+        }
+        .hobby-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .hobby-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .modal {
+            transition: opacity 0.3s ease;
+        }
+        .filter-btn {
+            transition: all 0.2s ease;
+        }
+        .filter-btn.active {
+            background-color: #A59A8E;
+            color: #FFFFFF;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 450px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 40vh;
+        }
+         @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div id="app" class="container mx-auto px-4 py-8 md:py-12">
+
+        <header class="text-center mb-10">
+            <h1 class="text-4xl md:text-5xl font-bold text-[#6D5D4D] mb-2">The Generative Pursuit</h1>
+            <p class="text-lg text-[#5a524a] max-w-3xl mx-auto">An interactive guide to hobbies where you set the stage and let beautiful complexity unfold. Explore activities that celebrate process over predetermined outcomes, from living ecosystems to algorithmic art.</p>
+        </header>
+
+        <section id="filters" class="mb-12">
+            <div class="max-w-4xl mx-auto p-6 bg-white/50 rounded-2xl shadow-sm border border-gray-200/80">
+                <h3 class="text-center font-bold text-xl text-[#6D5D4D] mb-5">Find Your Pursuit</h3>
+                <p class="text-center text-sm text-[#5a524a] mb-6 -mt-3">This application helps you discover a generative hobby that fits your life. Use the filters below to sort the activities based on factors like cost, space, and messiness. Click on any card to see a detailed breakdown and a visual comparison chart.</p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                        <h4 class="font-semibold mb-3 text-center text-[#3D352E]">💰 Initial Cost</h4>
+                        <div class="flex flex-wrap justify-center gap-2" data-filter-group="cost">
+                            <button class="filter-btn px-4 py-2 text-sm rounded-full bg-white border border-gray-200" data-filter="all">All</button>
+                            <button class="filter-btn px-4 py-2 text-sm rounded-full bg-white border border-gray-200" data-filter="Low">Low</button>
+                            <button class="filter-btn px-4 py-2 text-sm rounded-full bg-white border border-gray-200" data-filter="Medium">Medium</button>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold mb-3 text-center text-[#3D352E]">🎨 Messiness Level</h4>
+                        <div class="flex flex-wrap justify-center gap-2" data-filter-group="messiness">
+                            <button class="filter-btn px-4 py-2 text-sm rounded-full bg-white border border-gray-200" data-filter="all">All</button>
+                            <button class="filter-btn px-4 py-2 text-sm rounded-full bg-white border border-gray-200" data-filter="None">None</button>
+                            <button class="filter-btn px-4 py-2 text-sm rounded-full bg-white border border-gray-200" data-filter="Low">Low</button>
+                            <button class="filter-btn px-4 py-2 text-sm rounded-full bg-white border border-gray-200" data-filter="Medium">Medium</button>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold mb-3 text-center text-[#3D352E]">👀 Supervision Level</h4>
+                        <div class="flex flex-wrap justify-center gap-2" data-filter-group="supervision">
+                            <button class="filter-btn px-4 py-2 text-sm rounded-full bg-white border border-gray-200" data-filter="all">All</button>
+                            <button class="filter-btn px-4 py-2 text-sm rounded-full bg-white border border-gray-200" data-filter="Extremely Low">Extremely Low</button>
+                            <button class="filter-btn px-4 py-2 text-sm rounded-full bg-white border border-gray-200" data-filter="Low">Low</button>
+                            <button class="filter-btn px-4 py-2 text-sm rounded-full bg-white border border-gray-200" data-filter="High">High</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <main id="hobby-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        </main>
+
+    </div>
+
+    <div id="hobby-modal" class="modal fixed inset-0 bg-black bg-opacity-60 hidden items-center justify-center p-4 z-50">
+        <div class="bg-[#FDFBF8] rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto relative" id="modal-content">
+            <button id="close-modal" class="absolute top-4 right-4 text-gray-500 hover:text-gray-800 transition-colors z-10">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const hobbies = [
+                {
+                    id: 'ecosphere',
+                    title: 'Self-Sustaining Ecosphere',
+                    category: 'The Living Canvas',
+                    tagline: 'Craft a miniature, self-sufficient world in a jar.',
+                    icon: '🌍',
+                    cost: 'Low',
+                    messiness: 'Low',
+                    supervision: 'Extremely Low',
+                    space: 'Minimal',
+                    timeToResult: 'Weeks to stabilize',
+                    description: `An ecosphere is not an aquarium to be maintained, but a world to be initiated. It represents the ultimate "set it and forget it" generative hobby, a living sculpture powered by sunlight that embodies the principle of emergence. The beauty lies not in constant intervention but in observing the slow, emergent balance of a closed system.`,
+                    details: `The core of an ecosphere is a simple, elegant cycle. Plants produce oxygen, small animals consume plants and produce waste, and bacteria break down the waste into nutrients for the plants. The setup is the primary act of creation, where you define the world's initial parameters in a sealable glass container.`,
+                    table: [
+                        { factor: 'Initial Cost', value: 'Low. Jar, plants, and shrimp/snails.' },
+                        { factor: 'Ongoing Cost', value: 'None.' },
+                        { factor: 'Space Required', value: 'Minimal. A desk or shelf.' },
+                        { factor: 'Time to Result', value: 'Weeks to months to stabilize.' },
+                        { factor: 'End Product', value: 'A dynamic, ever-changing piece of natural art.' }
+                    ],
+                    chartData: [1, 1, 1, 1, 3]
+                },
+                {
+                    id: 'fermentation',
+                    title: 'Fermentation (Kombucha/Sauerkraut)',
+                    category: 'The Living Canvas',
+                    tagline: 'Collaborate with microbes to create complex flavors.',
+                    icon: '🧪',
+                    cost: 'Low',
+                    messiness: 'Medium',
+                    supervision: 'Low',
+                    space: 'Moderate',
+                    timeToResult: '1-4 weeks',
+                    description: `Fermentation is not merely cooking; it is a form of cultivation. The creator establishes a habitat for a microbial culture and guides its development, collaborating with invisible organisms to produce complex flavors. The final product is an emergent property of this partnership between human and microbe.`,
+                    details: `Whether making sauerkraut with cabbage and salt or kombucha with a SCOBY, tea, and sugar, you are setting the stage for a microbial transformation. Supervision is minimal, involving periodic "burping" of jars or tasting until the desired flavor profile emerges. The process is continuous, as the end of one batch can start the next.`,
+                    table: [
+                        { factor: 'Initial Cost', value: 'Low to Medium. Jars, SCOBY, salt, etc.' },
+                        { factor: 'Ongoing Cost', value: 'Low. Tea, sugar, vegetables.' },
+                        { factor: 'Space Required', value: 'Moderate. Dedicated counter space.' },
+                        { factor: 'Time to Result', value: '7-14 days for Kombucha, 1-4 weeks for Sauerkraut.' },
+                        { factor: 'End Product', value: 'Tangy beverages or preserved condiments.' }
+                    ],
+                    chartData: [2, 2, 2, 2, 2]
+                },
+                {
+                    id: 'slime-mold',
+                    title: 'Slime Mold Cultivation',
+                    category: 'The Living Canvas',
+                    tagline: 'Guide a single-celled organism with decentralized intelligence.',
+                    icon: '🦠',
+                    cost: 'Medium',
+                    messiness: 'Low',
+                    supervision: 'Low',
+                    space: 'Minimal',
+                    timeToResult: 'Days',
+                    description: `This hobby offers a direct engagement with natural complexity by cultivating *Physarum polycephalum*, a slime mold that exhibits emergent intelligence. This remarkable organism can solve mazes and form hyper-efficient networks to find food, making it a living, moving piece of biological art.`,
+                    details: `In a petri dish with a simple agar or paper towel medium, you strategically place oat flakes to guide the slime mold's growth. The organism sends out exploratory tendrils, reinforcing efficient paths and creating intricate, vein-like patterns. The art form becomes the documentation of this emergent process through photos or time-lapse videos.`,
+                    table: [
+                        { factor: 'Initial Cost', value: 'Low to Medium. A starter kit costs $30-$60.' },
+                        { factor: 'Ongoing Cost', value: 'Extremely Low. A box of oatmeal.' },
+                        { factor: 'Space Required', value: 'Minimal. A few petri dishes on a shelf.' },
+                        { factor: 'Time to Result', value: 'Visible growth within 24-48 hours.' },
+                        { factor: 'End Product', value: 'Photographs and videos of a dynamic biological network.' }
+                    ],
+                    chartData: [2, 1, 1, 2, 1]
+                },
+                {
+                    id: 'suminagashi',
+                    title: 'Suminagashi (Floating Ink)',
+                    category: 'The Tangible Chaos',
+                    tagline: 'Paint on water and capture ephemeral, swirling patterns.',
+                    icon: '💧',
+                    cost: 'Low',
+                    messiness: 'Medium',
+                    supervision: 'High',
+                    space: 'Moderate',
+                    timeToResult: 'Instant',
+                    description: `Suminagashi, the ancient Japanese art of "floating ink," is a beautiful collaboration with the physics of fluid dynamics and surface tension. The artist makes a few delicate choices, then surrenders control, allowing the subtle chaos of air and water to shape the final pattern.`,
+                    details: `By alternating drops of oil-based ink and a surfactant onto a tray of water, you create concentric rings. The slightest disturbance transforms these rings into organic swirls, which are then permanently captured by laying a sheet of absorbent paper on the surface. Each print is a unique, unrepeatable monoprint.`,
+                    table: [
+                        { factor: 'Initial Cost', value: 'Low. A starter kit costs around $25-$30.' },
+                        { factor: 'Ongoing Cost', value: 'Low. Paper and ink refills.' },
+                        { factor: 'Space Required', value: 'Moderate. A tabletop workspace.' },
+                        { factor: 'Time to Result', value: 'Instantaneous. Each print is made in minutes.' },
+                        { factor: 'End Product', value: 'Unique marbled papers for framing or crafts.' }
+                    ],
+                    chartData: [1, 2, 2, 3, 1]
+                },
+                {
+                    id: 'cyanotype',
+                    title: 'Cyanotype (Sun Printing)',
+                    category: 'The Tangible Chaos',
+                    tagline: 'Use sunlight to create striking Prussian blue prints.',
+                    icon: '☀️',
+                    cost: 'Medium',
+                    messiness: 'Medium',
+                    supervision: 'Low',
+                    space: 'Minimal',
+                    timeToResult: 'Hours',
+                    description: `Cyanotype is a historic photographic process that allows you to paint with sunlight. You compose a scene with physical objects on chemically-sensitized paper and allow the sun's UV rays to slowly develop the image, an alchemical transformation of chemicals by light.`,
+                    details: `Paper or fabric is coated with a safe iron-based solution. Objects (leaves, lace, etc.) or a photographic negative are placed on top, and the assembly is exposed to the sun. The unexposed chemicals wash away with water, revealing a permanent, detailed image in a rich Prussian blue.`,
+                    table: [
+                        { factor: 'Initial Cost', value: 'Low to Medium. Kits cost $20-$50.' },
+                        { factor: 'Ongoing Cost', value: 'Low. Paper and chemical refills.' },
+                        { factor: 'Space Required', value: 'Minimal. Dim area for coating, sunny spot for exposure.' },
+                        { factor: 'Time to Result', value: '15 minutes to a few hours per print.' },
+                        { factor: 'End Product', value: 'Archival prints for framing or textile design.' }
+                    ],
+                    chartData: [2, 1, 2, 2, 2]
+                },
+                {
+                    id: 'ice-dyeing',
+                    title: 'Ice Dyeing',
+                    category: 'The Tangible Chaos',
+                    tagline: 'Let melting ice create unpredictable, watercolor-like textiles.',
+                    icon: '🧊',
+                    cost: 'Low',
+                    messiness: 'Medium',
+                    supervision: 'Extremely Low',
+                    space: 'Moderate',
+                    timeToResult: '24 Hours',
+                    description: `Ice dyeing is a perfect embodiment of leveraging controlled chaos. Powdered dye is sprinkled over ice on top of fabric. The final pattern is created by the slow, uneven melting process, which causes dye pigments to separate and blend in beautiful, unexpected ways.`,
+                    details: `Fabric is pre-soaked in soda ash, scrunched onto a rack, and covered in ice. Dye powder is sprinkled on top. The artist's work is then done. The setup is left for up to 24 hours as the ice melts, creating gorgeous, unrepeatable patterns as the component colors in the dye "break" and flow at different rates.`,
+                    table: [
+                        { factor: 'Initial Cost', value: 'Low. A starter kit is around $26.' },
+                        { factor: 'Ongoing Cost', value: 'Low. Dye powder and soda ash.' },
+                        { factor: 'Space Required', value: 'Moderate. A tub that can sit undisturbed.' },
+                        { factor: 'Time to Result', value: 'Approximately 24 hours.' },
+                        { factor: 'End Product', value: 'Uniquely patterned, colorfast custom textiles.' }
+                    ],
+                    chartData: [1, 2, 2, 1, 3]
+                },
+                {
+                    id: 'cellular-automata',
+                    title: 'Cellular Automata Art',
+                    category: 'The Algorithmic Easel',
+                    tagline: 'Generate complex digital patterns from simple computational rules.',
+                    icon: '💻',
+                    cost: 'Low',
+                    messiness: 'None',
+                    supervision: 'High',
+                    space: 'Minimal',
+                    timeToResult: 'Instant',
+                    description: `Cellular automata (CA) offer the most direct, digital expression of a generative pursuit. By establishing a set of simple rules on a grid of "cells," you can allow a process to run over time, giving rise to complex, unpredictable, and often beautiful patterns, similar to fractal art.`,
+                    details: `Using a free creative coding environment like Processing or P5.js, you define a grid and a simple ruleset (like Conway's Game of Life). Once you press "run," the system evolves on its own. Your role shifts to observer and curator, tweaking initial conditions or colors to guide the system toward compelling visual outcomes.`,
+                    table: [
+                        { factor: 'Initial Cost', value: 'None. Requires a computer and free software.' },
+                        { factor: 'Ongoing Cost', value: 'None.' },
+                        { factor: 'Space Required', value: 'None. Entirely digital.' },
+                        { factor: 'Time to Result', value: 'Instantaneous. Patterns generate in real-time.' },
+                        { factor: 'End Product', value: 'Infinitely variable digital images and animations.' }
+                    ],
+                    chartData: [1, 1, 0, 3, 1]
+                }
+            ];
+
+            const grid = document.getElementById('hobby-grid');
+            const modal = document.getElementById('hobby-modal');
+            const modalContent = document.getElementById('modal-content');
+            const closeModalBtn = document.getElementById('close-modal');
+            const filterContainer = document.getElementById('filters');
+
+            let currentFilters = {
+                cost: 'all',
+                messiness: 'all',
+                supervision: 'all'
+            };
+
+            let chartInstance = null;
+            
+            const scaleMapping = {
+                'None': 0, 'Low': 1, 'Medium': 2, 'High': 3,
+                'Extremely Low': 1,
+                'Minimal': 1, 'Moderate': 2,
+                'Instant': 1, 'Days': 1, 'Hours': 2, '1-4 weeks': 2, 'Weeks to stabilize': 3, '24 Hours': 3
+            };
+
+            function renderGrid() {
+                grid.innerHTML = '';
+                const filteredHobbies = hobbies.filter(hobby => {
+                    const costMatch = currentFilters.cost === 'all' || hobby.cost === currentFilters.cost;
+                    const messinessMatch = currentFilters.messiness === 'all' || hobby.messiness === currentFilters.messiness;
+                    const supervisionMatch = currentFilters.supervision === 'all' || hobby.supervision === currentFilters.supervision;
+                    return costMatch && messinessMatch && supervisionMatch;
+                });
+
+                if (filteredHobbies.length === 0) {
+                    grid.innerHTML = `<p class="text-center text-gray-500 col-span-full">No hobbies match your criteria. Try adjusting the filters!</p>`;
+                } else {
+                    filteredHobbies.forEach(hobby => {
+                        const card = document.createElement('div');
+                        card.className = 'hobby-card bg-white rounded-2xl p-6 shadow-md border border-gray-200/60 flex flex-col cursor-pointer';
+                        card.innerHTML = `
+                            <div class="flex-grow">
+                                <div class="flex items-center mb-3">
+                                    <span class="text-3xl mr-4">${hobby.icon}</span>
+                                    <div>
+                                        <h2 class="text-xl font-bold text-[#3D352E]">${hobby.title}</h2>
+                                        <p class="text-xs font-semibold uppercase tracking-wider text-[#A59A8E]">${hobby.category}</p>
+                                    </div>
+                                </div>
+                                <p class="text-[#5a524a] text-sm mb-4">${hobby.tagline}</p>
+                            </div>
+                            <div class="mt-auto text-right">
+                                <button data-id="${hobby.id}" class="details-btn text-sm font-semibold text-[#6D5D4D] hover:text-[#3D352E]">View Details &rarr;</button>
+                            </div>
+                        `;
+                        grid.appendChild(card);
+                    });
+                }
+            }
+
+            function openModal(id) {
+                const hobby = hobbies.find(h => h.id === id);
+                if (!hobby) return;
+
+                modalContent.innerHTML = `
+                    <button id="close-modal-inner" class="absolute top-4 right-4 text-gray-500 hover:text-gray-800 transition-colors z-10">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                    <div class="p-6 md:p-10">
+                        <div class="flex items-start mb-4">
+                            <span class="text-5xl mr-5 mt-1">${hobby.icon}</span>
+                            <div>
+                                <h2 class="text-3xl font-bold text-[#3D352E]">${hobby.title}</h2>
+                                <p class="text-sm font-semibold uppercase tracking-wider text-[#A59A8E]">${hobby.category}</p>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                            <div class="prose max-w-none text-[#3D352E]">
+                                <p class="lead">${hobby.description}</p>
+                                <p>${hobby.details}</p>
+                                <h4 class="font-bold mt-6 mb-3">Key Factors</h4>
+                                <table class="w-full text-sm">
+                                    <tbody>
+                                        ${hobby.table.map(row => `
+                                            <tr class="border-b border-gray-200">
+                                                <td class="py-2 font-semibold pr-4">${row.factor}</td>
+                                                <td class="py-2">${row.value}</td>
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div>
+                                <h4 class="font-bold mb-4 text-center">Activity Profile</h4>
+                                <div class="chart-container">
+                                    <canvas id="hobby-chart"></canvas>
+                                </div>
+                                <p class="text-xs text-center text-gray-500 mt-2">A visual summary of the hobby's characteristics. Values are scaled from low (center) to high (outer edge).</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                document.body.style.overflow = 'hidden';
+
+                document.getElementById('close-modal-inner').addEventListener('click', () => closeModal());
+                
+                const chartCtx = document.getElementById('hobby-chart').getContext('2d');
+                if(chartInstance) {
+                    chartInstance.destroy();
+                }
+                chartInstance = new Chart(chartCtx, {
+                    type: 'radar',
+                    data: {
+                        labels: ['Cost', 'Space', 'Messiness', 'Supervision', 'Time'],
+                        datasets: [{
+                            label: hobby.title,
+                            data: [
+                                scaleMapping[hobby.cost],
+                                scaleMapping[hobby.space],
+                                scaleMapping[hobby.messiness],
+                                scaleMapping[hobby.supervision],
+                                scaleMapping[hobby.timeToResult]
+                            ],
+                            backgroundColor: 'rgba(165, 154, 142, 0.2)',
+                            borderColor: 'rgba(109, 93, 77, 1)',
+                            pointBackgroundColor: 'rgba(109, 93, 77, 1)',
+                            pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: 'rgba(109, 93, 77, 1)'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            r: {
+                                beginAtZero: true,
+                                max: 3,
+                                ticks: {
+                                    stepSize: 1,
+                                    display: false
+                                },
+                                pointLabels: {
+                                    font: {
+                                        size: 14,
+                                        family: 'Inter'
+                                    },
+                                    color: '#3D352E'
+                                },
+                                grid: {
+                                    color: 'rgba(61, 53, 46, 0.15)'
+                                },
+                                angleLines: {
+                                    color: 'rgba(61, 53, 46, 0.15)'
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const labelIndex = context.dataIndex;
+                                        const originalValue = [hobby.cost, hobby.space, hobby.messiness, hobby.supervision, hobby.timeToResult][labelIndex];
+                                        return `${context.chart.data.labels[labelIndex]}: ${originalValue}`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            function closeModal() {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                document.body.style.overflow = 'auto';
+                if(chartInstance) {
+                    chartInstance.destroy();
+                    chartInstance = null;
+                }
+            }
+
+            filterContainer.addEventListener('click', e => {
+                if (e.target.matches('.filter-btn')) {
+                    const group = e.target.closest('[data-filter-group]').dataset.filterGroup;
+                    const value = e.target.dataset.filter;
+                    currentFilters[group] = value;
+
+                    const buttons = e.target.parentElement.querySelectorAll('.filter-btn');
+                    buttons.forEach(btn => btn.classList.remove('active'));
+                    e.target.classList.add('active');
+                    
+                    renderGrid();
+                }
+            });
+
+            grid.addEventListener('click', e => {
+                if (e.target.matches('.details-btn')) {
+                    openModal(e.target.dataset.id);
+                }
+            });
+
+            closeModalBtn.addEventListener('click', closeModal);
+            modal.addEventListener('click', e => {
+                if (e.target === modal) {
+                    closeModal();
+                }
+            });
+            document.addEventListener('keydown', e => {
+                if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+                    closeModal();
+                }
+            });
+
+            document.querySelectorAll('[data-filter-group]').forEach(group => {
+                group.querySelector('[data-filter="all"]').classList.add('active');
+            });
+            renderGrid();
+        });
+    </script>
+</body>
+</html>
