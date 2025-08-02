@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cognitive Canvases: Playable Edition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Calm Harmony -->
+    <!-- Application Structure Plan: The SPA is structured with a primary navigation bar to switch between a main "Game Select" screen, individual game screens, and a "Performance" dashboard. This modular, view-based architecture allows users to easily navigate between playing games and reviewing their progress. Game state is managed within each game's logic, and upon completion, results are persisted to localStorage. The Performance view reads from localStorage to dynamically generate historical charts, providing a clear feedback loop for the user. This design is highly usable, separating the 'play' and 'review' tasks into distinct, uncluttered interfaces. -->
+    <!-- Visualization & Content Choices: 
+        - Goal: Gameplay. Viz: Interactive HTML/CSS/JS components for each game (grids, buttons, stimuli). Interaction: Direct user input (clicks, key presses). Justification: Provides the core playable experience.
+        - Goal: Store Data. Method: Browser `localStorage`. Interaction: Automatic on game completion. Justification: Persists user data locally without needing a server.
+        - Goal: Show Progress. Viz: Line Charts (Chart.js). Interaction: Filter by game type. Justification: Visualizes historical performance trends clearly, allowing users to track improvement over time.
+        - Library/Method: All charts use Chart.js (Canvas). Game interfaces use HTML with Tailwind CSS and vanilla JS. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .nav-btn { transition: all 0.3s ease; }
+        .nav-btn.active { background-color: #38bdf8; color: #ffffff; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); }
+        .nav-btn:not(.active):hover { background-color: #f1f5f9; }
+        .game-card { transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; }
+        .game-card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1); }
+        .simon-pad { transition: background-color 0.1s ease; }
+        .corsi-block, .memory-card { transition: all 0.3s ease; }
+        .memory-card.flipped { transform: rotateY(180deg); }
+        .memory-card-inner { transform-style: preserve-3d; }
+        .face, .back { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+        .face { z-index: 2; transform: rotateY(180deg); }
+        .stroop-btn { transition: background-color 0.2s ease; }
+        .performance-chart-container { position: relative; width: 100%; max-width: 800px; margin: auto; height: 400px; }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800">
+
+    <div id="app" class="container mx-auto p-4 sm:p-6 lg:p-8">
+        <header class="text-center mb-6">
+            <h1 class="text-4xl md:text-5xl font-bold text-slate-900">Cognitive Canvases</h1>
+            <p class="mt-2 text-lg text-slate-600">Play, Measure, and Track Your Cognitive Performance</p>
+        </header>
+
+        <nav class="flex flex-wrap justify-center gap-2 mb-8">
+            <button data-target="game-select" class="nav-btn active text-sm sm:text-base font-medium py-2 px-4 rounded-full">Play Games</button>
+            <button data-target="performance" class="nav-btn text-sm sm:text-base font-medium py-2 px-4 rounded-full">My Performance</button>
+        </nav>
+
+        <main id="content-container">
+            <!-- Game Selection Screen -->
+            <section id="game-select" class="content-section">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="game-card bg-white p-6 rounded-xl shadow-sm cursor-pointer" data-gamename="n-back">
+                        <h3 class="text-xl font-bold text-sky-500">N-Back Task</h3>
+                        <p class="text-slate-600 mt-2">Test your working memory. Does the current item match the one from 'N' steps ago?</p>
+                    </div>
+                    <div class="game-card bg-white p-6 rounded-xl shadow-sm cursor-pointer" data-gamename="corsi-block">
+                        <h3 class="text-xl font-bold text-amber-500">Corsi Block Task</h3>
+                        <p class="text-slate-600 mt-2">Challenge your visuo-spatial memory by repeating a sequence of flashing blocks.</p>
+                    </div>
+                    <div class="game-card bg-white p-6 rounded-xl shadow-sm cursor-pointer" data-gamename="stroop-test">
+                        <h3 class="text-xl font-bold text-red-500">Stroop Test</h3>
+                        <p class="text-slate-600 mt-2">Practice selective attention. Name the ink color, not the word!</p>
+                    </div>
+                    <div class="game-card bg-white p-6 rounded-xl shadow-sm cursor-pointer" data-gamename="simon-task">
+                        <h3 class="text-xl font-bold text-violet-500">Simon Task</h3>
+                        <p class="text-slate-600 mt-2">How long of a sequence of colors and sounds can you remember and repeat?</p>
+                    </div>
+                    <div class="game-card bg-white p-6 rounded-xl shadow-sm cursor-pointer" data-gamename="memory-match">
+                        <h3 class="text-xl font-bold text-green-500">Memory Match</h3>
+                        <p class="text-slate-600 mt-2">Find all the matching pairs in the fewest moves possible.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Performance Dashboard -->
+            <section id="performance" class="content-section hidden bg-white p-6 rounded-xl shadow-sm">
+                <h2 class="text-2xl font-bold text-slate-900 mb-4">Your Performance History</h2>
+                <div class="mb-4">
+                    <label for="perf-game-select" class="block text-sm font-medium text-slate-700">Select a game to view its history:</label>
+                    <select id="perf-game-select" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-sky-500 focus:border-sky-500 sm:text-sm rounded-md">
+                        <option value="n-back">N-Back Task (d' Score)</option>
+                        <option value="corsi-block">Corsi Block (Max Span)</option>
+                        <option value="stroop-test">Stroop Test (Interference ms)</option>
+                        <option value="simon-task">Simon Task (Max Span)</option>
+                        <option value="memory-match">Memory Match (Efficiency %)</option>
+                    </select>
+                </div>
+                <div class="performance-chart-container">
+                    <canvas id="performanceChart"></canvas>
+                </div>
+                 <button id="clear-data-btn" class="mt-4 bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg">Clear All Performance Data</button>
+            </section>
+
+            <!-- Game Screens -->
+            <section id="n-back-game" class="content-section hidden"></section>
+            <section id="corsi-block-game" class="content-section hidden"></section>
+            <section id="stroop-test-game" class="content-section hidden"></section>
+            <section id="simon-task-game" class="content-section hidden"></section>
+            <section id="memory-match-game" class="content-section hidden"></section>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const navButtons = document.querySelectorAll('.nav-btn');
+            const contentSections = document.querySelectorAll('.content-section');
+            const gameCards = document.querySelectorAll('.game-card');
+            const performanceChartContainer = document.querySelector('.performance-chart-container');
+            let performanceChart;
+
+            const db = {
+                saveScore(game, score) {
+                    const history = this.getHistory(game);
+                    history.push({ score, date: new Date().toISOString() });
+                    localStorage.setItem(`perf_${game}`, JSON.stringify(history));
+                },
+                getHistory(game) {
+                    return JSON.parse(localStorage.getItem(`perf_${game}`) || '[]');
+                },
+                clearAllData() {
+                    Object.keys(localStorage).forEach(key => {
+                        if (key.startsWith('perf_')) {
+                            localStorage.removeItem(key);
+                        }
+                    });
+                    alert('All performance data has been cleared.');
+                    renderPerformanceChart();
+                }
+            };
+
+            function switchView(targetId) {
+                contentSections.forEach(section => section.classList.add('hidden'));
+                navButtons.forEach(button => button.classList.remove('active'));
+                
+                const activeSection = document.getElementById(targetId);
+                const activeBtn = document.querySelector(`[data-target="${targetId.split('-game')[0]}"]`);
+
+                if (activeSection) activeSection.classList.remove('hidden');
+                if (activeBtn) activeBtn.classList.add('active');
+
+                if (targetId === 'performance') {
+                    renderPerformanceChart();
+                }
+            }
+            
+            navButtons.forEach(button => button.addEventListener('click', () => switchView(button.dataset.target)));
+            gameCards.forEach(card => card.addEventListener('click', () => launchGame(card.dataset.gamename)));
+            document.getElementById('perf-game-select').addEventListener('change', renderPerformanceChart);
+            document.getElementById('clear-data-btn').addEventListener('click', db.clearAllData);
+
+            function goHome() {
+                switchView('game-select');
+            }
+
+            function launchGame(gameName) {
+                const gameContainerId = `${gameName}-game`;
+                switchView(gameContainerId);
+                const gameContainer = document.getElementById(gameContainerId);
+                
+                switch (gameName) {
+                    case 'n-back': NBackGame.init(gameContainer); break;
+                    case 'corsi-block': CorsiBlockGame.init(gameContainer); break;
+                    case 'stroop-test': StroopGame.init(gameContainer); break;
+                    case 'simon-task': SimonGame.init(gameContainer); break;
+                    case 'memory-match': MemoryMatchGame.init(gameContainer); break;
+                }
+            }
+
+            function renderPerformanceChart() {
+                const selectedGame = document.getElementById('perf-game-select').value;
+                const history = db.getHistory(selectedGame);
+
+                const labels = history.map(item => new Date(item.date).toLocaleDateString());
+                const data = history.map(item => item.score);
+
+                const gameTitles = {
+                    'n-back': "N-Back d' Score",
+                    'corsi-block': 'Corsi Block Span',
+                    'stroop-test': 'Stroop Interference (ms)',
+                    'simon-task': 'Simon Task Span',
+                    'memory-match': 'Memory Match Efficiency (%)'
+                };
+
+                if (performanceChart) {
+                    performanceChart.destroy();
+                }
+                
+                const ctx = document.getElementById('performanceChart').getContext('2d');
+                performanceChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: gameTitles[selectedGame],
+                            data: data,
+                            borderColor: '#38bdf8',
+                            backgroundColor: 'rgba(56, 189, 248, 0.1)',
+                            fill: true,
+                            tension: 0.1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: { beginAtZero: true, title: { display: true, text: 'Score' } },
+                            x: { title: { display: true, text: 'Date' } }
+                        },
+                        plugins: {
+                            legend: { display: true },
+                            tooltip: { mode: 'index', intersect: false }
+                        }
+                    }
+                });
+            }
+            
+            const NBackGame = {
+                init(container) {
+                    container.innerHTML = `
+                        <div class="bg-white p-6 rounded-xl shadow-lg text-center max-w-lg mx-auto">
+                            <h2 class="text-2xl font-bold text-sky-500 mb-4">N-Back Task</h2>
+                            <div id="nback-setup">
+                                <label for="n-level" class="font-medium">Select Level (N):</label>
+                                <select id="n-level" class="p-2 border rounded-md">
+                                    <option value="1">1-Back</option>
+                                    <option value="2" selected>2-Back</option>
+                                    <option value="3">3-Back</option>
+                                </select>
+                                <button id="nback-start" class="mt-4 w-full bg-sky-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-sky-600">Start</button>
+                            </div>
+                            <div id="nback-gameplay" class="hidden">
+                                <div id="nback-stimulus" class="w-48 h-48 mx-auto my-4 border-4 rounded-lg flex items-center justify-center text-4xl font-bold"></div>
+                                <p id="nback-feedback" class="h-6 my-2 font-medium"></p>
+                                <button id="nback-match" class="w-full bg-green-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-600">Match</button>
+                            </div>
+                            <div id="nback-results" class="hidden"></div>
+                            <button class="home-btn mt-4 text-slate-500 hover:text-slate-800">Back to Games</button>
+                        </div>
+                    `;
+                    container.querySelector('.home-btn').addEventListener('click', goHome);
+                    container.querySelector('#nback-start').addEventListener('click', () => this.start(container));
+                },
+                start(container) {
+                    this.n = parseInt(container.querySelector('#n-level').value);
+                    this.sequence = [];
+                    this.hits = 0;
+                    this.misses = 0;
+                    this.falseAlarms = 0;
+                    this.correctRejections = 0;
+                    this.trials = 20 + this.n;
+                    this.currentTrial = 0;
+                    this.userResponded = false;
+                    this.stimulusContainer = container.querySelector('#nback-stimulus');
+                    this.feedbackContainer = container.querySelector('#nback-feedback');
+                    this.resultsContainer = container.querySelector('#nback-results');
+
+                    container.querySelector('#nback-setup').classList.add('hidden');
+                    container.querySelector('#nback-results').classList.add('hidden');
+                    container.querySelector('#nback-gameplay').classList.remove('hidden');
+
+                    container.querySelector('#nback-match').onclick = () => {
+                        if (this.userResponded) return;
+                        this.userResponded = true;
+                        const isMatch = this.checkMatch();
+                        if (isMatch) {
+                            this.hits++;
+                            this.feedbackContainer.textContent = 'Correct Match!';
+                            this.feedbackContainer.style.color = 'green';
+                        } else {
+                            this.falseAlarms++;
+                            this.feedbackContainer.textContent = 'Not a Match!';
+                            this.feedbackContainer.style.color = 'red';
+                        }
+                    };
+                    
+                    this.nextTrial();
+                },
+                nextTrial() {
+                    if (this.currentTrial > 0 && !this.userResponded) {
+                        const isMatch = this.checkMatch();
+                        if (isMatch) this.misses++;
+                        else this.correctRejections++;
+                    }
+
+                    if (this.currentTrial >= this.trials) {
+                        this.endGame();
+                        return;
+                    }
+
+                    this.userResponded = false;
+                    this.feedbackContainer.textContent = '';
+                    const stimulus = Math.floor(Math.random() * 9) + 1;
+                    this.sequence.push(stimulus);
+                    this.stimulusContainer.textContent = stimulus;
+                    this.currentTrial++;
+                    
+                    setTimeout(() => {
+                         this.stimulusContainer.textContent = '';
+                         setTimeout(() => this.nextTrial(), 500);
+                    }, 1500);
+                },
+                checkMatch() {
+                    if (this.currentTrial <= this.n) return false;
+                    return this.sequence[this.currentTrial - 1] === this.sequence[this.currentTrial - 1 - this.n];
+                },
+                endGame() {
+                    const hitRate = this.hits / (this.hits + this.misses) || 0;
+                    const faRate = this.falseAlarms / (this.falseAlarms + this.correctRejections) || 0;
+                    
+                    const dPrime = this.zScore(hitRate) - this.zScore(faRate);
+                    const score = isFinite(dPrime) ? parseFloat(dPrime.toFixed(2)) : 0;
+
+                    this.resultsContainer.innerHTML = `
+                        <h3 class="text-xl font-bold">Results</h3>
+                        <p>d' Score: <span class="font-bold text-2xl text-sky-500">${score}</span></p>
+                        <p>Hits: ${this.hits}, Misses: ${this.misses}</p>
+                        <p>False Alarms: ${this.falseAlarms}, Correct Rejections: ${this.correctRejections}</p>
+                    `;
+                    this.resultsContainer.classList.remove('hidden');
+                    document.getElementById('nback-gameplay').classList.add('hidden');
+                    db.saveScore('n-back', score);
+                },
+                zScore(p) {
+                    if (p === 0) p = 0.01;
+                    if (p === 1) p = 0.99;
+                    return Math.sqrt(2) * this.inverseErrorFunction(2 * p - 1);
+                },
+                inverseErrorFunction(x) {
+                    const a = 0.147;
+                    const term1 = 2 / (Math.PI * a);
+                    const term2 = Math.log(1 - x * x);
+                    const term3 = Math.sqrt(Math.pow(term1 + term2 / 2, 2) - term2 / a);
+                    return Math.sign(x) * Math.sqrt(term3 - (term1 + term2 / 2));
+                }
+            };
+            
+            const CorsiBlockGame = {
+                init(container) {
+                    container.innerHTML = `
+                        <div class="bg-white p-6 rounded-xl shadow-lg text-center max-w-lg mx-auto">
+                            <h2 class="text-2xl font-bold text-amber-500 mb-4">Corsi Block Task</h2>
+                            <p id="corsi-instructions" class="mb-4">Watch the sequence, then repeat it.</p>
+                            <div id="corsi-grid" class="grid grid-cols-3 gap-4 w-72 h-72 mx-auto mb-4">
+                                ${Array(9).fill(0).map((_, i) => `<div class="corsi-block bg-slate-300 rounded-lg cursor-pointer" data-id="${i}"></div>`).join('')}
+                            </div>
+                            <div id="corsi-controls">
+                                <button id="corsi-start" class="w-full bg-amber-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-amber-600">Start Game</button>
+                            </div>
+                            <div id="corsi-results" class="hidden"></div>
+                            <button class="home-btn mt-4 text-slate-500 hover:text-slate-800">Back to Games</button>
+                        </div>
+                    `;
+                    container.querySelector('.home-btn').addEventListener('click', goHome);
+                    container.querySelector('#corsi-start').addEventListener('click', () => this.start(container));
+                },
+                start(container) {
+                    this.level = 3;
+                    this.sequence = [];
+                    this.playerSequence = [];
+                    this.grid = container.querySelector('#corsi-grid');
+                    this.instructions = container.querySelector('#corsi-instructions');
+                    this.resultsContainer = container.querySelector('#corsi-results');
+                    
+                    container.querySelector('#corsi-controls').classList.add('hidden');
+                    this.resultsContainer.classList.add('hidden');
+                    this.grid.classList.remove('pointer-events-none');
+                    
+                    this.grid.querySelectorAll('.corsi-block').forEach(block => {
+                        block.onclick = (e) => this.handlePlayerInput(e.target.dataset.id);
+                    });
+                    
+                    this.nextLevel();
+                },
+                nextLevel() {
+                    this.playerSequence = [];
+                    this.sequence = [];
+                    for (let i = 0; i < this.level; i++) {
+                        let newBlock;
+                        do {
+                            newBlock = Math.floor(Math.random() * 9);
+                        } while (this.sequence.includes(newBlock));
+                        this.sequence.push(newBlock);
+                    }
+                    this.showSequence();
+                },
+                async showSequence() {
+                    this.instructions.textContent = 'Watch carefully...';
+                    this.grid.classList.add('pointer-events-none');
+                    for (const blockId of this.sequence) {
+                        const block = this.grid.querySelector(`[data-id="${blockId}"]`);
+                        block.style.backgroundColor = '#fbbf24';
+                        await new Promise(res => setTimeout(res, 600));
+                        block.style.backgroundColor = '';
+                        await new Promise(res => setTimeout(res, 200));
+                    }
+                    this.instructions.textContent = 'Your turn!';
+                    this.grid.classList.remove('pointer-events-none');
+                },
+                handlePlayerInput(id) {
+                    const blockId = parseInt(id);
+                    this.playerSequence.push(blockId);
+                    
+                    const block = this.grid.querySelector(`[data-id="${id}"]`);
+                    block.style.backgroundColor = '#38bdf8';
+                    setTimeout(() => block.style.backgroundColor = '', 200);
+
+                    const correctSoFar = this.sequence[this.playerSequence.length - 1] === blockId;
+                    if (!correctSoFar) {
+                        this.endGame(false);
+                        return;
+                    }
+                    
+                    if (this.playerSequence.length === this.sequence.length) {
+                        this.level++;
+                        this.instructions.textContent = 'Correct! Next level...';
+                        setTimeout(() => this.nextLevel(), 1000);
+                    }
+                },
+                endGame() {
+                    this.instructions.textContent = 'Game Over!';
+                    this.grid.classList.add('pointer-events-none');
+                    const finalSpan = this.level - 1;
+                    this.resultsContainer.innerHTML = `<h3 class="text-xl font-bold">Final Span: <span class="text-2xl text-amber-500">${finalSpan}</span></h3>`;
+                    this.resultsContainer.classList.remove('hidden');
+                    document.getElementById('corsi-controls').classList.remove('hidden');
+                    db.saveScore('corsi-block', finalSpan);
+                }
+            };
+
+            const StroopGame = {
+                 init(container) {
+                    container.innerHTML = `
+                        <div class="bg-white p-6 rounded-xl shadow-lg text-center max-w-lg mx-auto">
+                            <h2 class="text-2xl font-bold text-red-500 mb-4">Stroop Test</h2>
+                            <div id="stroop-setup">
+                                <p class="mb-4">Click the button corresponding to the INK COLOR of the word, not the word itself. The test will start immediately.</p>
+                                <button id="stroop-start" class="w-full bg-red-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-600">Start</button>
+                            </div>
+                            <div id="stroop-gameplay" class="hidden">
+                                <div id="stroop-word" class="text-6xl font-extrabold my-8 h-20"></div>
+                                <div id="stroop-buttons" class="grid grid-cols-2 gap-4"></div>
+                            </div>
+                             <div id="stroop-results" class="hidden"></div>
+                            <button class="home-btn mt-4 text-slate-500 hover:text-slate-800">Back to Games</button>
+                        </div>
+                    `;
+                    container.querySelector('.home-btn').addEventListener('click', goHome);
+                    container.querySelector('#stroop-start').addEventListener('click', () => this.start(container));
+                },
+                start(container) {
+                    this.colors = { 'red': '#ef4444', 'blue': '#3b82f6', 'green': '#22c55e', 'yellow': '#eab308' };
+                    this.colorNames = Object.keys(this.colors);
+                    this.trials = 20;
+                    this.currentTrial = 0;
+                    this.results = { congruent: [], incongruent: [] };
+                    this.startTime = 0;
+                    
+                    this.wordContainer = container.querySelector('#stroop-word');
+                    this.buttonsContainer = container.querySelector('#stroop-buttons');
+                    this.resultsContainer = container.querySelector('#stroop-results');
+
+                    container.querySelector('#stroop-setup').classList.add('hidden');
+                    this.resultsContainer.classList.add('hidden');
+                    container.querySelector('#stroop-gameplay').classList.remove('hidden');
+                    
+                    this.buttonsContainer.innerHTML = this.colorNames.map(name => 
+                        `<button class="stroop-btn text-white font-bold py-3 px-4 rounded-lg" style="background-color: ${this.colors[name]}" data-color="${name}">${name.toUpperCase()}</button>`
+                    ).join('');
+                    
+                    this.buttonsContainer.querySelectorAll('.stroop-btn').forEach(btn => {
+                        btn.onclick = (e) => this.handleResponse(e.target.dataset.color);
+                    });
+
+                    this.nextTrial();
+                },
+                nextTrial() {
+                    if (this.currentTrial >= this.trials) {
+                        this.endGame();
+                        return;
+                    }
+                    
+                    const isCongruent = Math.random() > 0.5;
+                    const wordText = this.colorNames[Math.floor(Math.random() * this.colorNames.length)];
+                    let inkColorName;
+                    if (isCongruent) {
+                        inkColorName = wordText;
+                    } else {
+                        do {
+                            inkColorName = this.colorNames[Math.floor(Math.random() * this.colorNames.length)];
+                        } while (inkColorName === wordText);
+                    }
+                    
+                    this.wordContainer.textContent = wordText.toUpperCase();
+                    this.wordContainer.style.color = this.colors[inkColorName];
+                    this.correctAnswer = inkColorName;
+                    this.trialType = isCongruent ? 'congruent' : 'incongruent';
+                    this.startTime = performance.now();
+                    this.currentTrial++;
+                },
+                handleResponse(selectedColor) {
+                    const rt = performance.now() - this.startTime;
+                    if (selectedColor === this.correctAnswer) {
+                        this.results[this.trialType].push(rt);
+                    }
+                    this.nextTrial();
+                },
+                endGame() {
+                    const avg = (arr) => arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0;
+                    const avgCongruent = avg(this.results.congruent);
+                    const avgIncongruent = avg(this.results.incongruent);
+                    const interference = avgIncongruent - avgCongruent;
+                    const score = Math.round(interference > 0 ? interference : 0);
+
+                    this.resultsContainer.innerHTML = `
+                        <h3 class="text-xl font-bold">Results</h3>
+                        <p>Interference Score: <span class="font-bold text-2xl text-red-500">${score} ms</span></p>
+                        <p class="text-sm">Avg. Congruent Time: ${Math.round(avgCongruent)} ms</p>
+                        <p class="text-sm">Avg. Incongruent Time: ${Math.round(avgIncongruent)} ms</p>
+                    `;
+                    this.resultsContainer.classList.remove('hidden');
+                    document.getElementById('stroop-gameplay').classList.add('hidden');
+                    document.getElementById('stroop-setup').classList.remove('hidden');
+                    db.saveScore('stroop-test', score);
+                }
+            };
+            
+            const SimonGame = {
+                init(container) {
+                    container.innerHTML = `
+                        <div class="bg-white p-6 rounded-xl shadow-lg text-center max-w-lg mx-auto">
+                            <h2 class="text-2xl font-bold text-violet-500 mb-4">Simon Task</h2>
+                            <p id="simon-instructions" class="mb-4 h-6">Press Start to begin.</p>
+                            <div class="relative w-80 h-80 mx-auto">
+                                <div data-id="0" class="simon-pad absolute top-0 left-0 w-36 h-36 bg-green-400 rounded-tl-full"></div>
+                                <div data-id="1" class="simon-pad absolute top-0 right-0 w-36 h-36 bg-red-400 rounded-tr-full"></div>
+                                <div data-id="2" class="simon-pad absolute bottom-0 left-0 w-36 h-36 bg-yellow-400 rounded-bl-full"></div>
+                                <div data-id="3" class="simon-pad absolute bottom-0 right-0 w-36 h-36 bg-blue-400 rounded-br-full"></div>
+                                <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 bg-slate-800 rounded-full flex items-center justify-center">
+                                    <div id="simon-level" class="text-white text-3xl font-bold">--</div>
+                                </div>
+                            </div>
+                            <div id="simon-controls" class="mt-4">
+                                <button id="simon-start" class="w-full bg-violet-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-violet-600">Start Game</button>
+                            </div>
+                            <div id="simon-results" class="hidden mt-4"></div>
+                            <button class="home-btn mt-4 text-slate-500 hover:text-slate-800">Back to Games</button>
+                        </div>
+                    `;
+                    container.querySelector('.home-btn').addEventListener('click', goHome);
+                    container.querySelector('#simon-start').addEventListener('click', () => this.start(container));
+                },
+                start(container) {
+                    this.level = 1;
+                    this.sequence = [];
+                    this.playerSequence = [];
+                    this.pads = container.querySelectorAll('.simon-pad');
+                    this.instructions = container.querySelector('#simon-instructions');
+                    this.levelDisplay = container.querySelector('#simon-level');
+                    this.resultsContainer = container.querySelector('#simon-results');
+                    this.colors = ['bg-green-500', 'bg-red-500', 'bg-yellow-500', 'bg-blue-500'];
+                    this.baseColors = ['bg-green-400', 'bg-red-400', 'bg-yellow-400', 'bg-blue-400'];
+
+                    container.querySelector('#simon-controls').classList.add('hidden');
+                    this.resultsContainer.classList.add('hidden');
+                    
+                    this.pads.forEach(pad => pad.onclick = (e) => this.handlePlayerInput(e.target.dataset.id));
+
+                    this.nextLevel();
+                },
+                nextLevel() {
+                    this.levelDisplay.textContent = this.level;
+                    this.playerSequence = [];
+                    this.sequence.push(Math.floor(Math.random() * 4));
+                    this.showSequence();
+                },
+                async showSequence() {
+                    this.instructions.textContent = 'Watch...';
+                    this.pads.forEach(pad => pad.classList.add('pointer-events-none'));
+                    for (const padId of this.sequence) {
+                        const pad = this.pads[padId];
+                        pad.classList.remove(this.baseColors[padId]);
+                        pad.classList.add(this.colors[padId]);
+                        await new Promise(res => setTimeout(res, 500));
+                        pad.classList.remove(this.colors[padId]);
+                        pad.classList.add(this.baseColors[padId]);
+                        await new Promise(res => setTimeout(res, 200));
+                    }
+                    this.instructions.textContent = 'Repeat!';
+                    this.pads.forEach(pad => pad.classList.remove('pointer-events-none'));
+                },
+                handlePlayerInput(id) {
+                    const padId = parseInt(id);
+                    this.playerSequence.push(padId);
+                    
+                    const pad = this.pads[padId];
+                    pad.classList.remove(this.baseColors[padId]);
+                    pad.classList.add(this.colors[padId]);
+                    setTimeout(() => {
+                        pad.classList.remove(this.colors[padId]);
+                        pad.classList.add(this.baseColors[padId]);
+                    }, 200);
+
+                    const correctSoFar = this.sequence[this.playerSequence.length - 1] === padId;
+                    if (!correctSoFar) {
+                        this.endGame();
+                        return;
+                    }
+
+                    if (this.playerSequence.length === this.sequence.length) {
+                        this.level++;
+                        setTimeout(() => this.nextLevel(), 1000);
+                    }
+                },
+                endGame() {
+                    this.instructions.textContent = 'Game Over!';
+                    this.pads.forEach(pad => pad.classList.add('pointer-events-none'));
+                    const finalSpan = this.level - 1;
+                    this.resultsContainer.innerHTML = `<h3 class="text-xl font-bold">Final Span: <span class="text-2xl text-violet-500">${finalSpan}</span></h3>`;
+                    this.resultsContainer.classList.remove('hidden');
+                    document.getElementById('simon-controls').classList.remove('hidden');
+                    db.saveScore('simon-task', finalSpan);
+                }
+            };
+            
+            const MemoryMatchGame = {
+                init(container) {
+                    container.innerHTML = `
+                        <div class="bg-white p-6 rounded-xl shadow-lg text-center max-w-2xl mx-auto">
+                            <h2 class="text-2xl font-bold text-green-500 mb-2">Memory Match</h2>
+                            <p class="mb-4">Moves: <span id="mm-moves" class="font-bold">0</span> | Pairs Found: <span id="mm-pairs" class="font-bold">0</span></p>
+                            <div id="mm-grid" class="grid grid-cols-4 gap-4"></div>
+                            <div id="mm-results" class="hidden mt-4"></div>
+                            <button id="mm-restart" class="mt-4 w-full bg-green-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-600">Restart Game</button>
+                            <button class="home-btn mt-4 text-slate-500 hover:text-slate-800">Back to Games</button>
+                        </div>
+                    `;
+                    container.querySelector('.home-btn').addEventListener('click', goHome);
+                    container.querySelector('#mm-restart').addEventListener('click', () => this.start(container));
+                    this.start(container);
+                },
+                start(container) {
+                    this.grid = container.querySelector('#mm-grid');
+                    this.movesDisplay = container.querySelector('#mm-moves');
+                    this.pairsDisplay = container.querySelector('#mm-pairs');
+                    this.resultsContainer = container.querySelector('#mm-results');
+                    
+                    this.moves = 0;
+                    this.pairsFound = 0;
+                    this.firstCard = null;
+                    this.secondCard = null;
+                    this.lockBoard = false;
+                    this.totalPairs = 8;
+                    
+                    this.movesDisplay.textContent = '0';
+                    this.pairsDisplay.textContent = '0';
+                    this.resultsContainer.classList.add('hidden');
+
+                    const icons = ['★', '♦', '♥', '♠', '♣', '▲', '●', '■'];
+                    let cards = [...icons, ...icons];
+                    cards.sort(() => 0.5 - Math.random());
+                    
+                    this.grid.innerHTML = cards.map(icon => `
+                        <div class="memory-card w-full h-24 cursor-pointer" data-icon="${icon}">
+                            <div class="memory-card-inner relative w-full h-full">
+                                <div class="back absolute w-full h-full bg-slate-300 rounded-lg flex items-center justify-center"></div>
+                                <div class="face absolute w-full h-full bg-sky-400 rounded-lg flex items-center justify-center text-4xl text-white">
+                                    ${icon}
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
+                    
+                    this.grid.querySelectorAll('.memory-card').forEach(card => card.addEventListener('click', () => this.flipCard(card)));
+                },
+                flipCard(card) {
+                    if (this.lockBoard || card === this.firstCard || card.classList.contains('matched')) return;
+                    
+                    card.classList.add('flipped');
+                    
+                    if (!this.firstCard) {
+                        this.firstCard = card;
+                        return;
+                    }
+                    
+                    this.secondCard = card;
+                    this.moves++;
+                    this.movesDisplay.textContent = this.moves;
+                    this.lockBoard = true;
+                    
+                    this.checkForMatch();
+                },
+                checkForMatch() {
+                    const isMatch = this.firstCard.dataset.icon === this.secondCard.dataset.icon;
+                    isMatch ? this.disableCards() : this.unflipCards();
+                },
+                disableCards() {
+                    this.firstCard.classList.add('matched');
+                    this.secondCard.classList.add('matched');
+                    this.pairsFound++;
+                    this.pairsDisplay.textContent = this.pairsFound;
+                    this.resetBoard();
+
+                    if (this.pairsFound === this.totalPairs) {
+                        this.endGame();
+                    }
+                },
+                unflipCards() {
+                    setTimeout(() => {
+                        this.firstCard.classList.remove('flipped');
+                        this.secondCard.classList.remove('flipped');
+                        this.resetBoard();
+                    }, 1000);
+                },
+                resetBoard() {
+                    [this.firstCard, this.secondCard, this.lockBoard] = [null, null, false];
+                },
+                endGame() {
+                    const efficiency = this.moves > 0 ? Math.round((this.totalPairs / this.moves) * 100) : 0;
+                    this.resultsContainer.innerHTML = `<h3 class="text-xl font-bold">Game Complete!</h3><p>Efficiency Score: <span class="text-2xl font-bold text-green-500">${efficiency}%</span></p>`;
+                    this.resultsContainer.classList.remove('hidden');
+                    db.saveScore('memory-match', efficiency);
+                }
+            };
+
+            switchView('game-select');
+        });
+    </script>
+</body>
+</html>
