@@ -2,6 +2,7 @@
 - [Reaction time](https://rohit-das.github.io/rohitdas.github.io/reaction_time.html)
 - [Generative Hobbies](https://rohit-das.github.io/rohitdas.github.io/generative_hobbies.html)
 - [Box Breathing](https://rohit-das.github.io/rohitdas.github.io/boxbreathing.html)
+- [Brain Games](https://rohit-das.github.io/rohitdas.github.io/braingames.html)
 
 
 ## Welcome to GitHub Pages
