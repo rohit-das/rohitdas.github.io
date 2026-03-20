@@ -4,6 +4,7 @@
 - [Box Breathing](https://rohit-das.github.io/rohitdas.github.io/boxbreathing.html)
 - [Brain Games](https://rohit-das.github.io/rohitdas.github.io/braingames.html)
 - [Arrow Speed](https://rohit-das.github.io/rohitdas.github.io/arrowspeed.html)
+- [One Min Cardio timer](https://rohit-das.github.io/rohitdas.github.io/one-min-cardio.html)
 
 ## Welcome to GitHub Pages
 
