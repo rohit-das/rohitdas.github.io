@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Acoustic Arrow Chronograph</title>
+    <style>
+        :root { --primary: #2563eb; --bg: #f8fafc; --text: #0f172a; --card: #ffffff; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 20px; text-align: center; }
+        .container { max-width: 500px; margin: 0 auto; background: var(--card); padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+        h1 { font-size: 1.5rem; margin-top: 0; }
+        .input-group { margin-bottom: 15px; text-align: left; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 0.9rem; }
+        input[type="number"], input[type="range"] { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box; font-size: 1rem; }
+        button { background-color: var(--primary); color: white; border: none; padding: 15px 20px; font-size: 1.1rem; border-radius: 8px; width: 100%; cursor: pointer; font-weight: bold; transition: background 0.2s; }
+        button:active { background-color: #1d4ed8; }
+        button.listening { background-color: #dc2626; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.8; } 100% { opacity: 1; } }
+        .status { margin: 15px 0; font-weight: bold; color: #475569; min-height: 1.5rem; }
+        .results { margin-top: 20px; border-top: 2px solid #e2e8f0; padding-top: 20px; }
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+        .stat-box { background: #f1f5f9; padding: 15px; border-radius: 8px; }
+        .stat-value { font-size: 1.5rem; font-weight: bold; color: var(--primary); }
+        .log { text-align: left; font-size: 0.9rem; max-height: 150px; overflow-y: auto; background: #f1f5f9; padding: 10px; border-radius: 6px; }
+        .log-entry { border-bottom: 1px solid #e2e8f0; padding: 5px 0; display: flex; justify-content: space-between; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🏹 Arrow Chronograph</h1>
+    
+    <div class="input-group">
+        <label for="distance">Distance to Target (Yards)</label>
+        <input type="number" id="distance" value="20" min="5" step="1">
+    </div>
+
+    <div class="input-group">
+        <label for="sensitivity">Mic Sensitivity (Threshold: <span id="thresh-val">50</span>%)</label>
+        <input type="range" id="sensitivity" min="10" max="100" value="50">
+        <small style="color: #64748b;">Lower if missing shots, raise if getting false triggers.</small>
+    </div>
+
+    <button id="toggleBtn">Start Listening</button>
+    <div class="status" id="statusText">Ready</div>
+
+    <div class="results">
+        <div class="stat-grid">
+            <div class="stat-box">
+                <div>Average Speed</div>
+                <div class="stat-value"><span id="avgSpeed">0</span> fps</div>
+            </div>
+            <div class="stat-box">
+                <div>Std Dev</div>
+                <div class="stat-value"><span id="stdDev">0</span> fps</div>
+            </div>
+        </div>
+        <div class="log" id="shotLog">
+            <em>Shot log will appear here...</em>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Physics constants
+    const SPEED_OF_SOUND_MPS = 343; // m/s at ~20C
+    const YARDS_TO_METERS = 0.9144;
+    const MPS_TO_FPS = 3.28084;
+
+    // Audio & State variables
+    let audioContext, analyser, microphone, scriptNode;
+    let isListening = false;
+    let state = 'IDLE'; // IDLE, ARMED, FLYING
+    let threshold = 0.5; // 0.0 to 1.0 (Amplitude)
+    
+    let releaseTime = 0;
+    let lockoutUntil = 0;
+    let flightTimeout;
+    let shots = [];
+
+    // UI Elements
+    const btn = document.getElementById('toggleBtn');
+    const statusText = document.getElementById('statusText');
+    const distanceInput = document.getElementById('distance');
+    const sensitivityInput = document.getElementById('sensitivity');
+    const threshVal = document.getElementById('thresh-val');
+    const shotLog = document.getElementById('shotLog');
+
+    sensitivityInput.addEventListener('input', (e) => {
+        threshVal.innerText = e.target.value;
+        threshold = e.target.value / 100;
+    });
+
+    btn.addEventListener('click', async () => {
+        if (isListening) { stopListening(); } 
+        else { await startListening(); }
+    });
+
+    async function startListening() {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            analyser = audioContext.createAnalyser();
+            analyser.fftSize = 512;
+            
+            microphone = audioContext.createMediaStreamSource(stream);
+            scriptNode = audioContext.createScriptProcessor(512, 1, 1);
+            
+            microphone.connect(analyser);
+            analyser.connect(scriptNode);
+            scriptNode.connect(audioContext.destination);
+
+            scriptNode.onaudioprocess = processAudio;
+
+            isListening = true;
+            state = 'ARMED';
+            btn.innerText = "Stop Listening";
+            btn.classList.add('listening');
+            statusText.innerText = "Listening for release...";
+        } catch (err) {
+            alert("Microphone access denied or unavailable. You must use HTTPS or localhost.");
+            console.error(err);
+        }
+    }
+
+    function stopListening() {
+        if (audioContext) {
+            audioContext.close();
+            scriptNode.onaudioprocess = null;
+        }
+        isListening = false;
+        state = 'IDLE';
+        clearTimeout(flightTimeout);
+        btn.innerText = "Start Listening";
+        btn.classList.remove('listening');
+        statusText.innerText = "Ready";
+    }
+
+    function processAudio() {
+        if (state === 'IDLE') return;
+        
+        const now = performance.now();
+        if (now < lockoutUntil) return; // Prevent echoing/double triggers
+
+        const buffer = new Float32Array(analyser.fftSize);
+        analyser.getFloatTimeDomainData(buffer);
+        
+        let maxPeak = 0;
+        for (let i = 0; i < buffer.length; i++) {
+            if (Math.abs(buffer[i]) > maxPeak) maxPeak = Math.abs(buffer[i]);
+        }
+
+        if (maxPeak > threshold) {
+            if (state === 'ARMED') {
+                // Detected string release
+                releaseTime = now;
+                state = 'FLYING';
+                statusText.innerText = "Arrow in flight...";
+                lockoutUntil = now + 150; // Ignore noises for 150ms to let bow quiet down
+                
+                // If no hit detected within 3 seconds, reset
+                flightTimeout = setTimeout(() => {
+                    if (state === 'FLYING') {
+                        state = 'ARMED';
+                        statusText.innerText = "Missed hit. Listening for release...";
+                    }
+                }, 3000);
+
+            } else if (state === 'FLYING') {
+                // Detected target impact
+                const hitTime = now;
+                clearTimeout(flightTimeout);
+                calculateSpeed(releaseTime, hitTime);
+                
+                state = 'ARMED';
+                statusText.innerText = "Listening for release...";
+                lockoutUntil = now + 500; // Ignore noises for 500ms after impact
+            }
+        }
+    }
+
+    function calculateSpeed(t1, t2) {
+        const deltaT_seconds = (t2 - t1) / 1000;
+        const yards = parseFloat(distanceInput.value);
+        const distanceMeters = yards * YARDS_TO_METERS;
+
+        // Physics equation: Va = d / (deltaT - (d / Vs))
+        const soundReturnTime = distanceMeters / SPEED_OF_SOUND_MPS;
+        const arrowFlightTime = deltaT_seconds - soundReturnTime;
+
+        if (arrowFlightTime <= 0) {
+            statusText.innerText = "Error: Invalid times. Try adjusting sensitivity.";
+            return;
+        }
+
+        const speedMps = distanceMeters / arrowFlightTime;
+        const speedFps = speedMps * MPS_TO_FPS;
+
+        // Filter out absurd speeds (e.g. false triggers)
+        if (speedFps < 50 || speedFps > 600) {
+            statusText.innerText = "Speed out of bounds. False trigger?";
+            return;
+        }
+
+        shots.push(speedFps);
+        updateStats(speedFps);
+    }
+
+    function updateStats(latestSpeed) {
+        // Calculate Mean
+        const sum = shots.reduce((a, b) => a + b, 0);
+        const avg = sum / shots.length;
+
+        // Calculate Standard Deviation
+        const squareDiffs = shots.map(value => {
+            const diff = value - avg;
+            return diff * diff;
+        });
+        const avgSquareDiff = squareDiffs.reduce((a, b) => a + b, 0) / shots.length;
+        const stdDev = Math.sqrt(avgSquareDiff);
+
+        // Update UI
+        document.getElementById('avgSpeed').innerText = Math.round(avg);
+        document.getElementById('stdDev').innerText = stdDev.toFixed(1);
+
+        // Update Log
+        if (shots.length === 1) shotLog.innerHTML = ''; // clear default text
+        const entry = document.createElement('div');
+        entry.className = 'log-entry';
+        entry.innerHTML = `<span>Shot ${shots.length}</span> <strong>${Math.round(latestSpeed)} fps</strong>`;
+        shotLog.prepend(entry); // Add to top
+    }
+</script>
+</body>
+</html>
