@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cardio Interval Timer</title>
+    <style>
+        :root {
+            --bg-warmup: #3498db;  /* Blue */
+            --bg-sprint: #e74c3c;  /* Red */
+            --bg-rest: #2ecc71;    /* Green */
+            --bg-done: #2c3e50;    /* Dark Gray */
+            --text-color: #ffffff;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: var(--bg-warmup);
+            color: var(--text-color);
+            transition: background-color 0.5s ease;
+            text-align: center;
+        }
+
+        #phase-name {
+            font-size: 2.5rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+        }
+
+        #time-left {
+            font-size: 7rem;
+            font-weight: 800;
+            line-height: 1;
+            margin: 20px 0;
+            font-variant-numeric: tabular-nums;
+        }
+
+        #total-time {
+            font-size: 1.5rem;
+            opacity: 0.8;
+            margin-bottom: 40px;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 0 20px;
+        }
+
+        button {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid white;
+            border-radius: 50px;
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            text-transform: uppercase;
+        }
+
+        button:hover, button:active {
+            background-color: rgba(255, 255, 255, 0.4);
+        }
+
+        #skip-btn {
+            display: block; /* Shown by default in warmup */
+            width: 100%;
+            margin-top: 15px;
+            background-color: rgba(0, 0, 0, 0.2);
+            border: none;
+        }
+
+        #skip-btn.hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="phase-name">Warmup</div>
+    <div id="time-left">03:00</div>
+    <div id="total-time">Total: 00:00</div>
+
+    <div class="controls">
+        <button id="start-btn">Start</button>
+        <button id="reset-btn">Reset</button>
+        <button id="skip-btn">Skip Warmup</button>
+    </div>
+
+    <script>
+        // Phase Configuration
+        const phases = [
+            { name: "Warmup", duration: 180, color: "var(--bg-warmup)" },
+            { name: "Sprint 1", duration: 20, color: "var(--bg-sprint)" },
+            { name: "Rest 1", duration: 120, color: "var(--bg-rest)" },
+            { name: "Sprint 2", duration: 20, color: "var(--bg-sprint)" },
+            { name: "Rest 2", duration: 120, color: "var(--bg-rest)" },
+            { name: "Sprint 3", duration: 20, color: "var(--bg-sprint)" },
+            { name: "Cooldown", duration: 120, color: "var(--bg-warmup)" },
+            { name: "Done", duration: 0, color: "var(--bg-done)" }
+        ];
+
+        // State Variables
+        let currentPhaseIndex = 0;
+        let timeLeft = phases[0].duration;
+        let totalElapsed = 0;
+        let timerInterval = null;
+        let isRunning = false;
+        let audioCtx = null;
+
+        // DOM Elements
+        const phaseNameEl = document.getElementById("phase-name");
+        const timeLeftEl = document.getElementById("time-left");
+        const totalTimeEl = document.getElementById("total-time");
+        const startBtn = document.getElementById("start-btn");
+        const resetBtn = document.getElementById("reset-btn");
+        const skipBtn = document.getElementById("skip-btn");
+
+        // Format time as MM:SS
+        function formatTime(seconds) {
+            const m = Math.floor(seconds / 60).toString().padStart(2, "0");
+            const s = (seconds % 60).toString().padStart(2, "0");
+            return `${m}:${s}`;
+        }
+
+        // Web Audio API Beep (Works on Mobile)
+        function playBeep() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === "suspended") {
+                audioCtx.resume();
+            }
+
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+
+            oscillator.type = "sine";
+            oscillator.frequency.setValueAtTime(800, audioCtx.currentTime); // 800Hz Tone
+            
+            // Envelope to avoid popping sound
+            gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+            gainNode.gain.linearRampToValueAtTime(1, audioCtx.currentTime + 0.05);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.5);
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+
+            oscillator.start(audioCtx.currentTime);
+            oscillator.stop(audioCtx.currentTime + 0.5);
+        }
+
+        // Update the UI
+        function updateUI() {
+            const phase = phases[currentPhaseIndex];
+            phaseNameEl.textContent = phase.name;
+            timeLeftEl.textContent = formatTime(timeLeft);
+            totalTimeEl.textContent = `Total: ${formatTime(totalElapsed)}`;
+            document.body.style.backgroundColor = phase.color;
+
+            // Show/Hide Skip button
+            if (currentPhaseIndex === 0) {
+                skipBtn.classList.remove("hidden");
+            } else {
+                skipBtn.classList.add("hidden");
+            }
+        }
+
+        // Timer Tick Logic
+        function tick() {
+            if (timeLeft > 0) {
+                timeLeft--;
+                totalElapsed++;
+            } else {
+                // Move to next phase
+                currentPhaseIndex++;
+                if (currentPhaseIndex < phases.length - 1) {
+                    playBeep(); // Beep on phase change
+                    timeLeft = phases[currentPhaseIndex].duration;
+                } else {
+                    // Done state
+                    clearInterval(timerInterval);
+                    isRunning = false;
+                    startBtn.textContent = "Done";
+                    startBtn.disabled = true;
+                    playBeep(); // Final beep
+                }
+            }
+            updateUI();
+        }
+
+        // Controls
+        function toggleTimer() {
+            if (currentPhaseIndex >= phases.length - 1) return; // Prevent start if done
+
+            // Initialize AudioContext on first user interaction to satisfy browser policies
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+
+            if (isRunning) {
+                clearInterval(timerInterval);
+                startBtn.textContent = "Resume";
+            } else {
+                if (timeLeft === phases[currentPhaseIndex].duration && currentPhaseIndex === 0 && totalElapsed === 0) {
+                    playBeep(); // Beep exactly at the start of the routine
+                }
+                timerInterval = setInterval(tick, 1000);
+                startBtn.textContent = "Pause";
+            }
+            isRunning = !isRunning;
+        }
+
+        function resetTimer() {
+            clearInterval(timerInterval);
+            isRunning = false;
+            currentPhaseIndex = 0;
+            timeLeft = phases[0].duration;
+            totalElapsed = 0;
+            startBtn.textContent = "Start";
+            startBtn.disabled = false;
+            updateUI();
+        }
+
+        function skipWarmup() {
+            if (currentPhaseIndex === 0) {
+                currentPhaseIndex = 1; // Jump to Sprint 1
+                timeLeft = phases[1].duration;
+                if (!isRunning) {
+                    // Optional: auto-start if they skip while paused
+                    // toggleTimer(); 
+                } else {
+                    playBeep(); 
+                }
+                updateUI();
+            }
+        }
+
+        // Event Listeners
+        startBtn.addEventListener("click", toggleTimer);
+        resetBtn.addEventListener("click", resetTimer);
+        skipBtn.addEventListener("click", skipWarmup);
+
+        // Initial render
+        updateUI();
+    </script>
+</body>
+</html>
