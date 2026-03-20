@@ -3,7 +3,7 @@
 - [Generative Hobbies](https://rohit-das.github.io/rohitdas.github.io/generative_hobbies.html)
 - [Box Breathing](https://rohit-das.github.io/rohitdas.github.io/boxbreathing.html)
 - [Brain Games](https://rohit-das.github.io/rohitdas.github.io/braingames.html)
-
+- [Arrow Speed](https://rohit-das.github.io/rohitdas.github.io/arrowspeed.html)
 
 ## Welcome to GitHub Pages
 
