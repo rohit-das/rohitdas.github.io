@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -54,14 +53,22 @@
         }
         
         #start-view h1 { 
-            margin-bottom: 16px; 
+            margin-bottom: 8px; 
             font-size: 28px; 
             font-weight: 800;
             letter-spacing: 1px;
             color: var(--neon);
         }
 
-        #start-view p {
+        .signature {
+            font-size: 0.95rem;
+            color: var(--neon);
+            opacity: 0.7;
+            font-style: italic;
+            margin-bottom: 30px;
+        }
+
+        #start-view p.description {
             color: var(--text-muted);
             margin-bottom: 40px;
             line-height: 1.6;
@@ -276,7 +283,8 @@
     <div id="start-view">
         <div>
             <h1>BAREBOW<br>STRINGWALKER</h1>
-            <p>Allow camera and motion sensor access to calculate precise line-of-sight angles.</p>
+            <div class="signature">by Rohit Das</div>
+            <p class="description">Allow camera and motion sensor access to calculate precise line-of-sight angles.</p>
             <button id="start-btn" onclick="initApp()">Start Camera & Sensors</button>
         </div>
     </div>
@@ -308,6 +316,7 @@
                     <span class="slider-label">Target Distance</span>
                     <span class="slider-value"><span id="dist-display-val">20</span><span style="font-size: 1rem; color: var(--text-muted); margin-left: 4px;">yds</span></span>
                 </div>
+                <!-- Updated max distance to 60 -->
                 <input type="range" id="distance-slider" min="5" max="60" value="20" oninput="updateDistance()">
             </div>
             
