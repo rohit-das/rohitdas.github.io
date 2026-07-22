@@ -1,0 +1,321 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Barebow String Walk Calculator</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body {
+            background-color: #000;
+            color: #0f0; /* High contrast bright green for outdoor visibility */
+            overflow: hidden; /* Prevent scrolling */
+        }
+
+        /* Camera Background */
+        #camera-feed {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            object-fit: cover;
+            z-index: -1;
+        }
+
+        /* Viewfinder Crosshair */
+        .crosshair {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px;
+            height: 60px;
+            z-index: 10;
+            pointer-events: none;
+        }
+        .crosshair::before, .crosshair::after {
+            content: '';
+            position: absolute;
+            background-color: #0f0;
+            box-shadow: 0 0 5px #000;
+        }
+        .crosshair::before {
+            top: 29px; left: 0; width: 60px; height: 2px;
+        }
+        .crosshair::after {
+            left: 29px; top: 0; height: 60px; width: 2px;
+        }
+
+        /* Overlay UI panels */
+        .panel {
+            background-color: rgba(0, 0, 0, 0.85);
+            border: 2px solid #0f0;
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px;
+            z-index: 20;
+            position: relative;
+        }
+
+        /* Start Screen */
+        #start-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background-color: #000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 50;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        #start-screen h1 { margin-bottom: 20px; font-size: 24px; }
+
+        /* Main UI Container */
+        #app-ui {
+            display: none;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100vh;
+            padding: 10px 0;
+        }
+
+        .top-panel { text-align: center; }
+        .bottom-panel { display: flex; flex-direction: column; gap: 15px; }
+
+        .angle-display {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.5rem;
+            background: #111;
+            color: #0f0;
+            border: 2px solid #0f0;
+            border-radius: 8px;
+            text-align: center;
+            outline: none;
+        }
+        input[type="number"]::placeholder { color: #050; }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            background-color: #0f0;
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+        button:active { background-color: #0a0; }
+        
+        button.locked {
+            background-color: #f00;
+            color: #fff;
+        }
+
+        /* Results Display */
+        .results {
+            font-size: 1.1rem;
+            line-height: 1.5;
+            display: none; /* hidden until calculated */
+        }
+        .results .highlight {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #fff;
+            background: #005500;
+            padding: 10px;
+            border-radius: 6px;
+            margin-top: 10px;
+            text-align: center;
+        }
+        .warning {
+            color: #f00;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Start Screen (For Permissions) -->
+    <div id="start-screen">
+        <h1>Barebow String Walk Calculator</h1>
+        <p style="margin-bottom: 30px;">This app requires access to your camera and device orientation sensors to calculate line-of-sight angles.</p>
+        <button id="start-btn" onclick="startApp()">Start Camera & Sensors</button>
+    </div>
+
+    <!-- Camera Video Element -->
+    <video id="camera-feed" autoplay playsinline></video>
+
+    <!-- Crosshair -->
+    <div class="crosshair"></div>
+
+    <!-- Main Interface -->
+    <div id="app-ui">
+        
+        <!-- Top HUD: Angle & Lock -->
+        <div class="panel top-panel">
+            <div>TARGET ELEVATION</div>
+            <div class="angle-display"><span id="angle-val">0</span>&deg;</div>
+            <button id="lock-btn" onclick="toggleLock()">Lock Angle</button>
+        </div>
+
+        <!-- Bottom HUD: Input & Results -->
+        <div class="panel bottom-panel">
+            <input type="number" id="distance-input" placeholder="Distance (yards)" inputmode="decimal" oninput="calculateCrawl()">
+            
+            <div id="results-container" class="results">
+                <div><strong>Effective Dist ($d_{eff}$):</strong> <span id="res-deff">0</span> yds</div>
+                <div><strong>Chin Crawl:</strong> <span id="res-chin">0</span></div>
+                <div><strong>Lip Crawl:</strong> <span id="res-lip">0</span></div>
+                <div id="res-recommendation" class="highlight"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        let currentAngle = 0;
+        let isLocked = false;
+        
+        // --- 1 & 3: Initialization & Permissions ---
+        async function startApp() {
+            // Request Device Orientation (Required for iOS 13+)
+            if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+                try {
+                    const permission = await DeviceOrientationEvent.requestPermission();
+                    if (permission === 'granted') {
+                        window.addEventListener('deviceorientation', handleOrientation);
+                    } else {
+                        alert("Sensor permission denied. The app cannot calculate elevation.");
+                    }
+                } catch (err) {
+                    console.error("Orientation error:", err);
+                    alert("Error requesting orientation permission.");
+                }
+            } else {
+                // Non-iOS 13+ devices
+                window.addEventListener('deviceorientation', handleOrientation);
+            }
+
+            // Request Camera (Rear-facing)
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: { ideal: "environment" } }
+                });
+                const video = document.getElementById('camera-feed');
+                video.srcObject = stream;
+            } catch (err) {
+                console.error("Camera error:", err);
+                alert("Camera access denied or unavailable.");
+            }
+
+            // Switch UI
+            document.getElementById('start-screen').style.display = 'none';
+            document.getElementById('app-ui').style.display = 'flex';
+        }
+
+        // --- 2: Angle Sensor Logic ---
+        function handleOrientation(event) {
+            if (isLocked || event.beta === null) return;
+            
+            // Standardizing 'beta' pitch angle. 
+            // When a phone is held vertically in portrait (camera facing out), beta is approx 90.
+            // Therefore, 90 minus beta gives us a flat 0 horizontal line of sight.
+            let rawBeta = event.beta; 
+            
+            // Map angle: Looking straight = 0. Looking up = positive. Looking down = negative.
+            // Note: orientation axes can vary slightly by OS, but generally portrait vertical = 90.
+            let angle = 90 - rawBeta; 
+            
+            currentAngle = Math.round(angle);
+            document.getElementById('angle-val').innerText = currentAngle;
+            
+            calculateCrawl(); // Auto-update if distance is already entered
+        }
+
+        // --- 5: Lock Button Logic ---
+        function toggleLock() {
+            isLocked = !isLocked;
+            const btn = document.getElementById('lock-btn');
+            if (isLocked) {
+                btn.innerText = "Unlock Angle";
+                btn.classList.add('locked');
+            } else {
+                btn.innerText = "Lock Angle";
+                btn.classList.remove('locked');
+            }
+        }
+
+        // --- 4 & Math: Calculations ---
+        function calculateCrawl() {
+            const distance = parseFloat(document.getElementById('distance-input').value);
+            const resultsDiv = document.getElementById('results-container');
+            
+            if (isNaN(distance) || distance <= 0) {
+                resultsDiv.style.display = 'none';
+                return;
+            }
+
+            resultsDiv.style.display = 'block';
+
+            // Convert angle to radians for Math.cos
+            const angleRad = currentAngle * (Math.PI / 180);
+
+            // Step 1: Effective Distance
+            const d_eff = distance * Math.cos(angleRad);
+
+            // Step 2: Anchor Formulas
+            const s_chin = -0.01 * (d_eff * d_eff) + 0.3 * d_eff + 12.5;
+            const s_lip  = -0.01 * (d_eff * d_eff) - 0.15 * d_eff + 11.5;
+
+            // Update UI with base values
+            document.getElementById('res-deff').innerText = d_eff.toFixed(1);
+            document.getElementById('res-chin').innerText = s_chin.toFixed(1) + " units";
+            document.getElementById('res-lip').innerText = s_lip.toFixed(1) + " units";
+
+            // Step 3: Recommendation Logic
+            const recDiv = document.getElementById('res-recommendation');
+            recDiv.className = ''; // Reset classes
+
+            let validAnchors = [];
+            if (s_chin >= 0) validAnchors.push({ name: "Chin", value: s_chin });
+            if (s_lip >= 0)  validAnchors.push({ name: "Lip", value: s_lip });
+
+            if (validAnchors.length === 0) {
+                // Both are negative
+                recDiv.innerHTML = "Warning: Target exceeds point-on distance.";
+                recDiv.className = 'warning';
+            } else {
+                // Find the smallest positive value (less crawl)
+                validAnchors.sort((a, b) => a.value - b.value);
+                const best = validAnchors[0];
+                
+                recDiv.innerHTML = `Recommended: ${best.name} Anchor<br>Crawl: ${best.value.toFixed(1)} units`;
+                recDiv.className = 'highlight';
+            }
+        }
+    </script>
+</body>
+</html>
