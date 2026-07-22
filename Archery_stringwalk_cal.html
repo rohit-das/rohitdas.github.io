@@ -126,25 +126,32 @@
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
         }
 
-        /* Anchored to bottom to prevent below-the-fold issues */
-        .camera-panel {
+        /* Bottom Anchored Panels */
+        .camera-panel, .bottom-slider-panel {
             position: absolute;
             bottom: env(safe-area-inset-bottom, 20px);
             left: 15px;
             right: 15px;
             display: flex;
             flex-direction: column;
-            gap: 12px;
             text-align: center;
         }
 
-        /* Expanded to take full height for bottom alignment of slider */
+        .camera-panel {
+            gap: 12px;
+        }
+
+        .bottom-slider-panel {
+            padding: 30px 20px;
+            justify-content: center;
+        }
+
+        /* Top Distance Panel */
         .distance-panel {
-            margin: env(safe-area-inset-top, 20px) 15px env(safe-area-inset-bottom, 20px) 15px;
+            margin: env(safe-area-inset-top, 20px) 15px auto 15px;
             display: flex;
             flex-direction: column;
-            gap: 20px;
-            flex: 1; /* Fill the vertical space */
+            gap: 15px;
         }
 
         .panel-label {
@@ -164,28 +171,38 @@
             margin: 5px 0 10px 0;
         }
 
-        /* Modern Range Slider */
-        .slider-container {
+        /* Prominent Target Distance Display */
+        .target-distance-display {
             text-align: center;
-            margin-top: auto; /* Pushes the slider to the absolute bottom of the panel */
-            padding-bottom: 10px;
+            margin-top: 5px;
+            padding: 15px;
+            background: rgba(0, 255, 102, 0.05);
+            border-radius: 14px;
+            border: 1px dashed rgba(0, 255, 102, 0.3);
         }
-        .slider-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-            margin-bottom: 15px;
+        .target-distance-display .label {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+            font-weight: 600;
         }
-        .slider-value {
-            font-size: 2.2rem;
+        .target-distance-display .value {
+            font-size: 2.8rem;
             font-weight: 800;
             color: var(--neon);
+            text-shadow: 0 0 10px var(--neon-dim);
+            line-height: 1;
         }
-        .slider-label {
+        .target-distance-display .unit {
+            font-size: 1.2rem;
             color: var(--text-muted);
-            font-size: 1.1rem;
-            margin-bottom: 5px;
+            margin-left: 6px;
+            font-weight: 600;
         }
+
+        /* Modern Range Slider */
         input[type="range"] {
             -webkit-appearance: none;
             width: 100%;
@@ -310,21 +327,19 @@
 
     <!-- 3. Distance & Results View -->
     <div id="distance-view">
+        
+        <!-- Top Panel: Results and Info -->
         <div class="panel distance-panel">
             
-            <!-- Button moved to the absolute top of the view -->
             <button class="secondary btn-top" onclick="goBackToCamera()">&#8592; Back to Camera</button>
             
-            <!-- Locked Angle Header -->
-            <div class="info-row" style="border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; margin-top: 10px;">
+            <div class="info-row" style="border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; margin-top: 5px;">
                 <span>Locked Angle</span>
                 <strong style="color: var(--neon); font-size: 1.5rem;"><span id="locked-angle-display">0</span>&deg;</strong>
             </div>
 
-            <!-- Recommendation moved to the top -->
             <div id="res-recommendation" class="highlight"></div>
 
-            <!-- Calculated Results -->
             <div id="results-container" class="results">
                 <div class="info-row">
                     <span>Effective Dist (d<sub>eff</sub>)</span>
@@ -340,16 +355,19 @@
                 </div>
             </div>
 
-            <!-- Slider pinned to bottom via margin-top: auto in CSS -->
-            <div class="slider-container">
-                <div class="slider-header">
-                    <span class="slider-label">Target Distance</span>
-                    <span class="slider-value"><span id="dist-display-val">20</span><span style="font-size: 1rem; color: var(--text-muted); margin-left: 4px;">yds</span></span>
-                </div>
-                <input type="range" id="distance-slider" min="5" max="60" value="20" oninput="updateDistance()">
+            <!-- Prominent Target Distance Display -->
+            <div class="target-distance-display">
+                <div class="label">Target Distance</div>
+                <div class="value"><span id="dist-display-val">20</span><span class="unit">yds</span></div>
             </div>
 
         </div>
+
+        <!-- Bottom Panel: Slider anchored to match the camera buttons -->
+        <div class="panel bottom-slider-panel">
+            <input type="range" id="distance-slider" min="5" max="60" value="20" oninput="updateDistance()">
+        </div>
+
     </div>
 
     <script>
