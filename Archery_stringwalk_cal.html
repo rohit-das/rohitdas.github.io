@@ -138,11 +138,13 @@
             text-align: center;
         }
 
+        /* Expanded to take full height for bottom alignment of slider */
         .distance-panel {
-            margin: auto 15px;
+            margin: env(safe-area-inset-top, 20px) 15px env(safe-area-inset-bottom, 20px) 15px;
             display: flex;
             flex-direction: column;
-            gap: 24px;
+            gap: 20px;
+            flex: 1; /* Fill the vertical space */
         }
 
         .panel-label {
@@ -165,6 +167,8 @@
         /* Modern Range Slider */
         .slider-container {
             text-align: center;
+            margin-top: auto; /* Pushes the slider to the absolute bottom of the panel */
+            padding-bottom: 10px;
         }
         .slider-header {
             display: flex;
@@ -173,7 +177,7 @@
             margin-bottom: 15px;
         }
         .slider-value {
-            font-size: 2rem;
+            font-size: 2.2rem;
             font-weight: 800;
             color: var(--neon);
         }
@@ -190,19 +194,19 @@
         }
         input[type="range"]::-webkit-slider-runnable-track {
             width: 100%;
-            height: 6px;
+            height: 8px;
             cursor: pointer;
-            background: rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.15);
             border-radius: 4px;
         }
         input[type="range"]::-webkit-slider-thumb {
-            height: 28px;
-            width: 28px;
+            height: 32px;
+            width: 32px;
             border-radius: 50%;
             background: var(--neon);
             cursor: pointer;
             -webkit-appearance: none;
-            margin-top: -11px;
+            margin-top: -12px;
             box-shadow: 0 0 15px rgba(0, 255, 102, 0.5);
             transition: transform 0.1s;
         }
@@ -227,6 +231,10 @@
             background-color: rgba(255, 255, 255, 0.05);
             color: var(--text-main);
             border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        button.btn-top {
+            padding: 12px;
+            font-size: 1rem;
         }
         button:active { 
             transform: scale(0.97); 
@@ -261,7 +269,6 @@
             background: var(--neon);
             padding: 14px;
             border-radius: 10px;
-            margin-top: 18px;
             text-align: center;
             box-shadow: 0 4px 15px var(--neon-dim);
         }
@@ -273,7 +280,6 @@
             padding: 14px;
             border-radius: 10px;
             text-align: center;
-            margin-top: 18px;
         }
     </style>
 </head>
@@ -306,20 +312,19 @@
     <div id="distance-view">
         <div class="panel distance-panel">
             
-            <div class="info-row" style="border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px;">
+            <!-- Button moved to the absolute top of the view -->
+            <button class="secondary btn-top" onclick="goBackToCamera()">&#8592; Back to Camera</button>
+            
+            <!-- Locked Angle Header -->
+            <div class="info-row" style="border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; margin-top: 10px;">
                 <span>Locked Angle</span>
-                <strong style="color: var(--neon);"><span id="locked-angle-display">0</span>&deg;</strong>
+                <strong style="color: var(--neon); font-size: 1.5rem;"><span id="locked-angle-display">0</span>&deg;</strong>
             </div>
 
-            <div class="slider-container">
-                <div class="slider-header">
-                    <span class="slider-label">Target Distance</span>
-                    <span class="slider-value"><span id="dist-display-val">20</span><span style="font-size: 1rem; color: var(--text-muted); margin-left: 4px;">yds</span></span>
-                </div>
-                <!-- Updated max distance to 60 -->
-                <input type="range" id="distance-slider" min="5" max="60" value="20" oninput="updateDistance()">
-            </div>
-            
+            <!-- Recommendation moved to the top -->
+            <div id="res-recommendation" class="highlight"></div>
+
+            <!-- Calculated Results -->
             <div id="results-container" class="results">
                 <div class="info-row">
                     <span>Effective Dist (d<sub>eff</sub>)</span>
@@ -333,10 +338,17 @@
                     <span>Lip Crawl</span>
                     <strong><span id="res-lip">0</span></strong>
                 </div>
-                <div id="res-recommendation" class="highlight"></div>
             </div>
 
-            <button class="secondary" onclick="goBackToCamera()">Back to Camera</button>
+            <!-- Slider pinned to bottom via margin-top: auto in CSS -->
+            <div class="slider-container">
+                <div class="slider-header">
+                    <span class="slider-label">Target Distance</span>
+                    <span class="slider-value"><span id="dist-display-val">20</span><span style="font-size: 1rem; color: var(--text-muted); margin-left: 4px;">yds</span></span>
+                </div>
+                <input type="range" id="distance-slider" min="5" max="60" value="20" oninput="updateDistance()">
+            </div>
+
         </div>
     </div>
 
@@ -469,7 +481,7 @@
                 validAnchors.sort((a, b) => a.value - b.value);
                 const best = validAnchors[0];
                 
-                recDiv.innerHTML = `Recommended: ${best.name} Anchor<br><span style="font-size: 1.5rem; margin-top: 5px; display: block;">${best.value.toFixed(1)} units</span>`;
+                recDiv.innerHTML = `Recommended: ${best.name} Anchor<br><span style="font-size: 1.6rem; margin-top: 5px; display: block;">${best.value.toFixed(1)} units</span>`;
                 recDiv.className = 'highlight';
             }
         }
