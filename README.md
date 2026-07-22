@@ -1,4 +1,5 @@
 ## list of apps and links to view them
+- [Archery String Walk Calculator](https://rohit-das.github.io/rohitdas.github.io/Archery_stringwalk_cal.html)
 - [Reaction time](https://rohit-das.github.io/rohitdas.github.io/reaction_time.html)
 - [Generative Hobbies](https://rohit-das.github.io/rohitdas.github.io/generative_hobbies.html)
 - [Box Breathing](https://rohit-das.github.io/rohitdas.github.io/boxbreathing.html)
