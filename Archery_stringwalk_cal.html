@@ -16,9 +16,28 @@
 
         body {
             background-color: #000;
-            color: #0f0; /* High contrast bright green for outdoor visibility */
-            overflow: hidden; /* Prevent scrolling */
+            color: #0f0;
+            overflow: hidden;
         }
+
+        /* Views */
+        #start-view, #camera-view, #distance-view {
+            display: none;
+            width: 100vw;
+            height: 100vh;
+            flex-direction: column;
+        }
+
+        #start-view {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            text-align: center;
+            z-index: 50;
+        }
+        
+        #start-view h1 { margin-bottom: 20px; font-size: 24px; }
 
         /* Camera Background */
         #camera-feed {
@@ -48,12 +67,8 @@
             background-color: #0f0;
             box-shadow: 0 0 5px #000;
         }
-        .crosshair::before {
-            top: 29px; left: 0; width: 60px; height: 2px;
-        }
-        .crosshair::after {
-            left: 29px; top: 0; height: 60px; width: 2px;
-        }
+        .crosshair::before { top: 29px; left: 0; width: 60px; height: 2px; }
+        .crosshair::after { left: 29px; top: 0; height: 60px; width: 2px; }
 
         /* Overlay UI panels */
         .panel {
@@ -66,33 +81,20 @@
             position: relative;
         }
 
-        /* Start Screen */
-        #start-screen {
-            position: fixed;
-            top: 0; left: 0; width: 100vw; height: 100vh;
-            background-color: #000;
+        .camera-panel {
+            margin-top: auto;
             display: flex;
             flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 50;
-            padding: 20px;
+            gap: 10px;
             text-align: center;
         }
-        
-        #start-screen h1 { margin-bottom: 20px; font-size: 24px; }
 
-        /* Main UI Container */
-        #app-ui {
-            display: none;
+        .distance-panel {
+            margin: auto 15px;
+            display: flex;
             flex-direction: column;
-            justify-content: space-between;
-            height: 100vh;
-            padding: 10px 0;
+            gap: 20px;
         }
-
-        .top-panel { text-align: center; }
-        .bottom-panel { display: flex; flex-direction: column; gap: 15px; }
 
         .angle-display {
             font-size: 3rem;
@@ -100,23 +102,41 @@
             margin-bottom: 5px;
         }
 
-        input[type="number"] {
-            width: 100%;
-            padding: 15px;
-            font-size: 1.5rem;
-            background: #111;
-            color: #0f0;
-            border: 2px solid #0f0;
-            border-radius: 8px;
+        /* Range Slider Styling */
+        .slider-container {
             text-align: center;
-            outline: none;
+            font-size: 1.5rem;
+            font-weight: bold;
         }
-        input[type="number"]::placeholder { color: #050; }
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            margin: 15px 0;
+            background: transparent;
+        }
+        input[type="range"]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 8px;
+            cursor: pointer;
+            background: #050;
+            border-radius: 5px;
+            border: 1px solid #0f0;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            height: 30px;
+            width: 30px;
+            border-radius: 50%;
+            background: #0f0;
+            cursor: pointer;
+            -webkit-appearance: none;
+            margin-top: -12px;
+            box-shadow: 0 0 10px #000;
+        }
 
         button {
             width: 100%;
             padding: 15px;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             font-weight: bold;
             background-color: #0f0;
             color: #000;
@@ -125,18 +145,20 @@
             cursor: pointer;
             text-transform: uppercase;
         }
-        button:active { background-color: #0a0; }
-        
-        button.locked {
-            background-color: #f00;
-            color: #fff;
+        button.secondary {
+            background-color: #333;
+            color: #0f0;
+            border: 1px solid #0f0;
         }
+        button:active { filter: brightness(0.8); }
 
         /* Results Display */
         .results {
             font-size: 1.1rem;
             line-height: 1.5;
-            display: none; /* hidden until calculated */
+            background: #111;
+            padding: 15px;
+            border-radius: 8px;
         }
         .results .highlight {
             font-size: 1.3rem;
@@ -154,132 +176,165 @@
             text-align: center;
             margin-top: 10px;
         }
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
     </style>
 </head>
 <body>
 
-    <!-- Start Screen (For Permissions) -->
-    <div id="start-screen">
+    <!-- 1. Start Screen -->
+    <div id="start-view">
         <h1>Barebow String Walk Calculator</h1>
         <p style="margin-bottom: 30px;">This app requires access to your camera and device orientation sensors to calculate line-of-sight angles.</p>
-        <button id="start-btn" onclick="startApp()">Start Camera & Sensors</button>
+        <button id="start-btn" onclick="initApp()">Start Camera & Sensors</button>
     </div>
 
-    <!-- Camera Video Element -->
-    <video id="camera-feed" autoplay playsinline></video>
-
-    <!-- Crosshair -->
-    <div class="crosshair"></div>
-
-    <!-- Main Interface -->
-    <div id="app-ui">
+    <!-- 2. Camera & Angle View -->
+    <div id="camera-view">
+        <video id="camera-feed" autoplay playsinline></video>
+        <div class="crosshair"></div>
         
-        <!-- Top HUD: Angle & Lock -->
-        <div class="panel top-panel">
+        <div class="panel camera-panel">
             <div>TARGET ELEVATION</div>
-            <div class="angle-display"><span id="angle-val">0</span>&deg;</div>
-            <button id="lock-btn" onclick="toggleLock()">Lock Angle</button>
+            <div class="angle-display"><span id="live-angle">0</span>&deg;</div>
+            <button onclick="lockAngle()">Lock Angle</button>
+            <button class="secondary" onclick="skipAngle()">Skip (Use 0&deg;)</button>
         </div>
+    </div>
 
-        <!-- Bottom HUD: Input & Results -->
-        <div class="panel bottom-panel">
-            <input type="number" id="distance-input" placeholder="Distance (yards)" inputmode="decimal" oninput="calculateCrawl()">
+    <!-- 3. Distance & Results View -->
+    <div id="distance-view">
+        <div class="panel distance-panel">
+            <div class="info-row" style="font-size: 1.2rem; color: #aaa;">
+                <span>Locked Angle:</span>
+                <strong><span id="locked-angle-display">0</span>&deg;</strong>
+            </div>
+
+            <div class="slider-container">
+                <div>Distance: <span id="dist-display-val">20</span> yds</div>
+                <input type="range" id="distance-slider" min="5" max="80" value="20" oninput="updateDistance()">
+            </div>
             
             <div id="results-container" class="results">
-                <div><strong>Effective Dist ($d_{eff}$):</strong> <span id="res-deff">0</span> yds</div>
-                <div><strong>Chin Crawl:</strong> <span id="res-chin">0</span></div>
-                <div><strong>Lip Crawl:</strong> <span id="res-lip">0</span></div>
+                <div class="info-row">
+                    <span>Effective Dist ($d_{eff}$):</span>
+                    <strong><span id="res-deff">0</span> yds</strong>
+                </div>
+                <div class="info-row">
+                    <span>Chin Crawl:</span>
+                    <strong><span id="res-chin">0</span></strong>
+                </div>
+                <div class="info-row">
+                    <span>Lip Crawl:</span>
+                    <strong><span id="res-lip">0</span></strong>
+                </div>
                 <div id="res-recommendation" class="highlight"></div>
             </div>
-        </div>
 
+            <button class="secondary" onclick="goBackToCamera()">Back to Camera</button>
+        </div>
     </div>
 
     <script>
         let currentAngle = 0;
-        let isLocked = false;
+        let isCameraViewActive = false;
+        let cameraStream = null;
         
-        // --- 1 & 3: Initialization & Permissions ---
-        async function startApp() {
-            // Request Device Orientation (Required for iOS 13+)
+        // --- Initialization & Permissions ---
+        async function initApp() {
             if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
                 try {
                     const permission = await DeviceOrientationEvent.requestPermission();
                     if (permission === 'granted') {
                         window.addEventListener('deviceorientation', handleOrientation);
                     } else {
-                        alert("Sensor permission denied. The app cannot calculate elevation.");
+                        alert("Sensor permission denied.");
                     }
                 } catch (err) {
                     console.error("Orientation error:", err);
-                    alert("Error requesting orientation permission.");
                 }
             } else {
-                // Non-iOS 13+ devices
                 window.addEventListener('deviceorientation', handleOrientation);
             }
 
-            // Request Camera (Rear-facing)
+            document.getElementById('start-view').style.display = 'none';
+            await startCamera();
+        }
+
+        // --- Camera Management ---
+        async function startCamera() {
             try {
-                const stream = await navigator.mediaDevices.getUserMedia({
+                cameraStream = await navigator.mediaDevices.getUserMedia({
                     video: { facingMode: { ideal: "environment" } }
                 });
-                const video = document.getElementById('camera-feed');
-                video.srcObject = stream;
+                document.getElementById('camera-feed').srcObject = cameraStream;
+                
+                document.getElementById('distance-view').style.display = 'none';
+                document.getElementById('camera-view').style.display = 'flex';
+                isCameraViewActive = true;
             } catch (err) {
                 console.error("Camera error:", err);
                 alert("Camera access denied or unavailable.");
             }
-
-            // Switch UI
-            document.getElementById('start-screen').style.display = 'none';
-            document.getElementById('app-ui').style.display = 'flex';
         }
 
-        // --- 2: Angle Sensor Logic ---
+        function stopCamera() {
+            if (cameraStream) {
+                cameraStream.getTracks().forEach(track => track.stop());
+                cameraStream = null;
+            }
+            isCameraViewActive = false;
+        }
+
+        // --- Angle Sensor Logic ---
         function handleOrientation(event) {
-            if (isLocked || event.beta === null) return;
+            if (!isCameraViewActive || event.beta === null) return;
             
-            // Standardizing 'beta' pitch angle. 
-            // When a phone is held vertically in portrait (camera facing out), beta is approx 90.
-            // Therefore, 90 minus beta gives us a flat 0 horizontal line of sight.
             let rawBeta = event.beta; 
-            
-            // Map angle: Looking straight = 0. Looking up = positive. Looking down = negative.
-            // Note: orientation axes can vary slightly by OS, but generally portrait vertical = 90.
             let angle = 90 - rawBeta; 
-            
             currentAngle = Math.round(angle);
-            document.getElementById('angle-val').innerText = currentAngle;
             
-            calculateCrawl(); // Auto-update if distance is already entered
+            document.getElementById('live-angle').innerText = currentAngle;
         }
 
-        // --- 5: Lock Button Logic ---
-        function toggleLock() {
-            isLocked = !isLocked;
-            const btn = document.getElementById('lock-btn');
-            if (isLocked) {
-                btn.innerText = "Unlock Angle";
-                btn.classList.add('locked');
-            } else {
-                btn.innerText = "Lock Angle";
-                btn.classList.remove('locked');
-            }
+        // --- View Transitions ---
+        function lockAngle() {
+            showDistanceView(currentAngle);
         }
 
-        // --- 4 & Math: Calculations ---
-        function calculateCrawl() {
-            const distance = parseFloat(document.getElementById('distance-input').value);
-            const resultsDiv = document.getElementById('results-container');
+        function skipAngle() {
+            showDistanceView(0);
+        }
+
+        function showDistanceView(angleToUse) {
+            currentAngle = angleToUse;
+            stopCamera();
             
-            if (isNaN(distance) || distance <= 0) {
-                resultsDiv.style.display = 'none';
-                return;
-            }
+            document.getElementById('camera-view').style.display = 'none';
+            document.getElementById('distance-view').style.display = 'flex';
+            
+            document.getElementById('locked-angle-display').innerText = currentAngle;
+            
+            // Default to 20 yards on entry
+            document.getElementById('distance-slider').value = 20;
+            updateDistance(); 
+        }
 
-            resultsDiv.style.display = 'block';
+        function goBackToCamera() {
+            startCamera();
+        }
 
+        // --- Distance & Calculations ---
+        function updateDistance() {
+            const distValue = document.getElementById('distance-slider').value;
+            document.getElementById('dist-display-val').innerText = distValue;
+            calculateCrawl(parseFloat(distValue));
+        }
+
+        function calculateCrawl(distance) {
             // Convert angle to radians for Math.cos
             const angleRad = currentAngle * (Math.PI / 180);
 
@@ -297,18 +352,18 @@
 
             // Step 3: Recommendation Logic
             const recDiv = document.getElementById('res-recommendation');
-            recDiv.className = ''; // Reset classes
+            recDiv.className = '';
 
             let validAnchors = [];
             if (s_chin >= 0) validAnchors.push({ name: "Chin", value: s_chin });
             if (s_lip >= 0)  validAnchors.push({ name: "Lip", value: s_lip });
 
             if (validAnchors.length === 0) {
-                // Both are negative
+                // Both negative
                 recDiv.innerHTML = "Warning: Target exceeds point-on distance.";
                 recDiv.className = 'warning';
             } else {
-                // Find the smallest positive value (less crawl)
+                // Find smallest positive value
                 validAnchors.sort((a, b) => a.value - b.value);
                 const best = validAnchors[0];
                 
