@@ -1,5 +1,5 @@
 ---
-layout: default
+layout: single
 title: Travels
 ---
 [Home](/) | [About](/about) | [Travels](/travel) | [Hobbies & Projects](/projects) | [Life & Updates](/blog)
