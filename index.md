@@ -8,7 +8,7 @@ title: Home
 
 # Welcome to Our Adventures
 
-![Our Family](/assets/images/ROZ_1.jpg)
+![Our Family](/assets/images/ROZ_1_cropped.jpg)
 *Add a caption for your photo here!*
 
 Welcome to our digital scrapbook! As we fully transition into Work Optional this summer, we wanted a simple space to share our life experiences, travels, and everyday hobbies. 
