@@ -1,3 +1,6 @@
+url: "https://ronam.us"
+baseurl: ""
+
 remote_theme: "mmistakes/minimal-mistakes"
 
 plugins:
