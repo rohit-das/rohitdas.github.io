@@ -1,5 +1,5 @@
 ---
-layout: default
+layout: single
 title: Life & Updates
 ---
 [Home](/) | [About](/about) | [Travels](/travel) | [Hobbies & Projects](/projects) | [Life & Updates](/blog)
