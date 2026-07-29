@@ -1,0 +1,11 @@
+main:
+  - title: "Home"
+    url: /
+  - title: "About"
+    url: /about/
+  - title: "Travels"
+    url: /travel/
+  - title: "Hobbies & Projects"
+    url: /projects/
+  - title: "Life & Updates"
+    url: /blog/
