@@ -1,8 +1,10 @@
 remote_theme: "mmistakes/minimal-mistakes"
+
 plugins:
   - jekyll-include-cache
-  title: Adventures of Rohit and Onam
-description: A small collection of our adventures, experiences and thoughts
+
+title: "Adventures of Rohit and Onam"
+description: "A collection of our adventures, experiences and thoughts"
 
 minimal_mistakes_skin: "default" # You can change this to "dark", "air", "mint", "default" etc.
 
