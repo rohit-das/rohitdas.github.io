@@ -4,7 +4,6 @@ title: About Us
 ---
 ***
 
-# About Us
 
 We are based in Newark, California, navigating an exciting new chapter of going Work Optional! We share our home with our high-energy dog who keeps us on our toes and usually tags along on our road trips.
 
