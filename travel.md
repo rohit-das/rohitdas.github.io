@@ -5,8 +5,6 @@ title: Travels
 
 ***
 
-# Our Travels
-
 Traveling is one of our greatest joys. Here is a log of our recent adventures and upcoming plans:
 
 ### The Next Adventure
