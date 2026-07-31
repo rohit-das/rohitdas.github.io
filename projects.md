@@ -2,7 +2,6 @@
 layout: single
 title: Hobbies & Projects
 ---
-[Home](/) | [About](/about) | [Travels](/travel) | [Hobbies & Projects](/projects) | [Life & Updates](/blog)
 
 ***
 
