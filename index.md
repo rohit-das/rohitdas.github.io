@@ -2,7 +2,6 @@
 layout: home
 title: Home
 ---
-[Home](/) | [About](/about) | [Travels](/travel) | [Hobbies & Projects](/projects) | [Life Updates](/blog)
 
 ***
 
