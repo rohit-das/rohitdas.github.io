@@ -2,8 +2,6 @@
 layout: single
 title: About Us
 ---
-[Home](/) | [About](/about) | [Travels](/travel) | [Hobbies & Projects](/projects) | [Life Updates](/blog)
-
 ***
 
 # About Us
