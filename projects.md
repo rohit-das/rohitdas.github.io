@@ -5,7 +5,6 @@ title: Hobbies & Projects
 
 ***
 
-# Hobbies & Projects
 
 Welcome to the workshop! Here are a few of the things keeping me busy:
 
