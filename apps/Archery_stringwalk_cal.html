@@ -28,7 +28,6 @@
             background-color: var(--bg-dark);
             color: var(--text-main);
             overflow: hidden;
-            /* Fallback for browsers that don't support dvh */
             height: 100vh; 
             height: 100dvh;
         }
@@ -115,6 +114,41 @@
             border-radius: 50%;
         }
 
+        /* Zoom Controls */
+        #zoom-controls {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: none; /* Hidden by default until hardware capabilities are verified */
+            flex-direction: column;
+            gap: 15px;
+            z-index: 20;
+        }
+
+        .zoom-btn {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background-color: rgba(18, 18, 22, 0.8);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--text-main);
+            font-weight: 700;
+            font-size: 1rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+        }
+
+        .zoom-btn.active {
+            border-color: var(--neon);
+            color: var(--neon);
+            box-shadow: 0 0 10px var(--neon-dim);
+        }
+
         /* Glassmorphism Panels */
         .panel {
             background-color: var(--panel-bg);
@@ -135,6 +169,7 @@
             display: flex;
             flex-direction: column;
             text-align: center;
+            z-index: 20;
         }
 
         .camera-panel {
@@ -207,7 +242,7 @@
             -webkit-appearance: none;
             width: 100%;
             background: transparent;
-            height: 30px; /* larger touch target */
+            height: 30px;
         }
         input[type="range"]::-webkit-slider-runnable-track {
             width: 100%;
@@ -317,6 +352,14 @@
         <video id="camera-feed" autoplay playsinline></video>
         <div class="crosshair"><div class="crosshair-center"></div></div>
         
+        <!-- Zoom Controls -->
+        <div id="zoom-controls">
+            <button class="zoom-btn active" onclick="setZoom(1, this)">1x</button>
+            <button class="zoom-btn" onclick="setZoom(2, this)">2x</button>
+            <button class="zoom-btn" onclick="setZoom(5, this)">5x</button>
+            <button class="zoom-btn" onclick="setZoom(10, this)">10x</button>
+        </div>
+        
         <div class="panel camera-panel">
             <div class="panel-label">Target Elevation</div>
             <div class="angle-display"><span id="live-angle">0</span>&deg;</div>
@@ -374,6 +417,7 @@
         let currentAngle = 0;
         let isCameraViewActive = false;
         let cameraStream = null;
+        let videoTrack = null;
         
         // --- Initialization & Permissions ---
         async function initApp() {
@@ -404,6 +448,10 @@
                 });
                 document.getElementById('camera-feed').srcObject = cameraStream;
                 
+                // Retrieve the video track for zoom controls
+                videoTrack = cameraStream.getVideoTracks()[0];
+                setTimeout(checkZoomCapabilities, 500); // Slight delay ensures track capabilities are loaded
+
                 document.getElementById('distance-view').style.display = 'none';
                 document.getElementById('camera-view').style.display = 'flex';
                 isCameraViewActive = true;
@@ -418,8 +466,50 @@
             if (cameraStream) {
                 cameraStream.getTracks().forEach(track => track.stop());
                 cameraStream = null;
+                videoTrack = null;
             }
             isCameraViewActive = false;
+        }
+
+        // --- Zoom Control Logic ---
+        function checkZoomCapabilities() {
+            if (!videoTrack) return;
+            const capabilities = videoTrack.getCapabilities();
+            const zoomControls = document.getElementById('zoom-controls');
+            
+            if (capabilities.zoom) {
+                zoomControls.style.display = 'flex';
+                // Reset UI to 1x active state on load
+                document.querySelectorAll('.zoom-btn').forEach(btn => btn.classList.remove('active'));
+                document.querySelector('.zoom-btn').classList.add('active'); 
+            } else {
+                zoomControls.style.display = 'none';
+            }
+        }
+
+        async function setZoom(level, btnElement) {
+            if (!videoTrack) return;
+            const capabilities = videoTrack.getCapabilities();
+            
+            if (capabilities.zoom) {
+                let targetZoom = level;
+                
+                // Ensure requested zoom doesn't exceed device limits
+                if (targetZoom > capabilities.zoom.max) targetZoom = capabilities.zoom.max;
+                if (targetZoom < capabilities.zoom.min) targetZoom = capabilities.zoom.min;
+
+                try {
+                    await videoTrack.applyConstraints({
+                        advanced: [{ zoom: targetZoom }]
+                    });
+                    
+                    // Update active button UI
+                    document.querySelectorAll('.zoom-btn').forEach(btn => btn.classList.remove('active'));
+                    btnElement.classList.add('active');
+                } catch (err) {
+                    console.error("Error applying zoom:", err);
+                }
+            }
         }
 
         // --- Angle Sensor Logic ---
