@@ -1,7 +1,7 @@
 ---
 layout: single
 title: "Reflections on the 1 Million BC 2026 Shoot"
-date: 2026-08-04
+date: 2026-08-03
 categories:
   - Archery
 tags:
@@ -12,11 +12,26 @@ tags:
 header:
   teaser: /assets/images/OMBC_group_pic.png
 excerpt: "My third year at the 1 Million BC 3D shoot: shooting with the Archery Only team, testing my string walking app, analyzing my performance, and gearing up for the Bug Shoot."
+
+
+# Minimal Mistakes Gallery Configuration
+gallery:
+  - image_path: assets/images/OMBC_group_pic.png
+    url: assets/images/OMBC_group_pic.png
+    alt: "Archery Only Team at 1 Million BC"
+    title: "Archery Only squad on the course"
+
 ---
 
 Last weekend marked my third time attending the annual **1 Million BC Shoot**, and it was easily one of the most enjoyable runs yet. This year, I went with the **Archery Only** group, repping our team jerseys and shooting alongside a great squad of fellow Barebow archers. There is nothing quite like walking a 3D course with a solid crew—the shared energy, and camaraderie made the entire weekend a blast.
 
 Beyond the fun, a two-day, 63-target 3D tournament is always a fantastic proving ground for gear, physical conditioning, and shot execution. Reflecting on my scorecard, my rig setup, and course logistics gave me a clear picture of what worked well and what needs attention before the next event.
+
+---
+
+## Tournament Highlights
+
+{% include gallery caption="AO Team at the 1MBC 2026" %}
 
 ---
 
