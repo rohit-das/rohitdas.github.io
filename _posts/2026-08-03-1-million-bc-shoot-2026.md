@@ -10,7 +10,7 @@ tags:
   - tournament
   - string-walking
 header:
-  teaser: /assets/images/posts/1-million-bc-teaser.jpg
+  teaser: /assets/images/OMBC_group_pic.png
 excerpt: "My third year at the 1 Million BC 3D shoot: shooting with the Archery Only team, testing my string walking app, analyzing my performance, and gearing up for the Bug Shoot."
 ---
 
