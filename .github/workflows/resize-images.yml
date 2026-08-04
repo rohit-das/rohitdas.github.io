@@ -1,0 +1,30 @@
+name: Resize and Compress Images
+
+on:
+  push:
+    paths:
+      - 'assets/images/**' # Change this to match your image folder path
+  pull_request:
+    paths:
+      - 'assets/images/**'
+
+jobs:
+  resize:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Resize Images
+        uses: gonzalonaveira/gh-image-resizing@master
+        with:
+          IMAGES_MAX_WIDTH: "1200" # Set your preferred max width in pixels
+          IMAGES_QUALITY: "85"     # Set image quality (0-100)
+          IMAGES_FORMATS: "jpg,jpeg,png"
+          IMAGES_DIRECTORIES: "assets/images" # Directory where your images live
+
+      - name: Commit resized images back to repo
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "Automated image resizing and compression"
+          branch: ${{ github.head_ref || github.ref_name }}
