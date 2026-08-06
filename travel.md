@@ -42,6 +42,95 @@ author_profile: true
     color: #6c757d;
     margin-top: 4px;
   }
+  
+  /* Interactive Card Styling */
+.stat-card.clickable-card {
+  cursor: pointer;
+  border: 1px solid #3182ce;
+  background-color: #f0f8ff;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.stat-card.clickable-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(49, 130, 206, 0.2);
+}
+.sub-label {
+  font-size: 0.65rem;
+  color: #3182ce;
+  margin-top: 2px;
+  font-weight: 600;
+}
+
+/* Modal Panel Container */
+.country-modal-container {
+  background: #ffffff;
+  border: 1px solid #cbd5e0;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid #edf2f7;
+  padding-bottom: 8px;
+  margin-bottom: 12px;
+}
+.modal-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #2d3748;
+}
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #a0aec0;
+  cursor: pointer;
+}
+.close-btn:hover {
+  color: #e53e3e;
+}
+
+/* Continents Responsive Grid */
+.continents-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 15px;
+}
+.continent-box {
+  background: #f7fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 10px 12px;
+}
+.continent-box h4 {
+  margin: 0 0 6px 0;
+  font-size: 0.9rem;
+  color: #2b6cb0;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 4px;
+}
+.continent-box ul {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 0.82rem;
+  color: #4a5568;
+}
+.continent-box li {
+  margin-bottom: 3px;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 
   /* Interactive Map Responsive Wrapper */
   #travel-map {
@@ -154,30 +243,98 @@ author_profile: true
 
 <div class="travel-container">
 
-  <div class="stats-grid">
-    <div class="stat-card">
-      <div class="number">47</div>
-      <div class="label">Total Trips</div>
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="number">47</div>
+    <div class="label">Total Trips</div>
+  </div>
+  
+  <div class="stat-card clickable-card" onclick="toggleCountryModal()" title="Click to view countries">
+    <div class="number">28 🌐</div>
+    <div class="label">Countries Visited</div>
+    <div class="sub-label">Click for breakdown</div>
+  </div>
+
+  <div class="stat-card">
+    <div class="number">13</div>
+    <div class="label">US States</div>
+  </div>
+</div>
+
+<div id="country-modal" class="country-modal-container" style="display: none;">
+  <div class="country-modal-content">
+    <div class="modal-header">
+      <h3>🌍 Countries Visited by Continent (27 Total)</h3>
+      <button class="close-btn" onclick="toggleCountryModal()">&times;</button>
     </div>
-    <div class="stat-card">
-      <div class="number">20</div>
-      <div class="label">Countries Visited</div>
-    </div>
-    <div class="stat-card">
-      <div class="number">13</div>
-      <div class="label">US States</div>
-    </div>
-    <div class="stat-card">
-      <div class="number">2007</div>
-      <div class="label">Logging Since</div>
+    <div class="continents-grid">
+      
+      <div class="continent-box">
+        <h4>🇪🇺 Europe (14)</h4>
+        <ul>
+          <li>Austria</li>
+          <li>Croatia</li>
+          <li>France</li>
+          <li>Germany</li>
+          <li>Greece</li>
+          <li>Iceland</li>
+          <li>Italy</li>
+          <li>Netherlands</li>
+          <li>Norway</li>
+          <li>Portugal</li>
+          <li>Spain</li>
+          <li>Switzerland</li>
+          <li>United Kingdom</li>
+          <li>Vatican City</li>
+        </ul>
+      </div>
+
+      <div class="continent-box">
+        <h4>🌏 Asia (6)</h4>
+        <ul>
+          <li>India</li>
+          <li>Indonesia</li>
+          <li>Nepal</li>
+          <li>Thailand</li>
+          <li>Türkiye</li>
+          <li>United Arab Emirates</li>
+        </ul>
+      </div>
+
+      <div class="continent-box">
+        <h4>🌎 North America (4)</h4>
+        <ul>
+          <li>Canada</li>
+          <li>Mexico</li>
+          <li>The Bahamas</li>
+          <li>United States</li>
+        </ul>
+      </div>
+
+      <div class="continent-box">
+        <h4>🌎 South America (2)</h4>
+        <ul>
+          <li>Ecuador</li>
+          <li>Peru</li>
+        </ul>
+      </div>
+
+      <div class="continent-box">
+        <h4>🌍 Africa (1)</h4>
+        <ul>
+          <li>Egypt</li>
+        </ul>
+      </div>
+
     </div>
   </div>
+</div>
 
   <div id="travel-map"></div>
 
   <div class="filter-bar">
-    <button class="filter-btn active" onclick="filterTrips('all')">All Trips</button>
-    <button class="filter-btn" onclick="filterTrips('International')">🌍 International</button>
+    <button class="filter-btn" onclick="filterTrips('all')">All Trips</button>
+    <button class="filter-btn active" onclick="filterTrips('International')">🌍 International</button>
     <button class="filter-btn" onclick="filterTrips('Domestic')">✈️ Domestic</button>
     <button class="filter-btn" onclick="filterTrips('Regional')">🚗 Regional</button>
   </div>
@@ -216,7 +373,7 @@ author_profile: true
 
     <div class="trip-card" data-type="International">
       <div class="trip-header">
-        <span class="trip-title">Quito, Galápagos Islands & Napo, Ecuador</span>
+        <span class="trip-title">Ecuador - Quito, Galápagos Islands & Napo </span>
         <span class="badge badge-international">International</span>
       </div>
       <div class="trip-meta">📅 Dec 21, 2025 – Dec 30, 2025 | 👥 Onam Bharti, Rohit Das</div>
@@ -224,7 +381,7 @@ author_profile: true
 
     <div class="trip-card" data-type="International">
       <div class="trip-header">
-        <span class="trip-title">Bergen, Odda, Geiranger, Ålesund, Åndalsnes, Oslo, Norway</span>
+        <span class="trip-title"> Norway - Bergen, Odda, Geiranger, Ålesund, Åndalsnes, Oslo</span>
         <span class="badge badge-international">International</span>
       </div>
       <div class="trip-meta">📅 Aug 22, 2025 – Sep 1, 2025 | 👥 Onam Bharti, Rohit Das, Nithin and wife</div>
@@ -257,7 +414,7 @@ author_profile: true
 
     <div class="trip-card" data-type="International">
       <div class="trip-header">
-        <span class="trip-title">Ao Nang, Pa Tong, Phuket, Rawai, Thailand</span>
+        <span class="trip-title">Thailand - Ao Nang, Pa Tong, Phuket, Rawai</span>
         <span class="badge badge-international">International</span>
       </div>
       <div class="trip-meta">📅 Mar 19, 2025 – Mar 23, 2025 | 👥 Onam Bharti, Rohit Das and Family</div>
@@ -265,7 +422,7 @@ author_profile: true
 
     <div class="trip-card" data-type="International">
       <div class="trip-header">
-        <span class="trip-title">Delhi, India</span>
+        <span class="trip-title">India - Delhi</span>
         <span class="badge badge-international">International</span>
       </div>
       <div class="trip-meta">📅 Mar 1, 2025 – Apr 2, 2025 | 👥 Onam Bharti</div>
@@ -277,7 +434,7 @@ author_profile: true
 
     <div class="trip-card" data-type="International">
       <div class="trip-header">
-        <span class="trip-title">Cabo San Lucas, Baja California Sur, Mexico</span>
+        <span class="trip-title">Mexico - Cabo San Lucas, Baja California Sur</span>
         <span class="badge badge-international">International</span>
       </div>
       <div class="trip-meta">📅 Dec 21, 2024 – Dec 24, 2024 | 👥 Onam Bharti, Rohit Das, Anusha</div>
@@ -285,7 +442,7 @@ author_profile: true
 
     <div class="trip-card" data-type="International">
       <div class="trip-header">
-        <span class="trip-title">Barcelona, Spain</span>
+        <span class="trip-title">Spain - Barcelona</span>
         <span class="badge badge-international">International</span>
       </div>
       <div class="trip-meta">📅 Oct 18, 2024 – Oct 19, 2024 | 👥 Onam Bharti and friends</div>
@@ -293,10 +450,11 @@ author_profile: true
 
     <div class="trip-card" data-type="International">
       <div class="trip-header">
-        <span class="trip-title">Reykjavik, Reynisfjara, Múlaþing, Þingeyjarsveit, Siglufjörður, Iceland</span>
+        <span class="trip-title">Iceland - Reykjavik, Reynisfjara, Múlaþing, Þingeyjarsveit, Siglufjörður </span>
         <span class="badge badge-international">International</span>
       </div>
       <div class="trip-meta">📅 Aug 24, 2024 – Sep 2, 2024 | 👥 Rohit Das, Onam Bharti</div>
+      <div class="trip-details">Ring road trip around the island in a campervan</div>
     </div>
 
     <div class="trip-card" data-type="Domestic">
@@ -319,7 +477,7 @@ author_profile: true
 
     <div class="trip-card" data-type="International">
       <div class="trip-header">
-        <span class="trip-title">Munich, Salzburg, Vienna, Split, Plitvice Lakes, Dubrovnik</span>
+        <span class="trip-title">Germany, Austria, Croatia - Munich, Salzburg, Vienna, Split, Plitvice Lakes, Dubrovnik</span>
         <span class="badge badge-international">International</span>
       </div>
       <div class="trip-meta">📅 Mar 29, 2024 – Apr 12, 2024 | 👥 Onam Bharti, Rohit Das</div>
@@ -340,7 +498,7 @@ author_profile: true
 
     <div class="trip-card" data-type="International">
       <div class="trip-header">
-        <span class="trip-title">Giza, Cairo, Abu Simbel, Aswan, Luxor, Hurghada, Egypt</span>
+        <span class="trip-title">Egypt - Giza, Cairo, Abu Simbel, Aswan, Luxor, Hurghada</span>
         <span class="badge badge-international">International</span>
       </div>
       <div class="trip-meta">📅 Nov 19, 2023 – Nov 25, 2023 | 👥 Onam Bharti, Rohit Das</div>
@@ -348,7 +506,7 @@ author_profile: true
 
     <div class="trip-card" data-type="International">
       <div class="trip-header">
-        <span class="trip-title">Edinburgh, London, Bibury, UK</span>
+        <span class="trip-title">UK - Edinburgh, London, Bibury</span>
         <span class="badge badge-international">International</span>
       </div>
       <div class="trip-meta">📅 Jun 30, 2023 – Jul 9, 2023 | 👥 Rohit Das, Onam Bharti</div>
@@ -364,7 +522,7 @@ author_profile: true
 
     <div class="trip-card" data-type="International">
       <div class="trip-header">
-        <span class="trip-title">Istanbul, Göreme, Cappadocia, Delhi</span>
+        <span class="trip-title">Turkey, India - Istanbul, Göreme, Cappadocia, Delhi</span>
         <span class="badge badge-international">International</span>
       </div>
       <div class="trip-meta">📅 Mar 10, 2023 – Apr 2, 2023 | 👥 Onam Bharti, Rohit Das</div>
@@ -393,10 +551,11 @@ author_profile: true
 
     <div class="trip-card" data-type="International">
       <div class="trip-header">
-        <span class="trip-title">Cusco, Aguas Calientes, Machu Picchu, Lima, Peru</span>
+        <span class="trip-title">Peru - Cusco, Aguas Calientes, Machu Picchu, Lima</span>
         <span class="badge badge-international">International</span>
       </div>
       <div class="trip-meta">📅 Nov 21, 2022 – Nov 29, 2022 | 👥 Onam Bharti, Rohit Das</div>
+      <div class="trip-details"></div>
     </div>
 
     <div class="trip-card" data-type="Domestic">
@@ -417,7 +576,7 @@ author_profile: true
 
     <div class="trip-card" data-type="International">
       <div class="trip-header">
-        <span class="trip-title">Delhi, India</span>
+        <span class="trip-title">India - Delhi</span>
         <span class="badge badge-international">International</span>
       </div>
       <div class="trip-meta">📅 Jun 17, 2022 – Aug 27, 2022 | 👥 Meera Devi, Tarun Kumar</div>
@@ -425,7 +584,7 @@ author_profile: true
 
     <div class="trip-card" data-type="International">
       <div class="trip-header">
-        <span class="trip-title">Athens, Santorini, Volendam, Amsterdam</span>
+        <span class="trip-title">Greece, Netherlands - Athens, Santorini, Amsterdam, Volendam</span>
         <span class="badge badge-international">International</span>
       </div>
       <div class="trip-meta">📅 Apr 17, 2022 – Apr 27, 2022 | 👥 Rohit Das, Onam Bharti</div>
@@ -463,7 +622,7 @@ author_profile: true
 
     <div class="trip-card" data-type="International">
       <div class="trip-header">
-        <span class="trip-title">Puerto Vallarta & Boca de Tomatlan, Mexico</span>
+        <span class="trip-title">Mexico - Puerto Vallarta & Boca de Tomatlan </span>
         <span class="badge badge-international">International</span>
       </div>
       <div class="trip-meta">📅 Nov 21, 2021 – Nov 28, 2021 | 👥 Onam Bharti, Rohit Das</div>
@@ -479,10 +638,11 @@ author_profile: true
 
     <div class="trip-card" data-type="International">
       <div class="trip-header">
-        <span class="trip-title">Calgary, Banff & Jasper National Parks, Vancouver, Canada</span>
+        <span class="trip-title">Canada - Calgary, Banff & Jasper National Parks, Vancouver </span>
         <span class="badge badge-international">International</span>
       </div>
       <div class="trip-meta">📅 Aug 20, 2021 – Aug 29, 2021 | 👥 Rohit Das, Onam Bharti</div>
+      <div class="trip-details"> Our first RV trip</div>
     </div>
 
     <div class="trip-card" data-type="Domestic">
@@ -507,20 +667,12 @@ author_profile: true
 
     <div class="trip-card" data-type="International">
       <div class="trip-header">
-        <span class="trip-title">Kolkata & Bengaluru, India</span>
+        <span class="trip-title">India - Kolkata & Bengaluru</span>
         <span class="badge badge-international">International</span>
       </div>
       <div class="trip-meta">📅 Mar 5, 2020 – Mar 18, 2020 | 👥 Rohit Das</div>
     </div>
 
-    <div class="trip-card" data-type="International">
-      <div class="trip-header">
-        <span class="trip-title">Cancun (Mexico) & Miami Beach, FL</span>
-        <span class="badge badge-international">International / Domestic</span>
-      </div>
-      <div class="trip-meta">📅 Feb 8, 2020 – Feb 17, 2020 | 👥 Onam Bharti, Rohit Das</div>
-    </div>
-  </div>
 
   <div class="year-section">
     <div class="year-heading">2019</div>
@@ -567,7 +719,7 @@ author_profile: true
 
     <div class="trip-card" data-type="International">
       <div class="trip-header">
-        <span class="trip-title">Barcelona, Seville, Granada (Spain) & Lisbon (Portugal)</span>
+        <span class="trip-title">Spain and Portugal - Barcelona, Seville, Granada (Spain) & Lisbon (Portugal)</span>
         <span class="badge badge-international">International</span>
       </div>
       <div class="trip-meta">📅 Apr 4, 2019 – Apr 15, 2019 | 👥 Onam Bharti, Rohit Das</div>
@@ -575,7 +727,7 @@ author_profile: true
 
     <div class="trip-card" data-type="International">
       <div class="trip-header">
-        <span class="trip-title">New Delhi & Kolkata, India</span>
+        <span class="trip-title">India - New Delhi & Kolkata</span>
         <span class="badge badge-international">International</span>
       </div>
       <div class="trip-meta">📅 Feb 23, 2019 – Mar 3, 2019 | 👥 Anusha, Meera, S N Das, Rohit Das</div>
@@ -619,7 +771,7 @@ author_profile: true
 
     <div class="trip-card" data-type="International">
       <div class="trip-header">
-        <span class="trip-title">Paris (France), Bern, Grindelwald, Lauterbrunnen, Lucerne (Switzerland)</span>
+        <span class="trip-title">France and Switzerland - Paris (France), Bern, Grindelwald, Lauterbrunnen, Lucerne (Switzerland)</span>
         <span class="badge badge-international">International</span>
       </div>
       <div class="trip-meta">📅 May 24, 2018 – Jun 3, 2018 | 👥 Onam Bharti, Rohit Das</div>
@@ -635,7 +787,7 @@ author_profile: true
 
     <div class="trip-card" data-type="International">
       <div class="trip-header">
-        <span class="trip-title">New York, Jersey City & Delhi, Mumbai (India)</span>
+        <span class="trip-title">India - New York, Jersey City & Delhi, Mumbai</span>
         <span class="badge badge-international">International / Domestic</span>
       </div>
       <div class="trip-meta">📅 Feb 17, 2018 – Feb 24, 2018 | 👥 Rohit Das, Onam Bharti</div>
@@ -647,7 +799,7 @@ author_profile: true
 
     <div class="trip-card" data-type="International">
       <div class="trip-header">
-        <span class="trip-title">Bangalore, Delhi, Noida, Kolkata, Gurugram, India</span>
+        <span class="trip-title">India - Bangalore, Delhi, Noida, Kolkata, Gurugram</span>
         <span class="badge badge-international">International</span>
       </div>
       <div class="trip-meta">📅 Dec 10, 2017 – Jan 1, 2018 | 👥 Onam Bharti, Rohit Das</div>
@@ -655,15 +807,7 @@ author_profile: true
 
     <div class="trip-card" data-type="International">
       <div class="trip-header">
-        <span class="trip-title">Budapest, Hungary</span>
-        <span class="badge badge-international">International</span>
-      </div>
-      <div class="trip-meta">📅 Oct 1, 2017 | 👥 Solo / Unspecified</div>
-    </div>
-
-    <div class="trip-card" data-type="International">
-      <div class="trip-header">
-        <span class="trip-title">Taoyuan (Taiwan) & Bali (Indonesia)</span>
+        <span class="trip-title">Indonesia - Taoyuan & Bali </span>
         <span class="badge badge-international">International</span>
       </div>
       <div class="trip-meta">📅 Sep 22, 2017 – Sep 24, 2017 | 👥 Solo / Unspecified</div>
@@ -679,7 +823,7 @@ author_profile: true
 
     <div class="trip-card" data-type="International">
       <div class="trip-header">
-        <span class="trip-title">Kolkata, Delhi (India) & Alturas, CA</span>
+        <span class="trip-title">India - Kolkata, Delhi </span>
         <span class="badge badge-international">International / Regional</span>
       </div>
       <div class="trip-meta">📅 May 13, 2017 – May 29, 2017 | 👥 Rohit Das, Shambhu Nath Das, S N Das, Siddhartha Datta</div>
@@ -707,7 +851,7 @@ author_profile: true
 
     <div class="trip-card" data-type="International">
       <div class="trip-header">
-        <span class="trip-title">Venice, Florence, Pisa, Cinque Terre, Rome, Vatican City</span>
+        <span class="trip-title">Italy & Vatican City - Venice, Florence, Pisa, Cinque Terre, Rome, Vatican City</span>
         <span class="badge badge-international">International</span>
       </div>
       <div class="trip-meta">📅 Sep 1, 2016 – Sep 11, 2016 | 👥 Rohit Das, Onam Bharti</div>
@@ -716,10 +860,10 @@ author_profile: true
 
     <div class="trip-card" data-type="International">
       <div class="trip-header">
-        <span class="trip-title">Vancouver & Whistler, Canada</span>
+        <span class="trip-title">Canada - Vancouver & Whistler </span>
         <span class="badge badge-international">International</span>
       </div>
-      <div class="trip-meta">📅 Jul 2, 2016 – Jul 3, 2016 | 👥 Onam Bharti</div>
+      <div class="trip-meta">📅 Jul 2, 2016 – Jul 3, 2016 | 👥 Rohit Das, Onam Bharti</div>
     </div>
   </div>
 
@@ -728,7 +872,7 @@ author_profile: true
 
     <div class="trip-card" data-type="International">
       <div class="trip-header">
-        <span class="trip-title">Bangkok, Krabi (Thailand) & Delhi, Patna, Mandarmani (India)</span>
+        <span class="trip-title">India & Thailand - Bangkok, Krabi (Thailand) & Delhi, Patna, Mandarmani </span>
         <span class="badge badge-international">International</span>
       </div>
       <div class="trip-meta">📅 Dec 11, 2015 – Jan 10, 2016 | 👥 Onam Bharti, Rohit Das, Nithin Das, S N Das</div>
@@ -772,10 +916,11 @@ author_profile: true
 
     <div class="trip-card" data-type="International">
       <div class="trip-header">
-        <span class="trip-title">Cancun (Mexico) & Miami Beach, FL</span>
+        <span class="trip-title">Mexico & FL - Cancun (Mexico) & Miami Beach, FL</span>
         <span class="badge badge-international">International / Domestic</span>
       </div>
       <div class="trip-meta">📅 Feb 8, 2014 – Feb 17, 2014 | 👥 Onam Bharti, Rohit Das</div>
+      <div class="trip-details">Our first Cruise, booked last minute after immigration issues at Mexico</div>
     </div>
   </div>
 
@@ -784,7 +929,7 @@ author_profile: true
 
     <div class="trip-card" data-type="International">
       <div class="trip-header">
-        <span class="trip-title">Dubai (UAE) & Kolkata, Delhi (India)</span>
+        <span class="trip-title">UAE & India - Dubai(UAE) & Kolkata, Delhi (India)</span>
         <span class="badge badge-international">International</span>
       </div>
       <div class="trip-meta">📅 Sep 12, 2013 – Oct 5, 2013 | 👥 Rohit Das, Onam Bharti</div>
@@ -806,21 +951,13 @@ author_profile: true
       <div class="trip-meta">📅 May 24, 2013 – May 28, 2013 | 👥 Rohit Das, Onam Bharti</div>
     </div>
 
-    <div class="trip-card" data-type="International">
-      <div class="trip-header">
-        <span class="trip-title">Istanbul, Nevsehir, Cappadocia (Türkiye) & Delhi (India)</span>
-        <span class="badge badge-international">International</span>
-      </div>
-      <div class="trip-meta">📅 Mar 10, 2013 – Apr 2, 2013 | 👥 Onam Bharti, Rohit Das</div>
-    </div>
-  </div>
 
   <div class="year-section">
     <div class="year-heading">2012</div>
 
     <div class="trip-card" data-type="International">
       <div class="trip-header">
-        <span class="trip-title">Chennai, Kolkata, Patna, Delhi, India</span>
+        <span class="trip-title">India - Chennai, Kolkata, Patna, Delhi</span>
         <span class="badge badge-international">International</span>
       </div>
       <div class="trip-meta">📅 Oct 26, 2012 – Nov 27, 2012 | 👥 Onam Bharti, Rohit Das</div>
@@ -1046,4 +1183,21 @@ author_profile: true
       section.style.display = hasVisible ? 'block' : 'none';
     });
   }
+
+    // Trigger International filter by default on page load
+  document.addEventListener("DOMContentLoaded", function() {
+    filterTrips('International');
+  });
+
+  // Toggle Country Modal Display
+function toggleCountryModal() {
+  const modal = document.getElementById('country-modal');
+  if (modal.style.display === 'none' || modal.style.display === '') {
+    modal.style.display = 'block';
+    // Scroll smoothly to modal on mobile
+    modal.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  } else {
+    modal.style.display = 'none';
+  }
+}
 </script>
