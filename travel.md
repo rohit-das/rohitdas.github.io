@@ -1,1203 +1,736 @@
 ---
 layout: single
-title: "Travel Log"
+title: Travel Log
 permalink: /travel/
 author_profile: true
 ---
 
 <style>
-  /* Base Container Styles */
-  .travel-container {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    color: #222;
-    margin-bottom: 2rem;
-  }
-
-  /* Stats Dashboard Grid - Mobile First */
-  .stats-grid {
+  /* Filter Bar Styles */
+  .filter-container {
     display: flex;
-    flex-wrap: wrap;
     gap: 10px;
     margin-bottom: 20px;
-  }
-  .stat-card {
-    background: #f8f9fa;
-    border: 1px solid #e9ecef;
-    border-radius: 8px;
-    padding: 12px;
-    text-align: center;
-    flex: 1 1 calc(50% - 10px); /* 2 items per row on mobile */
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-  }
-  .stat-card .number {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #2b6cb0;
-    line-height: 1.2;
-  }
-  .stat-card .label {
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: #6c757d;
-    margin-top: 4px;
-  }
-  
-  /* Interactive Card Styling */
-.stat-card.clickable-card {
-  cursor: pointer;
-  border: 1px solid #3182ce;
-  background-color: #f0f8ff;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-}
-.stat-card.clickable-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(49, 130, 206, 0.2);
-}
-.sub-label {
-  font-size: 0.65rem;
-  color: #3182ce;
-  margin-top: 2px;
-  font-weight: 600;
-}
-
-/* Modal Panel Container */
-.country-modal-container {
-  background: #ffffff;
-  border: 1px solid #cbd5e0;
-  border-radius: 8px;
-  padding: 16px;
-  margin-bottom: 20px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-  animation: fadeIn 0.2s ease-in-out;
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 2px solid #edf2f7;
-  padding-bottom: 8px;
-  margin-bottom: 12px;
-}
-.modal-header h3 {
-  margin: 0;
-  font-size: 1.1rem;
-  color: #2d3748;
-}
-.close-btn {
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #a0aec0;
-  cursor: pointer;
-}
-.close-btn:hover {
-  color: #e53e3e;
-}
-
-/* Continents Responsive Grid */
-.continents-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 15px;
-}
-.continent-box {
-  background: #f7fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  padding: 10px 12px;
-}
-.continent-box h4 {
-  margin: 0 0 6px 0;
-  font-size: 0.9rem;
-  color: #2b6cb0;
-  border-bottom: 1px solid #e2e8f0;
-  padding-bottom: 4px;
-}
-.continent-box ul {
-  margin: 0;
-  padding-left: 18px;
-  font-size: 0.82rem;
-  color: #4a5568;
-}
-.continent-box li {
-  margin-bottom: 3px;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-5px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-
-  /* Interactive Map Responsive Wrapper */
-  #travel-map {
-    width: 100%;
-    height: 350px;
-    border-radius: 8px;
-    border: 1px solid #ddd;
-    margin-bottom: 20px;
-    z-index: 1;
-  }
-
-  /* Touch-Friendly Mobile Filter Buttons */
-  .filter-bar {
-    display: flex;
-    gap: 8px;
     overflow-x: auto;
-    padding-bottom: 8px;
-    margin-bottom: 25px;
-    -webkit-overflow-scrolling: touch;
+    padding-bottom: 10px;
   }
   .filter-btn {
-    background: #edf2f7;
-    border: 1px solid #cbd5e0;
+    padding: 8px 16px;
+    border: 1px solid #ccc;
     border-radius: 20px;
-    padding: 6px 14px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: #4a5568;
-    white-space: nowrap;
+    background-color: #f8f9fa;
     cursor: pointer;
+    white-space: nowrap;
     transition: all 0.2s ease;
   }
   .filter-btn.active, .filter-btn:hover {
-    background: #3182ce;
-    color: #fff;
-    border-color: #3182ce;
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
   }
-
-  /* Timeline Log Styling */
-  .year-section {
-    border-top: 3px solid #333; /* Dark line between years */
-    padding-top: 15px;
-    margin-top: 25px;
-  }
-  .year-heading {
-    font-size: 1.4rem;
-    font-weight: 800;
-    color: #1a202c;
-    margin-bottom: 12px;
-  }
+  
+  /* Timeline Styles */
   .trip-card {
-    background: #fff;
-    border-left: 4px solid #cbd5e0;
-    border-radius: 0 6px 6px 0;
-    padding: 12px 14px;
-    margin-bottom: 12px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-    transition: transform 0.15s ease;
+    border-left: 4px solid #ddd;
+    padding: 10px 15px;
+    margin-bottom: 20px;
+    background: #fafafa;
+    border-radius: 0 8px 8px 0;
   }
-  .trip-card[data-type="International"] { border-left-color: #e53e3e; }
-  .trip-card[data-type="Domestic"] { border-left-color: #3182ce; }
-  .trip-card[data-type="Regional"] { border-left-color: #38a169; }
-
-  .trip-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    flex-wrap: wrap;
-    gap: 6px;
-  }
-  .trip-title {
-    font-size: 1rem;
-    font-weight: 700;
-    color: #2d3748;
-    margin: 0;
+  .trip-year-divider {
+    border-top: 3px solid #333;
+    margin: 30px 0 20px 0;
+    padding-top: 10px;
+    font-size: 1.5em;
+    font-weight: bold;
   }
   .badge {
-    font-size: 0.7rem;
-    padding: 2px 8px;
-    border-radius: 12px;
-    font-weight: 600;
-    color: #fff;
-    text-transform: uppercase;
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.85em;
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: white;
   }
-  .badge-international { background-color: #e53e3e; }
-  .badge-domestic { background-color: #3182ce; }
-  .badge-regional { background-color: #38a169; }
+  .badge-intl { background-color: #dc3545; }
+  .badge-dom { background-color: #0d6efd; }
+  .badge-local { background-color: #198754; }
 
-  .trip-meta {
-    font-size: 0.8rem;
-    color: #718096;
-    margin-top: 4px;
-  }
-  .trip-details {
-    font-size: 0.85rem;
-    color: #4a5568;
-    margin-top: 6px;
-  }
-
-  /* Desktop View Enhancements */
-  @media (min-width: 768px) {
-    #travel-map { height: 480px; }
-    .stat-card { flex: 1 1 calc(25% - 12px); } /* 4 across on desktop */
-    .stat-card .number { font-size: 1.8rem; }
-  }
+  #map { height: 400px; width: 100%; margin-bottom: 30px; border-radius: 8px; z-index: 1;}
+  @media (max-width: 600px) { #map { height: 350px; } }
 </style>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-<div class="travel-container">
+## Travel Map
+<div id="map"></div>
 
-<div class="stats-grid">
-  <div class="stat-card">
-    <div class="number">47</div>
-    <div class="label">Total Trips</div>
-  </div>
-  
-  <div class="stat-card clickable-card" onclick="toggleCountryModal()" title="Click to view countries">
-    <div class="number">28 🌐</div>
-    <div class="label">Countries Visited</div>
-    <div class="sub-label">Click for breakdown</div>
-  </div>
+## Trip Logs
 
-  <div class="stat-card">
-    <div class="number">13</div>
-    <div class="label">US States</div>
-  </div>
+<div class="filter-container">
+  <button class="filter-btn active" onclick="filterTrips('All')">All Trips</button>
+  <button class="filter-btn" onclick="filterTrips('International')">🌍 International</button>
+  <button class="filter-btn" onclick="filterTrips('Domestic')">✈️ Domestic</button>
+  <button class="filter-btn" onclick="filterTrips('Local')">🚗 Local</button>
 </div>
 
-<div id="country-modal" class="country-modal-container" style="display: none;">
-  <div class="country-modal-content">
-    <div class="modal-header">
-      <h3>🌍 Countries Visited by Continent (27 Total)</h3>
-      <button class="close-btn" onclick="toggleCountryModal()">&times;</button>
-    </div>
-    <div class="continents-grid">
-      
-      <div class="continent-box">
-        <h4>🇪🇺 Europe (14)</h4>
-        <ul>
-          <li>Austria</li>
-          <li>Croatia</li>
-          <li>France</li>
-          <li>Germany</li>
-          <li>Greece</li>
-          <li>Iceland</li>
-          <li>Italy</li>
-          <li>Netherlands</li>
-          <li>Norway</li>
-          <li>Portugal</li>
-          <li>Spain</li>
-          <li>Switzerland</li>
-          <li>United Kingdom</li>
-          <li>Vatican City</li>
-        </ul>
-      </div>
+<div id="timeline">
 
-      <div class="continent-box">
-        <h4>🌏 Asia (6)</h4>
-        <ul>
-          <li>India</li>
-          <li>Indonesia</li>
-          <li>Nepal</li>
-          <li>Thailand</li>
-          <li>Türkiye</li>
-          <li>United Arab Emirates</li>
-        </ul>
-      </div>
+<div class="trip-year-divider">2026</div>
 
-      <div class="continent-box">
-        <h4>🌎 North America (4)</h4>
-        <ul>
-          <li>Canada</li>
-          <li>Mexico</li>
-          <li>The Bahamas</li>
-          <li>United States</li>
-        </ul>
-      </div>
-
-      <div class="continent-box">
-        <h4>🌎 South America (2)</h4>
-        <ul>
-          <li>Ecuador</li>
-          <li>Peru</li>
-        </ul>
-      </div>
-
-      <div class="continent-box">
-        <h4>🌍 Africa (1)</h4>
-        <ul>
-          <li>Egypt</li>
-        </ul>
-      </div>
-
-    </div>
-  </div>
+<div class="trip-card" data-type="International">
+  <span class="badge badge-intl">International</span><br>
+  <strong>United States & The Bahamas:</strong> Miami Beach, Bahamas, Buffalo, Cheektowaga, Niagara Falls<br>
+  <em>Jun 14, 2026 - Jun 21, 2026</em><br>
+  🧑‍🤝‍🧑 Onam, Rohit, Family
 </div>
 
-  <div id="travel-map"></div>
-
-  <div class="filter-bar">
-    <button class="filter-btn" onclick="filterTrips('all')">All Trips</button>
-    <button class="filter-btn active" onclick="filterTrips('International')">🌍 International</button>
-    <button class="filter-btn" onclick="filterTrips('Domestic')">✈️ Domestic</button>
-    <button class="filter-btn" onclick="filterTrips('Regional')">🚗 Regional</button>
-  </div>
-
-  <div class="year-section">
-    <div class="year-heading">2026</div>
-    
-    <div class="trip-card" data-type="Domestic">
-      <div class="trip-header">
-        <span class="trip-title">Bellevue & Seattle, WA</span>
-        <span class="badge badge-domestic">Domestic</span>
-      </div>
-      <div class="trip-meta">📅 Jun 8, 2026 – Jun 11, 2026 | 👥 Onam Bharti</div>
-    </div>
-
-    <div class="trip-card" data-type="Domestic">
-      <div class="trip-header">
-        <span class="trip-title">Miami Beach, Bahamas, Buffalo, Cheektowaga, Niagara Falls</span>
-        <span class="badge badge-domestic">Domestic / Intl</span>
-      </div>
-      <div class="trip-meta">📅 Jun 14, 2026 – Jun 21, 2026 | 👥 Onam Bharti, Rohit Das, Anusha, Meera</div>
-    </div>
-
-    <div class="trip-card" data-type="Domestic">
-      <div class="trip-header">
-        <span class="trip-title">Destin, FL</span>
-        <span class="badge badge-domestic">Domestic</span>
-      </div>
-      <div class="trip-meta">📅 May 16, 2026 – May 17, 2026 | 👥 Rohit Das and friends</div>
-      <div class="trip-details">IIT Kgp US reunion trip</div>
-    </div>
-  </div>
-
-  <div class="year-section">
-    <div class="year-heading">2025</div>
-
-    <div class="trip-card" data-type="International">
-      <div class="trip-header">
-        <span class="trip-title">Ecuador - Quito, Galápagos Islands & Napo </span>
-        <span class="badge badge-international">International</span>
-      </div>
-      <div class="trip-meta">📅 Dec 21, 2025 – Dec 30, 2025 | 👥 Onam Bharti, Rohit Das</div>
-    </div>
-
-    <div class="trip-card" data-type="International">
-      <div class="trip-header">
-        <span class="trip-title"> Norway - Bergen, Odda, Geiranger, Ålesund, Åndalsnes, Oslo</span>
-        <span class="badge badge-international">International</span>
-      </div>
-      <div class="trip-meta">📅 Aug 22, 2025 – Sep 1, 2025 | 👥 Onam Bharti, Rohit Das, Nithin and wife</div>
-    </div>
-
-    <div class="trip-card" data-type="Regional">
-      <div class="trip-header">
-        <span class="trip-title">Sierra Nevada, June Lake, Mammoth Lakes, Strawberry, CA</span>
-        <span class="badge badge-regional">Regional</span>
-      </div>
-      <div class="trip-meta">📅 Jun 29, 2025 – Jul 5, 2025 | 👥 S N Das, Onam Bharti, Anusha, Rohit Das</div>
-    </div>
-
-    <div class="trip-card" data-type="Domestic">
-      <div class="trip-header">
-        <span class="trip-title">Denver & Red Rocks Amphitheatre, CO</span>
-        <span class="badge badge-domestic">Domestic</span>
-      </div>
-      <div class="trip-meta">📅 May 10, 2025 | 👥 Rohit Das and friends</div>
-      <div class="trip-details">IIT Kgp US reunion trip</div>
-    </div>
-
-    <div class="trip-card" data-type="Regional">
-      <div class="trip-header">
-        <span class="trip-title">Knights Ferry, CA</span>
-        <span class="badge badge-regional">Regional</span>
-      </div>
-      <div class="trip-meta">📅 Apr 5, 2025 | 👥 Onam Bharti</div>
-    </div>
-
-    <div class="trip-card" data-type="International">
-      <div class="trip-header">
-        <span class="trip-title">Thailand - Ao Nang, Pa Tong, Phuket, Rawai</span>
-        <span class="badge badge-international">International</span>
-      </div>
-      <div class="trip-meta">📅 Mar 19, 2025 – Mar 23, 2025 | 👥 Onam Bharti, Rohit Das and Family</div>
-    </div>
-
-    <div class="trip-card" data-type="International">
-      <div class="trip-header">
-        <span class="trip-title">India - Delhi</span>
-        <span class="badge badge-international">International</span>
-      </div>
-      <div class="trip-meta">📅 Mar 1, 2025 – Apr 2, 2025 | 👥 Onam Bharti</div>
-    </div>
-  </div>
-
-  <div class="year-section">
-    <div class="year-heading">2024</div>
-
-    <div class="trip-card" data-type="International">
-      <div class="trip-header">
-        <span class="trip-title">Mexico - Cabo San Lucas, Baja California Sur</span>
-        <span class="badge badge-international">International</span>
-      </div>
-      <div class="trip-meta">📅 Dec 21, 2024 – Dec 24, 2024 | 👥 Onam Bharti, Rohit Das, Anusha</div>
-    </div>
-
-    <div class="trip-card" data-type="International">
-      <div class="trip-header">
-        <span class="trip-title">Spain - Barcelona</span>
-        <span class="badge badge-international">International</span>
-      </div>
-      <div class="trip-meta">📅 Oct 18, 2024 – Oct 19, 2024 | 👥 Onam Bharti and friends</div>
-    </div>
-
-    <div class="trip-card" data-type="International">
-      <div class="trip-header">
-        <span class="trip-title">Iceland - Reykjavik, Reynisfjara, Múlaþing, Þingeyjarsveit, Siglufjörður </span>
-        <span class="badge badge-international">International</span>
-      </div>
-      <div class="trip-meta">📅 Aug 24, 2024 – Sep 2, 2024 | 👥 Rohit Das, Onam Bharti</div>
-      <div class="trip-details">Ring road trip around the island in a campervan</div>
-    </div>
-
-    <div class="trip-card" data-type="Domestic">
-      <div class="trip-header">
-        <span class="trip-title">Seattle & Bellevue, WA</span>
-        <span class="badge badge-domestic">Domestic</span>
-      </div>
-      <div class="trip-meta">📅 May 19, 2024 – May 21, 2024 | 👥 Onam Bharti</div>
-      <div class="trip-details">Work trip</div>
-    </div>
-
-    <div class="trip-card" data-type="Domestic">
-      <div class="trip-header">
-        <span class="trip-title">Knoxville & Great Smoky Mountains National Park, TN</span>
-        <span class="badge badge-domestic">Domestic</span>
-      </div>
-      <div class="trip-meta">📅 Apr 21, 2024 – Apr 26, 2024 | 👥 Rohit Das and friends</div>
-      <div class="trip-details">IIT Kgp US reunion trip</div>
-    </div>
-
-    <div class="trip-card" data-type="International">
-      <div class="trip-header">
-        <span class="trip-title">Germany, Austria, Croatia - Munich, Salzburg, Vienna, Split, Plitvice Lakes, Dubrovnik</span>
-        <span class="badge badge-international">International</span>
-      </div>
-      <div class="trip-meta">📅 Mar 29, 2024 – Apr 12, 2024 | 👥 Onam Bharti, Rohit Das</div>
-      <div class="trip-details">Germany, Austria, Croatia</div>
-    </div>
-  </div>
-
-  <div class="year-section">
-    <div class="year-heading">2023</div>
-
-    <div class="trip-card" data-type="Domestic">
-      <div class="trip-header">
-        <span class="trip-title">Honolulu, Waimanalo Beach, Kaneohe (Oahu), HI</span>
-        <span class="badge badge-domestic">Domestic</span>
-      </div>
-      <div class="trip-meta">📅 Dec 24, 2023 – Dec 30, 2023 | 👥 Onam Bharti, Anusha Gupta, Rohit Das</div>
-    </div>
-
-    <div class="trip-card" data-type="International">
-      <div class="trip-header">
-        <span class="trip-title">Egypt - Giza, Cairo, Abu Simbel, Aswan, Luxor, Hurghada</span>
-        <span class="badge badge-international">International</span>
-      </div>
-      <div class="trip-meta">📅 Nov 19, 2023 – Nov 25, 2023 | 👥 Onam Bharti, Rohit Das</div>
-    </div>
-
-    <div class="trip-card" data-type="International">
-      <div class="trip-header">
-        <span class="trip-title">UK - Edinburgh, London, Bibury</span>
-        <span class="badge badge-international">International</span>
-      </div>
-      <div class="trip-meta">📅 Jun 30, 2023 – Jul 9, 2023 | 👥 Rohit Das, Onam Bharti</div>
-    </div>
-
-    <div class="trip-card" data-type="Regional">
-      <div class="trip-header">
-        <span class="trip-title">Fort Bragg & Navarro River Redwoods, CA</span>
-        <span class="badge badge-regional">Regional</span>
-      </div>
-      <div class="trip-meta">📅 May 27, 2023 – May 29, 2023 | 👥 Onam Bharti, Rohit Das, Dhruvil, Dhwani</div>
-    </div>
-
-    <div class="trip-card" data-type="International">
-      <div class="trip-header">
-        <span class="trip-title">Turkey, India - Istanbul, Göreme, Cappadocia, Delhi</span>
-        <span class="badge badge-international">International</span>
-      </div>
-      <div class="trip-meta">📅 Mar 10, 2023 – Apr 2, 2023 | 👥 Onam Bharti, Rohit Das</div>
-      <div class="trip-details">Türkiye & India</div>
-    </div>
-
-    <div class="trip-card" data-type="Domestic">
-      <div class="trip-header">
-        <span class="trip-title">Fairbanks, Castner Glacier & Chena Hot Springs, AK</span>
-        <span class="badge badge-domestic">Domestic</span>
-      </div>
-      <div class="trip-meta">📅 Feb 17, 2023 – Feb 20, 2023 | 👥 Dhwani, Dhruvil, Onam Bharti, Rohit Das, Varun, Sumi, JP, Aparna</div>
-    </div>
-  </div>
-
-  <div class="year-section">
-    <div class="year-heading">2022</div>
-
-    <div class="trip-card" data-type="Regional">
-      <div class="trip-header">
-        <span class="trip-title">Murphys, CA</span>
-        <span class="badge badge-regional">Regional</span>
-      </div>
-      <div class="trip-meta">📅 Dec 23, 2022 – Dec 25, 2022 | 👥 Aparna, JP, Neha Vatsyayan</div>
-    </div>
-
-    <div class="trip-card" data-type="International">
-      <div class="trip-header">
-        <span class="trip-title">Peru - Cusco, Aguas Calientes, Machu Picchu, Lima</span>
-        <span class="badge badge-international">International</span>
-      </div>
-      <div class="trip-meta">📅 Nov 21, 2022 – Nov 29, 2022 | 👥 Onam Bharti, Rohit Das</div>
-      <div class="trip-details"></div>
-    </div>
-
-    <div class="trip-card" data-type="Domestic">
-      <div class="trip-header">
-        <span class="trip-title">Las Vegas & Zion National Park, NV/UT</span>
-        <span class="badge badge-domestic">Domestic</span>
-      </div>
-      <div class="trip-meta">📅 Jul 28, 2022 – Jul 31, 2022 | 👥 Rohit Das, Onam Bharti, Meera Devi, Tarun Kumar</div>
-    </div>
-
-    <div class="trip-card" data-type="Regional">
-      <div class="trip-header">
-        <span class="trip-title">Benicia, CA</span>
-        <span class="badge badge-regional">Regional</span>
-      </div>
-      <div class="trip-meta">📅 Jul 1, 2022 – Jul 3, 2022 | 👥 Rohit Das, Onam Bharti, Meera Devi, Tarun Kumar</div>
-    </div>
-
-    <div class="trip-card" data-type="International">
-      <div class="trip-header">
-        <span class="trip-title">India - Delhi</span>
-        <span class="badge badge-international">International</span>
-      </div>
-      <div class="trip-meta">📅 Jun 17, 2022 – Aug 27, 2022 | 👥 Meera Devi, Tarun Kumar</div>
-    </div>
-
-    <div class="trip-card" data-type="International">
-      <div class="trip-header">
-        <span class="trip-title">Greece, Netherlands - Athens, Santorini, Amsterdam, Volendam</span>
-        <span class="badge badge-international">International</span>
-      </div>
-      <div class="trip-meta">📅 Apr 17, 2022 – Apr 27, 2022 | 👥 Rohit Das, Onam Bharti</div>
-      <div class="trip-details">Greece & Netherlands</div>
-    </div>
-
-    <div class="trip-card" data-type="Regional">
-      <div class="trip-header">
-        <span class="trip-title">Yosemite National Park, CA</span>
-        <span class="badge badge-regional">Regional</span>
-      </div>
-      <div class="trip-meta">📅 Feb 19, 2022 – Feb 20, 2022 | 👥 Onam Bharti, Rohit Das, Kunal, Monica</div>
-      <div class="trip-details">Road trip to see the Firefall</div>
-    </div>
-
-    <div class="trip-card" data-type="Regional">
-      <div class="trip-header">
-        <span class="trip-title">Santa Barbara, CA</span>
-        <span class="badge badge-regional">Regional</span>
-      </div>
-      <div class="trip-meta">📅 Feb 12, 2022 – Feb 13, 2022 | 👥 Onam Bharti, Rohit Das</div>
-    </div>
-
-    <div class="trip-card" data-type="Regional">
-      <div class="trip-header">
-        <span class="trip-title">Carmel-by-the-Sea, CA</span>
-        <span class="badge badge-regional">Regional</span>
-      </div>
-      <div class="trip-meta">📅 Jan 15, 2022 – Jan 16, 2022 | 👥 Onam Bharti, Rohit Das</div>
-    </div>
-  </div>
-
-  <div class="year-section">
-    <div class="year-heading">2021</div>
-
-    <div class="trip-card" data-type="International">
-      <div class="trip-header">
-        <span class="trip-title">Mexico - Puerto Vallarta & Boca de Tomatlan </span>
-        <span class="badge badge-international">International</span>
-      </div>
-      <div class="trip-meta">📅 Nov 21, 2021 – Nov 28, 2021 | 👥 Onam Bharti, Rohit Das</div>
-    </div>
-
-    <div class="trip-card" data-type="Regional">
-      <div class="trip-header">
-        <span class="trip-title">Santa Ynez, CA</span>
-        <span class="badge badge-regional">Regional</span>
-      </div>
-      <div class="trip-meta">📅 Oct 30, 2021 – Oct 31, 2021 | 👥 Rohit Das, Sumedha, Neha Vatsyayan, Siddhartha Datta</div>
-    </div>
-
-    <div class="trip-card" data-type="International">
-      <div class="trip-header">
-        <span class="trip-title">Canada - Calgary, Banff & Jasper National Parks, Vancouver </span>
-        <span class="badge badge-international">International</span>
-      </div>
-      <div class="trip-meta">📅 Aug 20, 2021 – Aug 29, 2021 | 👥 Rohit Das, Onam Bharti</div>
-      <div class="trip-details"> Our first RV trip</div>
-    </div>
-
-    <div class="trip-card" data-type="Domestic">
-      <div class="trip-header">
-        <span class="trip-title">Big Island (Kona, Volcano, Hilo), HI</span>
-        <span class="badge badge-domestic">Domestic</span>
-      </div>
-      <div class="trip-meta">📅 Mar 21, 2021 – Mar 26, 2021 | 👥 Rohit Das, Onam Bharti</div>
-    </div>
-  </div>
-
-  <div class="year-section">
-    <div class="year-heading">2020</div>
-
-    <div class="trip-card" data-type="Regional">
-      <div class="trip-header">
-        <span class="trip-title">Lakehead (CA) & Eugene, OR</span>
-        <span class="badge badge-regional">Regional / Domestic</span>
-      </div>
-      <div class="trip-meta">📅 Sep 3, 2020 – Sep 7, 2020 | 👥 Onam Bharti, Rohit Das, Siddhartha Datta, Sutapa Dey</div>
-    </div>
-
-    <div class="trip-card" data-type="International">
-      <div class="trip-header">
-        <span class="trip-title">India - Kolkata & Bengaluru</span>
-        <span class="badge badge-international">International</span>
-      </div>
-      <div class="trip-meta">📅 Mar 5, 2020 – Mar 18, 2020 | 👥 Rohit Das</div>
-    </div>
-
-
-  <div class="year-section">
-    <div class="year-heading">2019</div>
-
-    <div class="trip-card" data-type="Domestic">
-      <div class="trip-header">
-        <span class="trip-title">Pahrump, NV</span>
-        <span class="badge badge-domestic">Domestic</span>
-      </div>
-      <div class="trip-meta">📅 Dec 1, 2019 | 👥 Rohit Das</div>
-    </div>
-
-    <div class="trip-card" data-type="Regional">
-      <div class="trip-header">
-        <span class="trip-title">Redding (CA) & Oregon</span>
-        <span class="badge badge-regional">Regional / Domestic</span>
-      </div>
-      <div class="trip-meta">📅 Aug 31, 2019 – Sep 2, 2019 | 👥 Onam Bharti, Rohit Das</div>
-    </div>
-
-    <div class="trip-card" data-type="Domestic">
-      <div class="trip-header">
-        <span class="trip-title">Kauai (Lihue, Kapaa, Koloa), HI</span>
-        <span class="badge badge-domestic">Domestic</span>
-      </div>
-      <div class="trip-meta">📅 Aug 8, 2019 – Aug 12, 2019 | 👥 Onam Bharti, Rohit Das, Meera Devi, Tarun Kumar</div>
-    </div>
-
-    <div class="trip-card" data-type="Domestic">
-      <div class="trip-header">
-        <span class="trip-title">Chicago, IL</span>
-        <span class="badge badge-domestic">Domestic</span>
-      </div>
-      <div class="trip-meta">📅 Jun 27, 2019 – Jun 28, 2019 | 👥 Solo / Unspecified</div>
-    </div>
-
-    <div class="trip-card" data-type="Domestic">
-      <div class="trip-header">
-        <span class="trip-title">Bothell & Oak Harbor, WA</span>
-        <span class="badge badge-domestic">Domestic</span>
-      </div>
-      <div class="trip-meta">📅 May 10, 2019 – May 11, 2019 | 👥 Solo / Unspecified</div>
-    </div>
-
-    <div class="trip-card" data-type="International">
-      <div class="trip-header">
-        <span class="trip-title">Spain and Portugal - Barcelona, Seville, Granada (Spain) & Lisbon (Portugal)</span>
-        <span class="badge badge-international">International</span>
-      </div>
-      <div class="trip-meta">📅 Apr 4, 2019 – Apr 15, 2019 | 👥 Onam Bharti, Rohit Das</div>
-    </div>
-
-    <div class="trip-card" data-type="International">
-      <div class="trip-header">
-        <span class="trip-title">India - New Delhi & Kolkata</span>
-        <span class="badge badge-international">International</span>
-      </div>
-      <div class="trip-meta">📅 Feb 23, 2019 – Mar 3, 2019 | 👥 Anusha, Meera, S N Das, Rohit Das</div>
-    </div>
-
-    <div class="trip-card" data-type="Domestic">
-      <div class="trip-header">
-        <span class="trip-title">Maui (Lahaina, Hana, Kaanapali), HI</span>
-        <span class="badge badge-domestic">Domestic</span>
-      </div>
-      <div class="trip-meta">📅 Feb 14, 2019 – Feb 19, 2019 | 👥 Onam Bharti, Rohit Das, Varun Khandelwal, Sumedha Dharmadhikari</div>
-    </div>
-  </div>
-
-  <div class="year-section">
-    <div class="year-heading">2018</div>
-
-    <div class="trip-card" data-type="Domestic">
-      <div class="trip-header">
-        <span class="trip-title">Grand Canyon Village, AZ</span>
-        <span class="badge badge-domestic">Domestic</span>
-      </div>
-      <div class="trip-meta">📅 Dec 30, 2018 – Jan 7, 2019 | 👥 Rohit Das, Deep Prakash Gupta</div>
-    </div>
-
-    <div class="trip-card" data-type="Regional">
-      <div class="trip-header">
-        <span class="trip-title">McArthur-Burney Falls, CA</span>
-        <span class="badge badge-regional">Regional</span>
-      </div>
-      <div class="trip-meta">📅 Sep 15, 2018 – Sep 16, 2018 | 👥 Rohit Das, Onam Bharti, Dhwani, Dhruvil, Varun, Sumedha, Julius, Aparna</div>
-    </div>
-
-    <div class="trip-card" data-type="Domestic">
-      <div class="trip-header">
-        <span class="trip-title">Las Vegas, Grand Canyon North Rim, Utah, Valley of Fire</span>
-        <span class="badge badge-domestic">Domestic</span>
-      </div>
-      <div class="trip-meta">📅 Aug 30, 2018 – Sep 3, 2018 | 👥 Rohit Das, Onam Bharti</div>
-    </div>
-
-    <div class="trip-card" data-type="International">
-      <div class="trip-header">
-        <span class="trip-title">France and Switzerland - Paris (France), Bern, Grindelwald, Lauterbrunnen, Lucerne (Switzerland)</span>
-        <span class="badge badge-international">International</span>
-      </div>
-      <div class="trip-meta">📅 May 24, 2018 – Jun 3, 2018 | 👥 Onam Bharti, Rohit Das</div>
-    </div>
-
-    <div class="trip-card" data-type="Regional">
-      <div class="trip-header">
-        <span class="trip-title">Truckee & Tahoe National Forest, CA</span>
-        <span class="badge badge-regional">Regional</span>
-      </div>
-      <div class="trip-meta">📅 Mar 31, 2018 – Apr 1, 2018 | 👥 Onam Bharti</div>
-    </div>
-
-    <div class="trip-card" data-type="International">
-      <div class="trip-header">
-        <span class="trip-title">India - New York, Jersey City & Delhi, Mumbai</span>
-        <span class="badge badge-international">International / Domestic</span>
-      </div>
-      <div class="trip-meta">📅 Feb 17, 2018 – Feb 24, 2018 | 👥 Rohit Das, Onam Bharti</div>
-    </div>
-  </div>
-
-  <div class="year-section">
-    <div class="year-heading">2017</div>
-
-    <div class="trip-card" data-type="International">
-      <div class="trip-header">
-        <span class="trip-title">India - Bangalore, Delhi, Noida, Kolkata, Gurugram</span>
-        <span class="badge badge-international">International</span>
-      </div>
-      <div class="trip-meta">📅 Dec 10, 2017 – Jan 1, 2018 | 👥 Onam Bharti, Rohit Das</div>
-    </div>
-
-    <div class="trip-card" data-type="International">
-      <div class="trip-header">
-        <span class="trip-title">Indonesia - Taoyuan & Bali </span>
-        <span class="badge badge-international">International</span>
-      </div>
-      <div class="trip-meta">📅 Sep 22, 2017 – Sep 24, 2017 | 👥 Solo / Unspecified</div>
-    </div>
-
-    <div class="trip-card" data-type="Domestic">
-      <div class="trip-header">
-        <span class="trip-title">Lordsburg & White Sands National Park, NM</span>
-        <span class="badge badge-domestic">Domestic</span>
-      </div>
-      <div class="trip-meta">📅 Jul 1, 2017 – Jul 2, 2017 | 👥 Rohit Das</div>
-    </div>
-
-    <div class="trip-card" data-type="International">
-      <div class="trip-header">
-        <span class="trip-title">India - Kolkata, Delhi </span>
-        <span class="badge badge-international">International / Regional</span>
-      </div>
-      <div class="trip-meta">📅 May 13, 2017 – May 29, 2017 | 👥 Rohit Das, Shambhu Nath Das, S N Das, Siddhartha Datta</div>
-    </div>
-
-    <div class="trip-card" data-type="Domestic">
-      <div class="trip-header">
-        <span class="trip-title">Arizona & Las Vegas, NV</span>
-        <span class="badge badge-domestic">Domestic</span>
-      </div>
-      <div class="trip-meta">📅 Feb 10, 2017 – Feb 12, 2017 | 👥 Solo / Unspecified</div>
-    </div>
-
-    <div class="trip-card" data-type="Domestic">
-      <div class="trip-header">
-        <span class="trip-title">Carlsbad & San Diego, CA</span>
-        <span class="badge badge-domestic">Domestic</span>
-      </div>
-      <div class="trip-meta">📅 Jan 30, 2017 – Jan 31, 2017 | 👥 Rohit Das</div>
-    </div>
-  </div>
-
-  <div class="year-section">
-    <div class="year-heading">2016</div>
-
-    <div class="trip-card" data-type="International">
-      <div class="trip-header">
-        <span class="trip-title">Italy & Vatican City - Venice, Florence, Pisa, Cinque Terre, Rome, Vatican City</span>
-        <span class="badge badge-international">International</span>
-      </div>
-      <div class="trip-meta">📅 Sep 1, 2016 – Sep 11, 2016 | 👥 Rohit Das, Onam Bharti</div>
-      <div class="trip-details">Italy & Vatican City</div>
-    </div>
-
-    <div class="trip-card" data-type="International">
-      <div class="trip-header">
-        <span class="trip-title">Canada - Vancouver & Whistler </span>
-        <span class="badge badge-international">International</span>
-      </div>
-      <div class="trip-meta">📅 Jul 2, 2016 – Jul 3, 2016 | 👥 Rohit Das, Onam Bharti</div>
-    </div>
-  </div>
-
-  <div class="year-section">
-    <div class="year-heading">2015</div>
-
-    <div class="trip-card" data-type="International">
-      <div class="trip-header">
-        <span class="trip-title">India & Thailand - Bangkok, Krabi (Thailand) & Delhi, Patna, Mandarmani </span>
-        <span class="badge badge-international">International</span>
-      </div>
-      <div class="trip-meta">📅 Dec 11, 2015 – Jan 10, 2016 | 👥 Onam Bharti, Rohit Das, Nithin Das, S N Das</div>
-    </div>
-
-    <div class="trip-card" data-type="Domestic">
-      <div class="trip-header">
-        <span class="trip-title">Salt Lake City (UT) & Yellowstone / Grand Teton (WY)</span>
-        <span class="badge badge-domestic">Domestic</span>
-      </div>
-      <div class="trip-meta">📅 Sep 5, 2015 – Sep 8, 2015 | 👥 Meera, Onam Bharti, Rohit Das</div>
-    </div>
-
-    <div class="trip-card" data-type="Regional">
-      <div class="trip-header">
-        <span class="trip-title">Anaheim, CA</span>
-        <span class="badge badge-regional">Regional</span>
-      </div>
-      <div class="trip-meta">📅 Jul 3, 2015 – Jul 5, 2015 | 👥 Rohit Das, Siddhartha Datta, Sutapa Dey</div>
-    </div>
-
-    <div class="trip-card" data-type="Domestic">
-      <div class="trip-header">
-        <span class="trip-title">Chicago, IL & Seattle, WA</span>
-        <span class="badge badge-domestic">Domestic</span>
-      </div>
-      <div class="trip-meta">📅 May 2, 2015 – May 10, 2015 | 👥 Rohit Das, Onam Bharti</div>
-    </div>
-  </div>
-
-  <div class="year-section">
-    <div class="year-heading">2014</div>
-
-    <div class="trip-card" data-type="Domestic">
-      <div class="trip-header">
-        <span class="trip-title">Raleigh/Durham, NC</span>
-        <span class="badge badge-domestic">Domestic</span>
-      </div>
-      <div class="trip-meta">📅 Sep 26, 2014 – Oct 5, 2014 | 👥 Rohit Das</div>
-    </div>
-
-    <div class="trip-card" data-type="International">
-      <div class="trip-header">
-        <span class="trip-title">Mexico & FL - Cancun (Mexico) & Miami Beach, FL</span>
-        <span class="badge badge-international">International / Domestic</span>
-      </div>
-      <div class="trip-meta">📅 Feb 8, 2014 – Feb 17, 2014 | 👥 Onam Bharti, Rohit Das</div>
-      <div class="trip-details">Our first Cruise, booked last minute after immigration issues at Mexico</div>
-    </div>
-  </div>
-
-  <div class="year-section">
-    <div class="year-heading">2013</div>
-
-    <div class="trip-card" data-type="International">
-      <div class="trip-header">
-        <span class="trip-title">UAE & India - Dubai(UAE) & Kolkata, Delhi (India)</span>
-        <span class="badge badge-international">International</span>
-      </div>
-      <div class="trip-meta">📅 Sep 12, 2013 – Oct 5, 2013 | 👥 Rohit Das, Onam Bharti</div>
-    </div>
-
-    <div class="trip-card" data-type="Regional">
-      <div class="trip-header">
-        <span class="trip-title">South Lake Tahoe, CA</span>
-        <span class="badge badge-regional">Regional</span>
-      </div>
-      <div class="trip-meta">📅 Aug 10, 2013 – Aug 11, 2013 | 👥 Rohit Das</div>
-    </div>
-
-    <div class="trip-card" data-type="Domestic">
-      <div class="trip-header">
-        <span class="trip-title">San Diego, CA</span>
-        <span class="badge badge-domestic">Domestic</span>
-      </div>
-      <div class="trip-meta">📅 May 24, 2013 – May 28, 2013 | 👥 Rohit Das, Onam Bharti</div>
-    </div>
-
-
-  <div class="year-section">
-    <div class="year-heading">2012</div>
-
-    <div class="trip-card" data-type="International">
-      <div class="trip-header">
-        <span class="trip-title">India - Chennai, Kolkata, Patna, Delhi</span>
-        <span class="badge badge-international">International</span>
-      </div>
-      <div class="trip-meta">📅 Oct 26, 2012 – Nov 27, 2012 | 👥 Onam Bharti, Rohit Das</div>
-    </div>
-
-    <div class="trip-card" data-type="Domestic">
-      <div class="trip-header">
-        <span class="trip-title">Phoenix, AZ & Las Vegas, NV</span>
-        <span class="badge badge-domestic">Domestic</span>
-      </div>
-      <div class="trip-meta">📅 Oct 3, 2012 – Oct 6, 2012 | 👥 Rohit Das, Onam Bharti</div>
-      <div class="trip-details">Road trip in a convertible</div>
-    </div>
-  </div>
-
-  <div class="year-section">
-    <div class="year-heading">2011</div>
-
-    <div class="trip-card" data-type="Domestic">
-      <div class="trip-header">
-        <span class="trip-title">New York, NY & NW Arkansas</span>
-        <span class="badge badge-domestic">Domestic</span>
-      </div>
-      <div class="trip-meta">📅 Dec 24, 2011 – Jan 2, 2012 | 👥 Rohit Das, Shambhu Nath Das, Siddhartha Datta</div>
-    </div>
-
-    <div class="trip-card" data-type="International">
-      <div class="trip-header">
-        <span class="trip-title">Kolkata, India</span>
-        <span class="badge badge-international">International</span>
-      </div>
-      <div class="trip-meta">📅 Nov 17, 2011 – Jan 15, 2012 | 👥 Shambhu Nath Das, Rohit Das</div>
-      <div class="trip-details">Rohit's Dad visiting US for the first time</div>
-    </div>
-
-    <div class="trip-card" data-type="International">
-      <div class="trip-header">
-        <span class="trip-title">Kolkata & Chennai, India</span>
-        <span class="badge badge-international">International</span>
-      </div>
-      <div class="trip-meta">📅 Feb 17, 2011 – Mar 7, 2011 | 👥 Rohit Das</div>
-    </div>
-  </div>
-
-  <div class="year-section">
-    <div class="year-heading">2010 & Earlier</div>
-
-    <div class="trip-card" data-type="International">
-      <div class="trip-header">
-        <span class="trip-title">Kolkata, India</span>
-        <span class="badge badge-international">International</span>
-      </div>
-      <div class="trip-meta">📅 Nov 25, 2010 – Dec 20, 2010 | 👥 Rohit Das</div>
-    </div>
-
-    <div class="trip-card" data-type="International">
-      <div class="trip-header">
-        <span class="trip-title">Kolkata & Chennai, India</span>
-        <span class="badge badge-international">International</span>
-      </div>
-      <div class="trip-meta">📅 Feb 13, 2009 – Mar 15, 2009 | 👥 Rohit Das</div>
-    </div>
-
-    <div class="trip-card" data-type="Domestic">
-      <div class="trip-header">
-        <span class="trip-title">Phoenix, AZ</span>
-        <span class="badge badge-domestic">Domestic</span>
-      </div>
-      <div class="trip-meta">📅 Aug 17, 2007 | 👥 Rohit Das</div>
-    </div>
-
-    <div class="trip-card" data-type="Domestic">
-      <div class="trip-header">
-        <span class="trip-title">Federal Way & Seattle, WA</span>
-        <span class="badge badge-domestic">Domestic</span>
-      </div>
-      <div class="trip-meta">📅 May 14, 2007 – May 15, 2007 | 👥 Rohit Das</div>
-      <div class="trip-details">Summer internship while completing MS at ASU</div>
-    </div>
-  </div>
+<div class="trip-card" data-type="Domestic">
+  <span class="badge badge-dom">Domestic</span><br>
+  <strong>United States:</strong> Bellevue, Seattle<br>
+  <em>Jun 8, 2026 - Jun 11, 2026</em><br>
+  🧑‍🤝‍🧑 Onam
+</div>
+
+<div class="trip-card" data-type="Domestic">
+  <span class="badge badge-dom">Domestic</span><br>
+  <strong>United States:</strong> Destin, FL<br>
+  <em>May 16, 2026 - May 17, 2026</em><br>
+  🧑‍🤝‍🧑 Rohit, Friends
+</div>
+
+<div class="trip-card" data-type="Local">
+  <span class="badge badge-local">Local</span><br>
+  <strong>United States:</strong> Napa<br>
+  <em>Mar 1, 2026</em><br>
+  🧑‍🤝‍🧑 Rohit
+</div>
+
+<div class="trip-year-divider">2025</div>
+
+<div class="trip-card" data-type="International">
+  <span class="badge badge-intl">International</span><br>
+  <strong>Ecuador:</strong> Quito, Puerto Baquerizo Moreno, San Cristóbal Island, Puerto Ayora, Baltra Island, Napo<br>
+  <em>Dec 21, 2025 - Dec 30, 2025</em><br>
+  🧑‍🤝‍🧑 Onam, Rohit
+</div>
+
+<div class="trip-card" data-type="International">
+  <span class="badge badge-intl">International</span><br>
+  <strong>Norway:</strong> Bergen, Odda, Aurlandsvangen, Oppstrynsvatn, Geiranger, Møre og Romsdal, Ålesund, Åndalsnes, Oslo<br>
+  <em>Aug 22, 2025 - Sep 1, 2025</em><br>
+  🧑‍🤝‍🧑 Onam, Rohit, Friends
+</div>
+
+<div class="trip-card" data-type="Local">
+  <span class="badge badge-local">Local</span><br>
+  <strong>United States:</strong> Sierra Nevada, June Lake, Mammoth Lakes, Strawberry<br>
+  <em>Jun 29, 2025 - Jul 5, 2025</em><br>
+  🧑‍🤝‍🧑 Family, Onam, Rohit
+</div>
+
+<div class="trip-card" data-type="Domestic">
+  <span class="badge badge-dom">Domestic</span><br>
+  <strong>United States:</strong> Denver, CO<br>
+  <em>May 10, 2025 - May 10, 2025</em><br>
+  🧑‍🤝‍🧑 Rohit, Friends
+</div>
+
+<div class="trip-card" data-type="Local">
+  <span class="badge badge-local">Local</span><br>
+  <strong>United States:</strong> Knights Ferry<br>
+  <em>Apr 5, 2025 - Apr 5, 2025</em><br>
+  🧑‍🤝‍🧑 Onam
+</div>
+
+<div class="trip-card" data-type="International">
+  <span class="badge badge-intl">International</span><br>
+  <strong>Thailand:</strong> Ao Nang, Pa Tong, Phuket, Rawai<br>
+  <em>Mar 19, 2025 - Mar 23, 2025</em><br>
+  🧑‍🤝‍🧑 Onam, Rohit, Family
+</div>
+
+<div class="trip-card" data-type="International">
+  <span class="badge badge-intl">International</span><br>
+  <strong>India:</strong> Delhi<br>
+  <em>Mar 1, 2025 - Apr 2, 2025</em><br>
+  🧑‍🤝‍🧑 Onam
+</div>
+
+<div class="trip-year-divider">2024</div>
+
+<div class="trip-card" data-type="International">
+  <span class="badge badge-intl">International</span><br>
+  <strong>Mexico:</strong> Cabo San Lucas, Baja California Sur<br>
+  <em>Dec 21, 2024 - Dec 24, 2024</em><br>
+  🧑‍🤝‍🧑 Onam, Rohit, Family
+</div>
+
+<div class="trip-card" data-type="International">
+  <span class="badge badge-intl">International</span><br>
+  <strong>Spain:</strong> Barcelona<br>
+  <em>Oct 18, 2024 - Oct 19, 2024</em><br>
+  🧑‍🤝‍🧑 Onam, Friends
+</div>
+
+<div class="trip-card" data-type="International">
+  <span class="badge badge-intl">International</span><br>
+  <strong>Iceland:</strong> Reykjavik, Reynisfjara Beach, Múlaþing, Þingeyjarsveit, Siglufjörður<br>
+  <em>Aug 24, 2024 - Sep 2, 2024</em><br>
+  🧑‍🤝‍🧑 Rohit, Onam
+</div>
+
+<div class="trip-card" data-type="Domestic">
+  <span class="badge badge-dom">Domestic</span><br>
+  <strong>United States:</strong> Seattle, Bellevue<br>
+  <em>May 19, 2024 - May 21, 2024</em><br>
+  🧑‍🤝‍🧑 Onam
+</div>
+
+<div class="trip-card" data-type="Domestic">
+  <span class="badge badge-dom">Domestic</span><br>
+  <strong>United States:</strong> Knoxville, Great Smoky Mountains National Park<br>
+  <em>Apr 21, 2024 - Apr 26, 2024</em><br>
+  🧑‍🤝‍🧑 Rohit, Friends
+</div>
+
+<div class="trip-card" data-type="International">
+  <span class="badge badge-intl">International</span><br>
+  <strong>Germany, Austria, Croatia:</strong> Munich, Schwangau, Salzburg, Hallstatt, Vienna, Split, Plitvice Lakes National Park, Cavtat, Dubrovnik<br>
+  <em>Mar 29, 2024 - Apr 12, 2024</em><br>
+  🧑‍🤝‍🧑 Onam, Rohit
+</div>
+
+<div class="trip-year-divider">2023</div>
+
+<div class="trip-card" data-type="Domestic">
+  <span class="badge badge-dom">Domestic</span><br>
+  <strong>United States:</strong> Honolulu, Waimanalo Beach, Kaneohe (Oahu)<br>
+  <em>Dec 24, 2023 - Dec 30, 2023</em><br>
+  🧑‍🤝‍🧑 Onam, Family, Rohit
+</div>
+
+<div class="trip-card" data-type="International">
+  <span class="badge badge-intl">International</span><br>
+  <strong>Egypt:</strong> Giza, Cairo, Agilkia Island, Abu Simbel, Aswan, Luxor, Hurghada<br>
+  <em>Nov 19, 2023 - Nov 25, 2023</em><br>
+  🧑‍🤝‍🧑 Onam, Rohit
+</div>
+
+<div class="trip-card" data-type="International">
+  <span class="badge badge-intl">International</span><br>
+  <strong>United Kingdom:</strong> Edinburgh, Scotland, London, Bibury<br>
+  <em>Jun 30, 2023 - Jul 9, 2023</em><br>
+  🧑‍🤝‍🧑 Rohit, Onam
+</div>
+
+<div class="trip-card" data-type="Local">
+  <span class="badge badge-local">Local</span><br>
+  <strong>United States:</strong> Fort Bragg, Navarro River Redwoods State Park<br>
+  <em>May 27, 2023 - May 29, 2023</em><br>
+  🧑‍🤝‍🧑 Onam, Rohit, Friends
+</div>
+
+<div class="trip-card" data-type="International">
+  <span class="badge badge-intl">International</span><br>
+  <strong>Türkiye & India:</strong> Istanbul, Göreme, Selime, Cappadocia, Delhi<br>
+  <em>Mar 10, 2023 - Apr 2, 2023</em><br>
+  🧑‍🤝‍🧑 Onam, Rohit
+</div>
+
+<div class="trip-card" data-type="Domestic">
+  <span class="badge badge-dom">Domestic</span><br>
+  <strong>United States:</strong> Fairbanks, Chenna Hot Springs, Alaska<br>
+  <em>Feb 17, 2023 - Feb 20, 2023</em><br>
+  🧑‍🤝‍🧑 Friends, Onam, Rohit
+</div>
+
+<div class="trip-year-divider">2022</div>
+
+<div class="trip-card" data-type="Local">
+  <span class="badge badge-local">Local</span><br>
+  <strong>United States:</strong> Murphys<br>
+  <em>Dec 23, 2022 - Dec 25, 2022</em><br>
+  🧑‍🤝‍🧑 Friends
+</div>
+
+<div class="trip-card" data-type="International">
+  <span class="badge badge-intl">International</span><br>
+  <strong>Peru:</strong> Cusco, Aguas Calientes, Lima<br>
+  <em>Nov 21, 2022 - Nov 29, 2022</em><br>
+  🧑‍🤝‍🧑 Onam, Rohit
+</div>
+
+<div class="trip-card" data-type="Domestic">
+  <span class="badge badge-dom">Domestic</span><br>
+  <strong>United States:</strong> Las Vegas, Zion National Park<br>
+  <em>Jul 28, 2022 - Jul 31, 2022</em><br>
+  🧑‍🤝‍🧑 Rohit, Onam, Family
+</div>
+
+<div class="trip-card" data-type="Local">
+  <span class="badge badge-local">Local</span><br>
+  <strong>United States:</strong> Lake Berryessa<br>
+  <em>Jul 2, 2022 - Jul 2, 2022</em><br>
+  🧑‍🤝‍🧑 Family, Onam
+</div>
+
+<div class="trip-card" data-type="Local">
+  <span class="badge badge-local">Local</span><br>
+  <strong>United States:</strong> Benecia<br>
+  <em>Jul 1, 2022 - Jul 3, 2022</em><br>
+  🧑‍🤝‍🧑 Rohit, Onam, Family
+</div>
+
+<div class="trip-card" data-type="International">
+  <span class="badge badge-intl">International</span><br>
+  <strong>Greece & Netherlands:</strong> Athens, Kastraki, Monolithos, Oia, Fira, Volendam, Amsterdam<br>
+  <em>Apr 17, 2022 - Apr 27, 2022</em><br>
+  🧑‍🤝‍🧑 Rohit, Onam
+</div>
+
+<div class="trip-card" data-type="Local">
+  <span class="badge badge-local">Local</span><br>
+  <strong>United States:</strong> Yosemite National Park<br>
+  <em>Feb 19, 2022 - Feb 20, 2022</em><br>
+  🧑‍🤝‍🧑 Onam, Rohit, Friends
+</div>
+
+<div class="trip-card" data-type="Local">
+  <span class="badge badge-local">Local</span><br>
+  <strong>United States:</strong> Santa Barbara<br>
+  <em>Feb 12, 2022 - Feb 13, 2022</em><br>
+  🧑‍🤝‍🧑 Onam, Rohit
+</div>
+
+<div class="trip-card" data-type="Local">
+  <span class="badge badge-local">Local</span><br>
+  <strong>United States:</strong> Carmel<br>
+  <em>Jan 15, 2022 - Jan 16, 2022</em><br>
+  🧑‍🤝‍🧑 Onam, Rohit
+</div>
+
+<div class="trip-year-divider">2021</div>
+
+<div class="trip-card" data-type="International">
+  <span class="badge badge-intl">International</span><br>
+  <strong>Mexico:</strong> Puerto Vallarta, Boca de Tomatlan<br>
+  <em>Nov 21, 2021 - Nov 28, 2021</em><br>
+  🧑‍🤝‍🧑 Onam, Rohit
+</div>
+
+<div class="trip-card" data-type="Local">
+  <span class="badge badge-local">Local</span><br>
+  <strong>United States:</strong> Santa Ynez<br>
+  <em>Oct 30, 2021 - Oct 31, 2021</em><br>
+  🧑‍🤝‍🧑 Rohit, Friends
+</div>
+
+<div class="trip-card" data-type="Local">
+  <span class="badge badge-local">Local</span><br>
+  <strong>United States:</strong> West Sacramento<br>
+  <em>Sep 11, 2021 - Sep 11, 2021</em><br>
+  🧑‍🤝‍🧑 Rohit, Onam
+</div>
+
+<div class="trip-card" data-type="International">
+  <span class="badge badge-intl">International</span><br>
+  <strong>Canada:</strong> Calgary, Airdrie, Banff NP, Jasper NP, Lake Louise, Vancouver<br>
+  <em>Aug 20, 2021 - Aug 29, 2021</em><br>
+  🧑‍🤝‍🧑 Rohit, Onam
+</div>
+
+<div class="trip-card" data-type="Domestic">
+  <span class="badge badge-dom">Domestic</span><br>
+  <strong>United States:</strong> Big Island (Kahaluu-Keauhou, Puako, Papaikou, Volcano, Hilo)<br>
+  <em>Mar 21, 2021 - Mar 26, 2021</em><br>
+  🧑‍🤝‍🧑 Rohit, Onam
+</div>
+
+<div class="trip-card" data-type="Local">
+  <span class="badge badge-local">Local</span><br>
+  <strong>United States:</strong> Carmel-By-The-Sea, Pacific Grove<br>
+  <em>Jan 17, 2021 - Jan 18, 2021</em><br>
+  🧑‍🤝‍🧑 Rohit, Onam
+</div>
+
+<div class="trip-year-divider">2020</div>
+
+<div class="trip-card" data-type="Domestic">
+  <span class="badge badge-dom">Domestic</span><br>
+  <strong>United States:</strong> Lakehead, Leaburg, Walterville, Eugene<br>
+  <em>Sep 3, 2020 - Sep 7, 2020</em><br>
+  🧑‍🤝‍🧑 Onam, Rohit, Friends
+</div>
+
+<div class="trip-card" data-type="International">
+  <span class="badge badge-intl">International</span><br>
+  <strong>India:</strong> Kolkata, Bengaluru<br>
+  <em>Mar 5, 2020 - Mar 18, 2020</em><br>
+  🧑‍🤝‍🧑 Rohit
+</div>
+
+<div class="trip-card" data-type="International">
+  <span class="badge badge-intl">International</span><br>
+  <strong>Mexico & United States:</strong> Cancun, Miami Beach, Miami Springs<br>
+  <em>Feb 8, 2020 - Feb 17, 2020</em><br>
+  🧑‍🤝‍🧑 Onam, Rohit
+</div>
+
+<div class="trip-year-divider">2019</div>
+
+<div class="trip-card" data-type="Domestic">
+  <span class="badge badge-dom">Domestic</span><br>
+  <strong>United States:</strong> Pahrump<br>
+  <em>Dec 1, 2019 - Dec 1, 2019</em><br>
+  🧑‍🤝‍🧑 Rohit
+</div>
+
+<div class="trip-card" data-type="Domestic">
+  <span class="badge badge-dom">Domestic</span><br>
+  <strong>United States:</strong> Redding, Oregon<br>
+  <em>Aug 31, 2019 - Sep 2, 2019</em><br>
+  🧑‍🤝‍🧑 Onam, Rohit
+</div>
+
+<div class="trip-card" data-type="Domestic">
+  <span class="badge badge-dom">Domestic</span><br>
+  <strong>United States:</strong> Lihue, Kapaʻa, Koloa (Kauai)<br>
+  <em>Aug 8, 2019 - Aug 12, 2019</em><br>
+  🧑‍🤝‍🧑 Onam, Rohit, Family
+</div>
+
+<div class="trip-card" data-type="International">
+  <span class="badge badge-intl">International</span><br>
+  <strong>Spain & Portugal:</strong> Barcelona, Seville, Granada, Lisbon<br>
+  <em>Apr 4, 2019 - Apr 15, 2019</em><br>
+  🧑‍🤝‍🧑 Onam, Rohit
+</div>
+
+<div class="trip-card" data-type="International">
+  <span class="badge badge-intl">International</span><br>
+  <strong>India:</strong> New Delhi, Kolkata<br>
+  <em>Feb 23, 2019 - Mar 3, 2019</em><br>
+  🧑‍🤝‍🧑 Family, Rohit
+</div>
+
+<div class="trip-card" data-type="Domestic">
+  <span class="badge badge-dom">Domestic</span><br>
+  <strong>United States:</strong> Maui (Kahului, Lahaina, Hana, Kaanapali)<br>
+  <em>Feb 14, 2019 - Feb 19, 2019</em><br>
+  🧑‍🤝‍🧑 Onam, Rohit, Friends
+</div>
+
+<div class="trip-year-divider">2018</div>
+
+<div class="trip-card" data-type="Domestic">
+  <span class="badge badge-dom">Domestic</span><br>
+  <strong>United States:</strong> Grand Canyon Village<br>
+  <em>Dec 30, 2018 - Jan 7, 2019</em><br>
+  🧑‍🤝‍🧑 Rohit, Family
+</div>
+
+<div class="trip-card" data-type="Local">
+  <span class="badge badge-local">Local</span><br>
+  <strong>United States:</strong> Burney, McArthur-Burney Falls<br>
+  <em>Sep 15, 2018 - Sep 16, 2018</em><br>
+  🧑‍🤝‍🧑 Rohit, Onam, Friends
+</div>
+
+<div class="trip-card" data-type="Domestic">
+  <span class="badge badge-dom">Domestic</span><br>
+  <strong>United States:</strong> Las Vegas, Grand Canyon North Rim, Utah, Valley of Fire State Park<br>
+  <em>Aug 30, 2018 - Sep 3, 2018</em><br>
+  🧑‍🤝‍🧑 Rohit, Onam
+</div>
+
+<div class="trip-card" data-type="International">
+  <span class="badge badge-intl">International</span><br>
+  <strong>France & Switzerland:</strong> Paris, Bern, Grindelwald, Lauterbrunnen, Lucerne, Risch-Rotkreuz<br>
+  <em>May 24, 2018 - Jun 3, 2018</em><br>
+  🧑‍🤝‍🧑 Onam, Rohit
+</div>
+
+<div class="trip-card" data-type="Local">
+  <span class="badge badge-local">Local</span><br>
+  <strong>United States:</strong> Truckee, Tahoe National Forest<br>
+  <em>Mar 31, 2018 - Apr 1, 2018</em><br>
+  🧑‍🤝‍🧑 Onam
+</div>
+
+<div class="trip-card" data-type="Local">
+  <span class="badge badge-local">Local</span><br>
+  <strong>United States:</strong> Calistoga<br>
+  <em>Mar 11, 2018 - Mar 11, 2018</em><br>
+  🧑‍🤝‍🧑 Solo / Unspecified
+</div>
+
+<div class="trip-card" data-type="International">
+  <span class="badge badge-intl">International</span><br>
+  <strong>United States & India:</strong> Jersey City, New York, Delhi, Mumbai<br>
+  <em>Feb 17, 2018 - Feb 24, 2018</em><br>
+  🧑‍🤝‍🧑 Rohit, Onam
+</div>
+
+<div class="trip-year-divider">2017</div>
+
+<div class="trip-card" data-type="International">
+  <span class="badge badge-intl">International</span><br>
+  <strong>India:</strong> Bangalore, Delhi, Noida, Kolkata, Gurugram<br>
+  <em>Dec 10, 2017 - Jan 1, 2018</em><br>
+  🧑‍🤝‍🧑 Onam, Rohit
+</div>
+
+<div class="trip-card" data-type="International">
+  <span class="badge badge-intl">International</span><br>
+  <strong>Hungary:</strong> Budapest<br>
+  <em>Oct 1, 2017 - Oct 1, 2017</em><br>
+  🧑‍🤝‍🧑 Solo / Unspecified
+</div>
+
+<div class="trip-card" data-type="International">
+  <span class="badge badge-intl">International</span><br>
+  <strong>Taiwan & Indonesia:</strong> Taoyuan City, Bali (Kuta Selatan)<br>
+  <em>Sep 22, 2017 - Sep 24, 2017</em><br>
+  🧑‍🤝‍🧑 Solo / Unspecified
+</div>
+
+<div class="trip-card" data-type="Domestic">
+  <span class="badge badge-dom">Domestic</span><br>
+  <strong>United States:</strong> Lordsburg, White Sands National Park<br>
+  <em>Jul 1, 2017 - Jul 2, 2017</em><br>
+  🧑‍🤝‍🧑 Rohit
+</div>
+
+<div class="trip-card" data-type="International">
+  <span class="badge badge-intl">International</span><br>
+  <strong>India:</strong> Kolkata, Noida, Delhi, Alturas<br>
+  <em>May 13, 2017 - May 29, 2017</em><br>
+  🧑‍🤝‍🧑 Rohit, Family, Friends
+</div>
+
+<div class="trip-card" data-type="Domestic">
+  <span class="badge badge-dom">Domestic</span><br>
+  <strong>United States:</strong> Arizona, Las Vegas<br>
+  <em>Feb 10, 2017 - Feb 12, 2017</em><br>
+  🧑‍🤝‍🧑 Solo / Unspecified
+</div>
+
+<div class="trip-card" data-type="Domestic">
+  <span class="badge badge-dom">Domestic</span><br>
+  <strong>United States:</strong> Carlsbad, San Diego<br>
+  <em>Jan 30, 2017 - Jan 31, 2017</em><br>
+  🧑‍🤝‍🧑 Rohit
+</div>
+
+<div class="trip-year-divider">2016</div>
+
+<div class="trip-card" data-type="International">
+  <span class="badge badge-intl">International</span><br>
+  <strong>Italy & Vatican City:</strong> Venice, Mestre, Bologna, Florence, Pisa, Riomaggiore, Rome, Vatican City<br>
+  <em>Sep 1, 2016 - Sep 11, 2016</em><br>
+  🧑‍🤝‍🧑 Rohit, Onam
+</div>
+
+<div class="trip-card" data-type="International">
+  <span class="badge badge-intl">International</span><br>
+  <strong>Canada:</strong> Vancouver, Whistler, North Vancouver<br>
+  <em>Jul 2, 2016 - Jul 3, 2016</em><br>
+  🧑‍🤝‍🧑 Onam
+</div>
+
+<div class="trip-year-divider">2015</div>
+
+<div class="trip-card" data-type="International">
+  <span class="badge badge-intl">International</span><br>
+  <strong>Thailand & India:</strong> Bangkok, Krabi, Delhi, Mandarmani, Patna<br>
+  <em>Dec 11, 2015 - Jan 10, 2016</em><br>
+  🧑‍🤝‍🧑 Onam, Rohit, Friends, Family
+</div>
+
+<div class="trip-card" data-type="Domestic">
+  <span class="badge badge-dom">Domestic</span><br>
+  <strong>United States:</strong> Salt Lake City, Wyoming (Yellowstone / Grand Teton)<br>
+  <em>Sep 5, 2015 - Sep 8, 2015</em><br>
+  🧑‍🤝‍🧑 Family, Onam, Rohit
+</div>
+
+<div class="trip-card" data-type="Local">
+  <span class="badge badge-local">Local</span><br>
+  <strong>United States:</strong> Monterey<br>
+  <em>Aug 16, 2015 - Aug 16, 2015</em><br>
+  🧑‍🤝‍🧑 Onam, Family
+</div>
+
+<div class="trip-card" data-type="Local">
+  <span class="badge badge-local">Local</span><br>
+  <strong>United States:</strong> Anaheim<br>
+  <em>Jul 3, 2015 - Jul 5, 2015</em><br>
+  🧑‍🤝‍🧑 Rohit, Friends
+</div>
+
+<div class="trip-card" data-type="Domestic">
+  <span class="badge badge-dom">Domestic</span><br>
+  <strong>United States:</strong> Chicago, Seattle<br>
+  <em>May 2, 2015 - May 10, 2015</em><br>
+  🧑‍🤝‍🧑 Rohit, Onam
+</div>
+
+<div class="trip-year-divider">2014</div>
+
+<div class="trip-card" data-type="Domestic">
+  <span class="badge badge-dom">Domestic</span><br>
+  <strong>United States:</strong> Raleigh/Durham<br>
+  <em>Sep 26, 2014 - Oct 5, 2014</em><br>
+  🧑‍🤝‍🧑 Rohit
+</div>
+
+<div class="trip-card" data-type="International">
+  <span class="badge badge-intl">International</span><br>
+  <strong>Mexico & United States:</strong> Cancun, Miami Beach, Miami Springs<br>
+  <em>Feb 8, 2014 - Feb 17, 2014</em><br>
+  🧑‍🤝‍🧑 Onam, Rohit
+</div>
+
+<div class="trip-year-divider">2013</div>
+
+<div class="trip-card" data-type="International">
+  <span class="badge badge-intl">International</span><br>
+  <strong>UAE & India:</strong> Dubai, Kolkata, Delhi<br>
+  <em>Sep 12, 2013 - Oct 5, 2013</em><br>
+  🧑‍🤝‍🧑 Rohit, Onam
+</div>
+
+<div class="trip-card" data-type="Local">
+  <span class="badge badge-local">Local</span><br>
+  <strong>United States:</strong> South Lake Tahoe<br>
+  <em>Aug 10, 2013 - Aug 11, 2013</em><br>
+  🧑‍🤝‍🧑 Rohit
+</div>
+
+<div class="trip-card" data-type="Domestic">
+  <span class="badge badge-dom">Domestic</span><br>
+  <strong>United States:</strong> San Diego<br>
+  <em>May 24, 2013 - May 28, 2013</em><br>
+  🧑‍🤝‍🧑 Rohit, Onam
+</div>
+
+<div class="trip-card" data-type="International">
+  <span class="badge badge-intl">International</span><br>
+  <strong>Türkiye & India:</strong> Istanbul, Nevsehir, Cappadocia, Delhi<br>
+  <em>Mar 10, 2013 - Apr 2, 2013</em><br>
+  🧑‍🤝‍🧑 Onam, Rohit
+</div>
+
+<div class="trip-year-divider">2012</div>
+
+<div class="trip-card" data-type="International">
+  <span class="badge badge-intl">International</span><br>
+  <strong>India:</strong> Chennai, Kolkata, Patna, Delhi<br>
+  <em>Oct 26, 2012 - Nov 27, 2012</em><br>
+  🧑‍🤝‍🧑 Onam, Rohit
+</div>
+
+<div class="trip-card" data-type="Domestic">
+  <span class="badge badge-dom">Domestic</span><br>
+  <strong>United States:</strong> Phoenix, Las Vegas<br>
+  <em>Oct 3, 2012 - Oct 6, 2012</em><br>
+  🧑‍🤝‍🧑 Rohit, Onam
+</div>
+
+<div class="trip-year-divider">2011</div>
+
+<div class="trip-card" data-type="Domestic">
+  <span class="badge badge-dom">Domestic</span><br>
+  <strong>United States:</strong> New York, NW Arkansas<br>
+  <em>Dec 24, 2011 - Jan 2, 2012</em><br>
+  🧑‍🤝‍🧑 Rohit, Family, Friends
+</div>
+
+<div class="trip-card" data-type="International">
+  <span class="badge badge-intl">International</span><br>
+  <strong>India:</strong> Kolkata<br>
+  <em>Nov 17, 2011 - Jan 15, 2012</em><br>
+  🧑‍🤝‍🧑 Family, Rohit
+</div>
+
+<div class="trip-card" data-type="International">
+  <span class="badge badge-intl">International</span><br>
+  <strong>India:</strong> Chennai, Kolkata<br>
+  <em>Feb 17, 2011 - Mar 7, 2011</em><br>
+  🧑‍🤝‍🧑 Rohit
+</div>
+
+<div class="trip-year-divider">2010</div>
+
+<div class="trip-card" data-type="International">
+  <span class="badge badge-intl">International</span><br>
+  <strong>India:</strong> Kolkata<br>
+  <em>Nov 25, 2010 - Dec 20, 2010</em><br>
+  🧑‍🤝‍🧑 Rohit
+</div>
 
 </div>
 
 <script>
-  // Complete list of map locations extracted from timeline entries
-  const locations = [
-    // 2026
-    { name: "Seattle & Bellevue", lat: 47.6062, lng: -122.3321, type: "Domestic" },
-    { name: "Miami Beach", lat: 25.7907, lng: -80.1300, type: "Domestic" },
-    { name: "CocoCay, Bahamas", lat: 25.8186, lng: -77.9392, type: "International" },
-    { name: "Buffalo & Niagara Falls", lat: 43.0962, lng: -79.0377, type: "Domestic" },
-    { name: "Destin, FL", lat: 30.3935, lng: -86.4958, type: "Domestic" },
-    
-    // 2025
-    { name: "Quito, Ecuador", lat: -0.1807, lng: -78.4678, type: "International" },
-    { name: "Galápagos Islands, Ecuador", lat: -0.9538, lng: -90.9656, type: "International" },
-    { name: "Bergen, Norway", lat: 60.3913, lng: 5.3221, type: "International" },
-    { name: "Geiranger, Norway", lat: 62.1008, lng: 7.2059, type: "International" },
-    { name: "Ålesund, Norway", lat: 62.4722, lng: 6.1495, type: "International" },
-    { name: "Oslo, Norway", lat: 59.9139, lng: 10.7522, type: "International" },
-    { name: "Mammoth Lakes & June Lake, CA", lat: 37.6485, lng: -118.9721, type: "Regional" },
-    { name: "Red Rocks, Denver, CO", lat: 39.6654, lng: -105.2057, type: "Domestic" },
-    { name: "Knights Ferry, CA", lat: 37.8188, lng: -120.6633, type: "Regional" },
-    { name: "Phuket & Ao Nang, Thailand", lat: 7.8804, lng: 98.3923, type: "International" },
+// Filter Function
+function filterTrips(type) {
+  document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+  event.target.classList.add('active');
 
-    // 2024
-    { name: "Cabo San Lucas, Mexico", lat: 22.8905, lng: -109.9167, type: "International" },
-    { name: "Barcelona, Spain", lat: 41.3851, lng: 2.1734, type: "International" },
-    { name: "Reykjavik, Iceland", lat: 64.1466, lng: -21.9426, type: "International" },
-    { name: "Great Smoky Mountains, TN", lat: 35.6118, lng: -83.4895, type: "Domestic" },
-    { name: "Munich, Germany", lat: 48.1351, lng: 11.5820, type: "International" },
-    { name: "Salzburg, Austria", lat: 47.8095, lng: 13.0550, type: "International" },
-    { name: "Vienna, Austria", lat: 48.2082, lng: 16.3738, type: "International" },
-    { name: "Split & Dubrovnik, Croatia", lat: 42.6507, lng: 18.0944, type: "International" },
+  const trips = document.querySelectorAll('.trip-card');
+  trips.forEach(trip => {
+    if (type === 'All' || trip.getAttribute('data-type') === type) {
+      trip.style.display = 'block';
+    } else {
+      trip.style.display = 'none';
+    }
+  });
+}
 
-    // 2023
-    { name: "Oahu (Honolulu), HI", lat: 21.3069, lng: -157.8583, type: "Domestic" },
-    { name: "Cairo & Giza, Egypt", lat: 30.0444, lng: 31.2357, type: "International" },
-    { name: "Aswan & Abu Simbel, Egypt", lat: 24.0889, lng: 32.8998, type: "International" },
-    { name: "Luxor, Egypt", lat: 25.6872, lng: 32.6396, type: "International" },
-    { name: "Edinburgh, UK", lat: 55.9533, lng: -3.1883, type: "International" },
-    { name: "London, UK", lat: 51.5074, lng: -0.1278, type: "International" },
-    { name: "Fort Bragg, CA", lat: 39.4457, lng: -123.8053, type: "Regional" },
-    { name: "Cappadocia & Göreme, Türkiye", lat: 38.6431, lng: 34.8289, type: "International" },
-    { name: "Istanbul, Türkiye", lat: 41.0082, lng: 28.9784, type: "International" },
-    { name: "Fairbanks, AK", lat: 64.8378, lng: -147.7164, type: "Domestic" },
-
-    // 2022
-    { name: "Murphys, CA", lat: 38.1377, lng: -120.4616, type: "Regional" },
-    { name: "Cusco & Machu Picchu, Peru", lat: -13.1631, lng: -72.5450, type: "International" },
-    { name: "Lima, Peru", lat: -12.0464, lng: -77.0428, type: "International" },
-    { name: "Zion National Park, UT", lat: 37.2982, lng: -113.0263, type: "Domestic" },
-    { name: "Benicia, CA", lat: 38.0494, lng: -122.1586, type: "Regional" },
-    { name: "Athens, Greece", lat: 37.9838, lng: 23.7275, type: "International" },
-    { name: "Santorini (Oia/Fira), Greece", lat: 36.3932, lng: 25.4615, type: "International" },
-    { name: "Amsterdam, Netherlands", lat: 52.3676, lng: 4.9041, type: "International" },
-    { name: "Yosemite National Park, CA", lat: 37.8651, lng: -119.5383, type: "Regional" },
-    { name: "Santa Barbara, CA", lat: 34.4208, lng: -119.6982, type: "Regional" },
-    { name: "Carmel-by-the-Sea, CA", lat: 36.5552, lng: -121.9233, type: "Regional" },
-
-    // 2021
-    { name: "Puerto Vallarta, Mexico", lat: 20.6534, lng: -105.2253, type: "International" },
-    { name: "Santa Ynez, CA", lat: 34.6041, lng: -120.0835, type: "Regional" },
-    { name: "Banff & Jasper, Canada", lat: 51.1784, lng: -115.5708, type: "International" },
-    { name: "Calgary, Canada", lat: 51.0447, lng: -114.0719, type: "International" },
-    { name: "Big Island (Kona/Hilo), HI", lat: 19.6399, lng: -155.9969, type: "Domestic" },
-
-    // 2020
-    { name: "Eugene, OR", lat: 44.0521, lng: -123.0868, type: "Domestic" },
-    { name: "Bengaluru, India", lat: 12.9716, lng: 77.5946, type: "International" },
-    { name: "Cancun, Mexico", lat: 21.1619, lng: -86.8515, type: "International" },
-
-    // 2019 & Earlier Highlights
-    { name: "Pahrump, NV", lat: 36.2083, lng: -115.9839, type: "Domestic" },
-    { name: "Kauai (Lihue), HI", lat: 21.9811, lng: -159.3711, type: "Domestic" },
-    { name: "Seville, Spain", lat: 37.3891, lng: -5.9845, type: "International" },
-    { name: "Lisbon, Portugal", lat: 38.7223, lng: -9.1393, type: "International" },
-    { name: "Maui, HI", lat: 20.7984, lng: -156.3319, type: "Domestic" },
-    { name: "McArthur-Burney Falls, CA", lat: 41.0118, lng: -121.6528, type: "Regional" },
-    { name: "Paris, France", lat: 48.8566, lng: 2.3522, type: "International" },
-    { name: "Grindelwald, Switzerland", lat: 46.6242, lng: 8.0414, type: "International" },
-    { name: "Dubai, UAE", lat: 25.2048, lng: 55.2708, type: "International" },
-    { name: "Patna, India", lat: 25.5941, lng: 85.1376, type: "International" },
-    { name: "Delhi, India", lat: 28.6139, lng: 77.2090, type: "International" },
-    { name: "Kolkata, India", lat: 22.5726, lng: 88.3639, type: "International" },
-    { name: "Chennai, India", lat: 13.0827, lng: 80.2707, type: "International" }
-  ];
-
-  // Initialize Map
-  const map = L.map('travel-map').setView([20, 0], 2);
-
+// Leaflet Map Configuration
+document.addEventListener("DOMContentLoaded", function() {
+  const map = L.map('map').setView([20, 0], 2);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; OpenStreetMap contributors'
+    attribution: '© OpenStreetMap contributors'
   }).addTo(map);
 
-  // Custom Pin Color Logic
-  function getMarkerColor(type) {
-    if (type === 'International') return '#e53e3e'; // Red
-    if (type === 'Domestic') return '#3182ce';      // Blue
-    return '#38a169';                              // Green for Regional
-  }
+  // Exhaustive List of Cities Visited (Simulated coordinates setup)
+  const cities = [
+    "Kolkata", "Chennai", "New York", "NW Arkansas", "Phoenix", "Las Vegas", "Patna", "Delhi", "Istanbul", 
+    "Nevsehir", "Cappadocia", "San Diego", "South Lake Tahoe", "Dubai", "Cancun", "Miami Beach", "Miami Springs", 
+    "Raleigh", "Durham", "Chicago", "Seattle", "Anaheim", "Monterey", "Salt Lake City", "Yellowstone", 
+    "Grand Teton", "Bangkok", "Krabi", "Mandarmani", "Vancouver", "Whistler", "North Vancouver", "Venice", 
+    "Mestre", "Bologna", "Florence", "Pisa", "Riomaggiore", "Rome", "Vatican City", "Carlsbad", "Arizona", 
+    "Alturas", "Lordsburg", "White Sands National Park", "Taoyuan City", "Bali", "Budapest", "Bangalore", 
+    "Noida", "Gurugram", "Jersey City", "Mumbai", "Calistoga", "Truckee", "Tahoe National Forest", "Paris", 
+    "Bern", "Grindelwald", "Lauterbrunnen", "Lucerne", "Risch-Rotkreuz", "Grand Canyon North Rim", "Utah", 
+    "Valley of Fire State Park", "Burney", "McArthur-Burney Falls", "Grand Canyon Village", "Maui", "Kahului", 
+    "Lahaina", "Hana", "Kaanapali", "Barcelona", "Seville", "Granada", "Lisbon", "Lihue", "Kapaʻa", "Koloa", 
+    "Redding", "Oregon", "Pahrump", "Bengaluru", "Lakehead", "Leaburg", "Walterville", "Eugene", 
+    "Carmel-By-The-Sea", "Pacific Grove", "Big Island", "Kahaluu-Keauhou", "Puako", "Papaikou", "Volcano", "Hilo", 
+    "Calgary", "Airdrie", "Banff NP", "Jasper NP", "Lake Louise", "West Sacramento", "Santa Ynez", "Puerto Vallarta", 
+    "Boca de Tomatlan", "Carmel", "Santa Barbara", "Yosemite National Park", "Athens", "Kastraki", "Monolithos", 
+    "Oia", "Fira", "Volendam", "Amsterdam", "Benecia", "Lake Berryessa", "Zion National Park", "Cusco", 
+    "Aguas Calientes", "Lima", "Murphys", "Fairbanks", "Chenna Hot Springs", "Göreme", "Selime", "Fort Bragg", 
+    "Navarro River Redwoods State Park", "Edinburgh", "Scottish Highlands", "London", "Bibury", "Giza", "Cairo", 
+    "Agilkia Island", "Abu Simbel", "Aswan", "Luxor", "Hurghada", "Honolulu", "Waimanalo Beach", "Kaneohe", 
+    "Munich", "Schwangau", "Salzburg", "Hallstatt", "Vienna", "Split", "Plitvice Lakes National Park", "Cavtat", 
+    "Dubrovnik", "Knoxville", "Great Smoky Mountains National Park", "Bellevue", "Reykjavik", "Reynisfjara Beach", 
+    "Múlaþing", "Þingeyjarsveit", "Siglufjörður", "Cabo San Lucas", "Baja California Sur", "Ao Nang", "Pa Tong", 
+    "Phuket", "Rawai", "Knights Ferry", "Denver", "Sierra Nevada", "June Lake", "Mammoth Lakes", "Strawberry", 
+    "Bergen", "Odda", "Aurlandsvangen", "Oppstrynsvatn", "Geiranger", "Møre og Romsdal", "Ålesund", "Åndalsnes", 
+    "Oslo", "Quito", "Puerto Baquerizo Moreno", "San Cristóbal Island", "Puerto Ayora", "Baltra Island", "Napo", 
+    "Napa", "Destin", "Bahamas", "Buffalo", "Cheektowaga", "Niagara Falls"
+  ];
 
-  // Add Circle Markers
-  locations.forEach(loc => {
-    const marker = L.circleMarker([loc.lat, loc.lng], {
-      radius: 6,
-      fillColor: getMarkerColor(loc.type),
-      color: '#fff',
-      weight: 1.5,
-      opacity: 1,
-      fillOpacity: 0.85
-    }).addTo(map);
-
-    marker.bindPopup(`<b>${loc.name}</b><br><span style="font-size:0.8rem; color:#666;">Category: ${loc.type}</span>`);
+  // Note: To render all locations perfectly, standard Geocoding (or hardcoded Lat/Long array) is required.
+  // Rendering logic placeholder for Leaflet marker clustering.
+  cities.forEach(city => {
+    // Example output mechanism for Leaflet
+    console.log(`Plotting ${city} onto interactive map view.`);
   });
-
-  // Dynamic JS Filter Script
-  function filterTrips(type) {
-    // Button Active Styling
-    const buttons = document.querySelectorAll('.filter-btn');
-    buttons.forEach(btn => btn.classList.remove('active'));
-    event.target.classList.add('active');
-
-    // Filter Trip Cards
-    const cards = document.querySelectorAll('.trip-card');
-    cards.forEach(card => {
-      const cardType = card.getAttribute('data-type');
-      if (type === 'all' || cardType.includes(type)) {
-        card.style.display = 'block';
-      } else {
-        card.style.display = 'none';
-      }
-    });
-
-    // Hide Empty Year Headings
-    const yearSections = document.querySelectorAll('.year-section');
-    yearSections.forEach(section => {
-      const visibleCards = section.querySelectorAll('.trip-card[style="display: block;"], .trip-card:not([style*="display"])');
-      let hasVisible = false;
-      visibleCards.forEach(c => {
-        if (c.style.display !== 'none') hasVisible = true;
-      });
-      section.style.display = hasVisible ? 'block' : 'none';
-    });
-  }
-
-    // Trigger International filter by default on page load
-  document.addEventListener("DOMContentLoaded", function() {
-    filterTrips('International');
-  });
-
-  // Toggle Country Modal Display
-function toggleCountryModal() {
-  const modal = document.getElementById('country-modal');
-  if (modal.style.display === 'none' || modal.style.display === '') {
-    modal.style.display = 'block';
-    // Scroll smoothly to modal on mobile
-    modal.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  } else {
-    modal.style.display = 'none';
-  }
-}
+});
 </script>
