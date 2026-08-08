@@ -13,7 +13,6 @@ author_profile: true
     margin-bottom: 25px;
     flex-wrap: wrap;
   }
-
   /* Individual Stat Card */
   .stat-card {
     flex: 1;
@@ -27,25 +26,21 @@ author_profile: true
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
   }
-  
   .stat-card:hover, .stat-card:active {
     transform: translateY(-3px);
     box-shadow: 0 6px 12px rgba(0,0,0,0.15);
   }
-
   .stat-card h2 {
     margin: 0;
     font-size: 2.5em;
     font-weight: 700;
     color: white;
   }
-
   .stat-card p {
     margin: 5px 0 0 0;
     font-size: 1.1em;
     font-weight: 500;
   }
-
   /* Modal Overlay */
   .modal-overlay {
     display: none;
@@ -60,7 +55,6 @@ author_profile: true
     justify-content: center;
     align-items: center;
   }
-
   /* Modal Content Box */
   .modal-content {
     background-color: #fff;
@@ -73,7 +67,6 @@ author_profile: true
     position: relative;
     box-shadow: 0 10px 25px rgba(0,0,0,0.2);
   }
-
   .modal-close {
     position: absolute;
     top: 15px;
@@ -84,16 +77,13 @@ author_profile: true
     cursor: pointer;
     line-height: 1;
   }
-  
   .modal-close:hover { color: #dc3545; }
-
   .modal-content h3 {
     margin-top: 0;
     border-bottom: 2px solid #eee;
     padding-bottom: 10px;
     color: #333;
   }
-  
   /* Continent Headers */
   .modal-content h4 {
     margin: 20px 0 10px 0;
@@ -102,34 +92,28 @@ author_profile: true
     border-bottom: 1px solid #f0f0f0;
     padding-bottom: 5px;
   }
-
   /* List Styling Inside Modal */
   .modal-list {
     list-style: none;
     padding: 0;
     margin: 0;
   }
-  
   .modal-list li {
     padding: 6px 0;
     font-size: 0.95em;
   }
-
   .modal-list strong {
     color: #333;
   }
-  
   .unesco-link {
     color: #198754;
     text-decoration: none;
     font-weight: 500;
   }
-  
   .unesco-link:hover {
     text-decoration: underline;
   }
 </style>
-
 <div class="stats-container">
   <div class="stat-card" onclick="openModal('countries-modal')">
     <h2>28</h2>
@@ -140,7 +124,6 @@ author_profile: true
     <p>UNESCO Sites</p>
   </div>
 </div>
-
 <div id="countries-modal" class="modal-overlay" onclick="closeModalOnOutsideClick(event, 'countries-modal')">
   <div class="modal-content">
     <span class="modal-close" onclick="closeModal('countries-modal')">&times;</span>
@@ -164,7 +147,6 @@ author_profile: true
       <li style="width: 45%;">🇬🇧 United Kingdom</li>
       <li style="width: 45%;">🇻🇦 Vatican City</li>
     </ul>
-
     <h4>🌎 North America (4)</h4>
     <ul class="modal-list" style="display: flex; flex-wrap: wrap; gap: 10px;">
       <li style="width: 45%;">🇧🇸 Bahamas</li>
@@ -172,7 +154,6 @@ author_profile: true
       <li style="width: 45%;">🇲🇽 Mexico</li>
       <li style="width: 45%;">🇺🇸 United States</li>
     </ul>
-
     <h4>🌏 Asia (4)</h4>
     <ul class="modal-list" style="display: flex; flex-wrap: wrap; gap: 10px;">
       <li style="width: 45%;">🇮🇳 India</li>
@@ -180,14 +161,12 @@ author_profile: true
       <li style="width: 45%;">🇹🇭 Thailand</li>
       <li style="width: 45%;">🇦🇪 United Arab Emirates</li>
     </ul>
-
     <h4>🌎 South America (3)</h4>
     <ul class="modal-list" style="display: flex; flex-wrap: wrap; gap: 10px;">
       <li style="width: 45%;">🇪🇨 Ecuador</li>
       <li style="width: 45%;">🇵🇪 Peru</li>
       <li style="width: 45%;"> Columbia</li>
     </ul>
-
     <h4>🐪 Africa (1)</h4>
     <ul class="modal-list" style="display: flex; flex-wrap: wrap; gap: 10px;">
       <li style="width: 45%;">🇪🇬 Egypt</li>
@@ -249,13 +228,11 @@ author_profile: true
     document.getElementById(modalId).style.display = 'flex';
     document.body.style.overflow = 'hidden'; // Prevent background scrolling
   }
-
   // Close the modal via the "X" button
   function closeModal(modalId) {
     document.getElementById(modalId).style.display = 'none';
     document.body.style.overflow = 'auto'; // Restore background scrolling
   }
-
   // Close the modal if clicking outside the content box
   function closeModalOnOutsideClick(event, modalId) {
     if (event.target.id === modalId) {
@@ -288,7 +265,6 @@ author_profile: true
     color: white;
     border-color: #007bff;
   }
-  
   /* Timeline Styles */
   .trip-card {
     border-left: 4px solid #ddd;
@@ -932,13 +908,11 @@ author_profile: true
 document.addEventListener("DOMContentLoaded", function() {
   // Initialize the map and set the default view
   const map = L.map('map').setView([20, 0], 2);
-  
   // Load the map tiles from OpenStreetMap
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 18,
     attribution: '© OpenStreetMap contributors'
   }).addTo(map);
-
   // Array of visited locations with coordinates, continents, and years visited
   const travelData = [
     // North America (Blue)
@@ -958,13 +932,11 @@ document.addEventListener("DOMContentLoaded", function() {
     { name: "Cancun, Mexico", coords: [21.1619, -86.8515], continent: "North America", year: "Multiple" },
     { name: "Cabo San Lucas, Mexico", coords: [22.8905, -109.9167], continent: "North America", year: "2024" },
     { name: "Bahamas", coords: [25.0343, -77.3963], continent: "North America", year: "2026" },
-
     // South America (Green)
     { name: "Cusco, Peru", coords: [-13.5320, -71.9675], continent: "South America", year: "2022" },
     { name: "Lima, Peru", coords: [-12.0464, -77.0428], continent: "South America", year: "2022" },
     { name: "Quito, Ecuador", coords: [-0.1807, -78.4678], continent: "South America", year: "2025" },
     { name: "Galápagos Islands", coords: [-0.8293, -90.9821], continent: "South America", year: "2025" },
-
     // Europe (Purple)
     { name: "London, UK", coords: [51.5074, -0.1278], continent: "Europe", year: "2023" },
     { name: "Edinburgh, UK", coords: [55.9533, -3.1883], continent: "Europe", year: "2023" },
@@ -984,12 +956,10 @@ document.addEventListener("DOMContentLoaded", function() {
     { name: "Reykjavik, Iceland", coords: [64.1466, -21.9426], continent: "Europe", year: "2024" },
     { name: "Oslo, Norway", coords: [59.9139, 10.7522], continent: "Europe", year: "2025" },
     { name: "Bern, Switzerland", coords: [46.9480, 7.4474], continent: "Europe", year: "2018" },
-
     // Africa (Gold/Yellow)
     { name: "Cairo, Egypt", coords: [30.0444, 31.2357], continent: "Africa", year: "2023" },
     { name: "Luxor, Egypt", coords: [25.6872, 32.6396], continent: "Africa", year: "2023" },
     { name: "Abu Simbel, Egypt", coords: [22.3372, 31.6258], continent: "Africa", year: "2023" },
-    
     // Asia (Orange)
     { name: "Dubai, UAE", coords: [25.2048, 55.2708], continent: "Asia", year: "2013" },
     { name: "Istanbul, Türkiye", coords: [41.0082, 28.9784], continent: "Asia", year: "Multiple" },
@@ -1015,7 +985,6 @@ document.addEventListener("DOMContentLoaded", function() {
       default: return '#6c757d';              // Grey
     }
   }
-
   // Draw the colored circles on the map
   travelData.forEach(function(location) {
     L.circleMarker(location.coords, {
@@ -1030,12 +999,10 @@ document.addEventListener("DOMContentLoaded", function() {
     .bindPopup(`<b>${location.name}</b><br><span style="color:${getMarkerColor(location.continent)}"><i>${location.continent}</i></span><br><small style="color:#555;">Visited: <b>${location.year}</b></small>`);
   });
 });
-
 // Timeline Filter Logic
 function filterTrips(type) {
   document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
   event.target.classList.add('active');
-
   const trips = document.querySelectorAll('.trip-card');
   trips.forEach(trip => {
     if (type === 'All' || trip.getAttribute('data-type') === type) {
