@@ -1,12 +1,12 @@
 <div class="stats-dashboard">
   <div class="stat-card" id="card-countries" onclick="toggleModal('modal-countries')">
-    <h3 id="count-countries">0</h3>
-    <p>Countries Visited</p>
+    <div class="stat-num" id="count-countries">0</div>
+    <div class="stat-label">Countries Visited</div>
   </div>
 
   <div class="stat-card" id="card-unesco" onclick="toggleModal('modal-unesco')">
-    <h3 id="count-unesco">0</h3>
-    <p>UNESCO Sites Visited</p>
+    <div class="stat-num" id="count-unesco">0</div>
+    <div class="stat-label">UNESCO Sites Visited</div>
   </div>
 </div>
 
@@ -29,20 +29,43 @@
   .stat-card {
     flex: 1;
     background: #f4f4f4;
-    padding: 20px;
     border-radius: 8px;
-    text-align: center;
     cursor: pointer;
-    transition: transform 0.2s, box-shadow 0.2s;
+    
+    /* Center the contents perfectly */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    /* Reduced padding to decrease the height */
+    padding: 10px 15px; 
+  
+    /* Soft, prominent shadow & subtle border */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08); 
+    border: 1px solid #eaeaea; 
+  
+    /* Smooth animation on hover */
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
   }
   .stat-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15); /* Slightly larger shadow on hover */
   }
-  .stat-card h3 {
+  /* REPLACES THE OLD .stat-card h3 */
+  .stat-num {
     margin: 0;
-    font-size: 2em;
-    color: #007bff;
+    font-size: 2.2em;
+    font-weight: 700;
+    color: #007bff; /* Kept your blue color! */
+    margin-bottom: 5px;
+    text-align: center;
+  }
+  /* NEW: Styles the text below the number */
+  .stat-label {
+    font-size: 0.9em;
+    color: #666;
+    text-align: center;
   }
   .stat-modal {
     background: #fff;
@@ -129,10 +152,7 @@
       { name: "India", years: "Multiple" },
       { name: "UAE", years: "2013" },
       { name: "Thailand", years: "2015, 2025" },
-      { name: "Taiwan", years: "2017" },
       { name: "Indonesia", years: "2017" },
-      { name: "Japan", years: "2026" },
-      { name: "South Korea", years: "2026" }
     ],
     "Africa": [
       { name: "Egypt", years: "2023" }
