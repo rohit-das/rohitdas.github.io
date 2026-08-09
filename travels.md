@@ -1,12 +1,10 @@
 ---
 layout: single
-title: Travel Log
+title: Travel Dashboard
 permalink: /travels/
 ---
 
-# Travel Dashboard
-
-Welcome to my travel log. Here you can explore the countries and sites we've visited, see our destinations on an interactive map, and browse through our trip history.
+Welcome to our travel dashboard. Here you can explore the countries and sites we've visited, see our destinations on an interactive map, and browse through our trip history.
 
 {% include travel-stats.html %}
 
@@ -25,5 +23,5 @@ Welcome to my travel log. Here you can explore the countries and sites we've vis
 
 ---
 <div style="text-align: center; color: #888; font-size: 0.85em;">
-  <em>v2.0.0 - Last Updated: 2026-08-08 9:12 pm PST</em>
+  <em>v2.0.0 - Last Updated: 2026-08-08 10:29 pm PST</em>
 </div>
