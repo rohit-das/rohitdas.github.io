@@ -4,7 +4,7 @@ main:
   - title: "About"
     url: /about
   - title: "Travels"
-    url: /travel
+    url: /travels
   - title: "Hobbies & Projects"
     url: /projects
   - title: "Life & Updates"
