@@ -951,6 +951,7 @@ function renderTimeline() {
         tripsByYear[trip.year].push(trip);
     });
     
+    // Sort years from most recent to oldest (e.g., 2026 down to 2014)
     const sortedYears = Object.keys(tripsByYear).sort((a, b) => b - a);
     
     sortedYears.forEach(year => {
@@ -958,7 +959,15 @@ function renderTimeline() {
         yearSection.className = "timeline-year";
         yearSection.innerHTML = "<h2>" + year + "</h2>";
         
-        tripsByYear[year].forEach(trip => {
+        // Sort trips within the year from most recent to oldest ("Mar 19, 2025" format)
+        const sortedTripsForYear = tripsByYear[year].sort((a, b) => {
+            // Remove the comma so JS engine parses it reliably
+            const dateA = new Date(a.startDate.replace(",", ""));
+            const dateB = new Date(b.startDate.replace(",", ""));
+            return dateB - dateA;
+        });
+        
+        sortedTripsForYear.forEach(trip => {
             const card = document.createElement("div");
             card.className = "trip-card";
             
