@@ -1,228 +1,105 @@
-<div class="trip-filters">
-  <label for="type-filter"><strong>Filter by Trip Type:</strong></label>
-  <select id="type-filter" onchange="renderTrips()">
-    <option value="All">All</option>
-    <option value="Vacation">Vacation</option>
-    <option value="Work">Work</option>
-    <option value="Family">Family Visit</option>
-  </select>
-</div>
-
-<div id="trip-log-container"></div>
-
 <style>
-  .trip-filters {
-    margin-bottom: 20px;
-    padding: 10px;
-    background: #f8f9fa;
-    border-radius: 8px;
-  }
-  .year-section {
-    margin-bottom: 30px;
-  }
-  .year-header {
-    font-size: 1.8em;
-    color: #333;
-    margin-bottom: 15px;
-  }
-  .trip-card {
-    background: #fff;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    padding: 15px;
-    margin-bottom: 15px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-  }
-  .trip-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
-  }
-  .trip-title {
-    font-size: 1.2em;
-    font-weight: bold;
-    color: #0056b3;
-  }
-  .trip-badge {
-    background: #e9ecef;
-    color: #495057;
-    padding: 4px 10px;
-    border-radius: 12px;
-    font-size: 0.85em;
-    font-weight: bold;
-  }
-  .trip-details {
-    color: #555;
-    margin-bottom: 10px;
-  }
-  .year-separator {
-    border: 0;
-    border-top: 3px solid #444; /* Darker line separator */
-    margin: 30px 0;
-  }
-  .photo-toggle-btn {
-    background: #007bff;
-    color: white;
-    border: none;
-    padding: 6px 12px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.9em;
-  }
-  .photo-toggle-btn:hover {
-    background: #0056b3;
-  }
-  .photo-module {
-    margin-top: 15px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    overflow: hidden;
-    background: #f4f4f4;
-  }
-  .photo-module iframe {
-    width: 100%;
-    height: 400px;
-    border: none;
-  }
+.filter-bar { display: flex; gap: 10px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 10px; }
+.filter-btn { padding: 8px 16px; border: 2px solid #ccc; border-radius: 20px; background: transparent; cursor: pointer; font-weight: bold; white-space: nowrap; transition: all 0.2s; color: #555; }
+.filter-btn:hover { border-color: #888; }
+.filter-btn.active-all { background: #333; color: white; border-color: #333; }
+.filter-btn.active-intl { background: #d32f2f; color: white; border-color: #d32f2f; }
+.filter-btn.active-dom { background: #1976d2; color: white; border-color: #1976d2; }
+.filter-btn.active-loc { background: #388e3c; color: white; border-color: #388e3c; }
+.timeline-year { border-top: 3px solid #333; margin-top: 30px; padding-top: 15px; }
+.timeline-year h2 { margin-top: 0; }
+.trip-card { border: 1px solid #ddd; padding: 15px; margin-bottom: 15px; border-radius: 8px; background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+.trip-badge { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 0.8em; color: white; font-weight: bold; margin-bottom: 10px; }
+.badge-International { background-color: #d32f2f; }
+.badge-Domestic { background-color: #1976d2; }
+.badge-Local { background-color: #388e3c; }
+.trip-header { font-size: 1.2em; font-weight: bold; margin-bottom: 5px; }
+.trip-details { font-size: 0.9em; color: #555; margin-bottom: 10px; }
+.blog-btn { display: inline-block; padding: 6px 12px; background: #f0f0f0; border: 1px solid #ccc; border-radius: 4px; text-decoration: none; color: #333; font-size: 0.85em; cursor: pointer; transition: background 0.2s; }
+.blog-btn:hover { background: #e0e0e0; }
+.blog-frame-container { display: none; margin-top: 15px; border: 1px solid #ddd; border-radius: 8px; overflow: hidden; background: #fafafa; }
+.blog-iframe { width: 100%; height: 450px; border: none; display: block; }
 </style>
 
+<div class="filter-bar" id="filter-buttons">
+  <button class="filter-btn active-all" data-filter="All">All Trips</button>
+  <button class="filter-btn" data-filter="International">International</button>
+  <button class="filter-btn" data-filter="Domestic">Domestic</button>
+  <button class="filter-btn" data-filter="Local">Local</button>
+</div>
+
+<div id="timeline-container"></div>
+
 <script>
-  // 1. DATA STRUCTURE (Add your trips from 2010 onwards here)
-  const tripsData = [
-    {
-      year: 2026,
-      country: "Japan",
-      cities: ["Tokyo", "Kyoto"],
-      type: "Vacation",
-      companions: ["Rohit", "Onam"],
-      albumLink: "YOUR_EMBED_HTML_OR_LINK_HERE" 
-    },
-    {
-      year: 2025,
-      country: "Ecuador",
-      cities: ["Quito", "Galápagos Islands"],
-      type: "Vacation",
-      companions: ["Rohit", "Onam", "Tarun"],
-      albumLink: "" // Leave blank if no album
-    },
-    {
-      year: 2024,
-      country: "Austria",
-      cities: ["Vienna", "Salzburg"],
-      type: "Vacation",
-      companions: ["Rohit", "Onam"],
-      albumLink: ""
-    },
-    {
-      year: 2018,
-      country: "India",
-      cities: ["Mumbai"],
-      type: "Family",
-      companions: ["Rohit", "S N das", "Meera"],
-      albumLink: ""
-    },
-    {
-      year: 2015,
-      country: "United States",
-      cities: ["Chicago", "Yellowstone NP"],
-      type: "Work",
-      companions: ["Rohit", "John Doe"], // "John Doe" will default to Family and friends
-      albumLink: ""
-    }
-  ];
+const tripData = [
+    { year: 2024, startDate: "Mar 20, 2024", endDate: "Apr 5, 2024", type: "International", country: "Austria", cities: "Vienna, Salzburg, Hallstatt", companions: "Onam", blogLink: "/blog/austria-2024/" },
+    { year: 2024, startDate: "Apr 6, 2024", endDate: "Apr 10, 2024", type: "International", country: "Germany", cities: "Munich, Schwangau", companions: "Onam", blogLink: "" },
+    { year: 2023, startDate: "Nov 1, 2023", endDate: "Nov 15, 2023", type: "International", country: "Egypt", cities: "Cairo, Luxor, Abu Simbel", companions: "Onam", blogLink: "/_posts/2026-08-03-1-million-bc-shoot-2026/" }
+];
 
-  // 2. COMPANION FORMATTING LOGIC
-  function formatCompanions(rawCompanions) {
-    if (!rawCompanions || rawCompanions.length === 0) return "";
+let currentFilter = "All";
+
+function renderTimeline() {
+    const container = document.getElementById("timeline-container");
+    container.innerHTML = "";
     
-    let processed = rawCompanions.map(person => {
-      let name = person.trim().toLowerCase();
-      if (name === "onam") return "Onam";
-      if (name === "rohit") return "Rohit";
-      // Everything else (S N das, Meera, Tarun, etc.) becomes "Family and friends"
-      return "Family and friends";
-    });
-
-    // Remove duplicates (so we don't say "Family and friends, Family and friends")
-    let uniqueCompanions = [...new Set(processed)];
-    return uniqueCompanions.join(", ");
-  }
-
-  // 3. RENDER LOGIC
-  function renderTrips() {
-    const container = document.getElementById("trip-log-container");
-    const filterValue = document.getElementById("type-filter").value;
-    container.innerHTML = ""; // Clear existing
-
-    // Filter trips
-    let filteredTrips = tripsData;
-    if (filterValue !== "All") {
-      filteredTrips = tripsData.filter(trip => trip.type === filterValue);
-    }
-
-    // Group by Year
-    const groupedTrips = {};
+    const filteredTrips = tripData.filter(trip => currentFilter === "All" || trip.type === currentFilter);
+    
+    const tripsByYear = {};
     filteredTrips.forEach(trip => {
-      if (!groupedTrips[trip.year]) {
-        groupedTrips[trip.year] = [];
-      }
-      groupedTrips[trip.year].push(trip);
+        if (!tripsByYear[trip.year]) tripsByYear[trip.year] = [];
+        tripsByYear[trip.year].push(trip);
     });
-
-    // Sort Years Descending (Most recent first)
-    const sortedYears = Object.keys(groupedTrips).sort((a, b) => b - a);
-
-    // Generate HTML
+    
+    const sortedYears = Object.keys(tripsByYear).sort((a, b) => b - a);
+    
     sortedYears.forEach(year => {
-      let yearHTML = `<div class="year-section">
-                        <h2 class="year-header">${year}</h2>`;
-      
-      groupedTrips[year].forEach((trip, index) => {
-        const companionsText = formatCompanions(trip.companions);
-        const uniqueId = `album-${year}-${index}`;
-
-        yearHTML += `
-          <div class="trip-card">
-            <div class="trip-header">
-              <span class="trip-title">${trip.country}: ${trip.cities.join(", ")}</span>
-              <span class="trip-badge">${trip.type}</span>
-            </div>
-            <div class="trip-details">
-              <strong>Companions:</strong> ${companionsText}
-            </div>
-            ${trip.albumLink ? `
-              <button class="photo-toggle-btn" onclick="toggleAlbum('${uniqueId}')">
-                📷 View Photos
-              </button>
-              <div id="${uniqueId}" class="photo-module" style="display: none;">
-                <iframe src="${trip.albumLink}" allowfullscreen></iframe>
-              </div>
-            ` : ''}
-          </div>
-        `;
-      });
-
-      // Add the darker line separator after the year
-      yearHTML += `<hr class="year-separator"></div>`;
-      container.innerHTML += yearHTML;
+        const yearSection = document.createElement("div");
+        yearSection.className = "timeline-year";
+        yearSection.innerHTML = "<h2>" + year + "</h2>";
+        
+        tripsByYear[year].forEach(trip => {
+            const card = document.createElement("div");
+            card.className = "trip-card";
+            
+            let headerText = trip.type === "International" 
+                ? trip.country + " - " + trip.cities 
+                : trip.cities;
+                
+            let html = "<span class='trip-badge badge-" + trip.type + "'>" + trip.type + "</span>";
+            html += "<div class='trip-header'>" + headerText + "</div>";
+            html += "<div class='trip-details'>📅 " + trip.startDate + " to " + trip.endDate + " | 👥 " + trip.companions + "</div>";
+            
+            if (trip.blogLink && trip.blogLink !== "") {
+                const uniqueId = "blog-drawer-" + Math.random().toString(36).substr(2, 9);
+                html += "<button class='blog-btn' onclick='toggleBlog(\"" + uniqueId + "\")'>📝 Toggle Blog Post</button>";
+                html += "<div id='" + uniqueId + "' class='blog-frame-container'><iframe class='blog-iframe' src='" + trip.blogLink + "'></iframe></div>";
+            }
+            
+            card.innerHTML = html;
+            yearSection.appendChild(card);
+        });
+        
+        container.appendChild(yearSection);
     });
+}
 
-    if (sortedYears.length === 0) {
-      container.innerHTML = "<p>No trips found for this filter.</p>";
-    }
-  }
+function toggleBlog(id) {
+    const drawer = document.getElementById(id);
+    drawer.style.display = drawer.style.display === "block" ? "none" : "block";
+}
 
-  // 4. TOGGLE ALBUM VISIBILITY
-  function toggleAlbum(albumId) {
-    const module = document.getElementById(albumId);
-    if (module.style.display === "none") {
-      module.style.display = "block";
-    } else {
-      module.style.display = "none";
-    }
-  }
+document.querySelectorAll(".filter-btn").forEach(btn => {
+    btn.addEventListener("click", function() {
+        currentFilter = this.getAttribute("data-filter");
+        document.querySelectorAll(".filter-btn").forEach(b => b.className = "filter-btn");
+        if (currentFilter === "All") this.classList.add("active-all");
+        if (currentFilter === "International") this.classList.add("active-intl");
+        if (currentFilter === "Domestic") this.classList.add("active-dom");
+        if (currentFilter === "Local") this.classList.add("active-loc");
+        renderTimeline();
+    });
+});
 
-  // Initialize on page load
-  document.addEventListener("DOMContentLoaded", renderTrips);
+renderTimeline();
 </script>
