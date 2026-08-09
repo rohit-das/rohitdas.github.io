@@ -1,1 +1,228 @@
+<div class="trip-filters">
+  <label for="type-filter"><strong>Filter by Trip Type:</strong></label>
+  <select id="type-filter" onchange="renderTrips()">
+    <option value="All">All</option>
+    <option value="Vacation">Vacation</option>
+    <option value="Work">Work</option>
+    <option value="Family">Family Visit</option>
+  </select>
+</div>
 
+<div id="trip-log-container"></div>
+
+<style>
+  .trip-filters {
+    margin-bottom: 20px;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 8px;
+  }
+  .year-section {
+    margin-bottom: 30px;
+  }
+  .year-header {
+    font-size: 1.8em;
+    color: #333;
+    margin-bottom: 15px;
+  }
+  .trip-card {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  }
+  .trip-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  .trip-title {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #0056b3;
+  }
+  .trip-badge {
+    background: #e9ecef;
+    color: #495057;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.85em;
+    font-weight: bold;
+  }
+  .trip-details {
+    color: #555;
+    margin-bottom: 10px;
+  }
+  .year-separator {
+    border: 0;
+    border-top: 3px solid #444; /* Darker line separator */
+    margin: 30px 0;
+  }
+  .photo-toggle-btn {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9em;
+  }
+  .photo-toggle-btn:hover {
+    background: #0056b3;
+  }
+  .photo-module {
+    margin-top: 15px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    overflow: hidden;
+    background: #f4f4f4;
+  }
+  .photo-module iframe {
+    width: 100%;
+    height: 400px;
+    border: none;
+  }
+</style>
+
+<script>
+  // 1. DATA STRUCTURE (Add your trips from 2010 onwards here)
+  const tripsData = [
+    {
+      year: 2026,
+      country: "Japan",
+      cities: ["Tokyo", "Kyoto"],
+      type: "Vacation",
+      companions: ["Rohit", "Onam"],
+      albumLink: "YOUR_EMBED_HTML_OR_LINK_HERE" 
+    },
+    {
+      year: 2025,
+      country: "Ecuador",
+      cities: ["Quito", "Galápagos Islands"],
+      type: "Vacation",
+      companions: ["Rohit", "Onam", "Tarun"],
+      albumLink: "" // Leave blank if no album
+    },
+    {
+      year: 2024,
+      country: "Austria",
+      cities: ["Vienna", "Salzburg"],
+      type: "Vacation",
+      companions: ["Rohit", "Onam"],
+      albumLink: ""
+    },
+    {
+      year: 2018,
+      country: "India",
+      cities: ["Mumbai"],
+      type: "Family",
+      companions: ["Rohit", "S N das", "Meera"],
+      albumLink: ""
+    },
+    {
+      year: 2015,
+      country: "United States",
+      cities: ["Chicago", "Yellowstone NP"],
+      type: "Work",
+      companions: ["Rohit", "John Doe"], // "John Doe" will default to Family and friends
+      albumLink: ""
+    }
+  ];
+
+  // 2. COMPANION FORMATTING LOGIC
+  function formatCompanions(rawCompanions) {
+    if (!rawCompanions || rawCompanions.length === 0) return "";
+    
+    let processed = rawCompanions.map(person => {
+      let name = person.trim().toLowerCase();
+      if (name === "onam") return "Onam";
+      if (name === "rohit") return "Rohit";
+      // Everything else (S N das, Meera, Tarun, etc.) becomes "Family and friends"
+      return "Family and friends";
+    });
+
+    // Remove duplicates (so we don't say "Family and friends, Family and friends")
+    let uniqueCompanions = [...new Set(processed)];
+    return uniqueCompanions.join(", ");
+  }
+
+  // 3. RENDER LOGIC
+  function renderTrips() {
+    const container = document.getElementById("trip-log-container");
+    const filterValue = document.getElementById("type-filter").value;
+    container.innerHTML = ""; // Clear existing
+
+    // Filter trips
+    let filteredTrips = tripsData;
+    if (filterValue !== "All") {
+      filteredTrips = tripsData.filter(trip => trip.type === filterValue);
+    }
+
+    // Group by Year
+    const groupedTrips = {};
+    filteredTrips.forEach(trip => {
+      if (!groupedTrips[trip.year]) {
+        groupedTrips[trip.year] = [];
+      }
+      groupedTrips[trip.year].push(trip);
+    });
+
+    // Sort Years Descending (Most recent first)
+    const sortedYears = Object.keys(groupedTrips).sort((a, b) => b - a);
+
+    // Generate HTML
+    sortedYears.forEach(year => {
+      let yearHTML = `<div class="year-section">
+                        <h2 class="year-header">${year}</h2>`;
+      
+      groupedTrips[year].forEach((trip, index) => {
+        const companionsText = formatCompanions(trip.companions);
+        const uniqueId = `album-${year}-${index}`;
+
+        yearHTML += `
+          <div class="trip-card">
+            <div class="trip-header">
+              <span class="trip-title">${trip.country}: ${trip.cities.join(", ")}</span>
+              <span class="trip-badge">${trip.type}</span>
+            </div>
+            <div class="trip-details">
+              <strong>Companions:</strong> ${companionsText}
+            </div>
+            ${trip.albumLink ? `
+              <button class="photo-toggle-btn" onclick="toggleAlbum('${uniqueId}')">
+                📷 View Photos
+              </button>
+              <div id="${uniqueId}" class="photo-module" style="display: none;">
+                <iframe src="${trip.albumLink}" allowfullscreen></iframe>
+              </div>
+            ` : ''}
+          </div>
+        `;
+      });
+
+      // Add the darker line separator after the year
+      yearHTML += `<hr class="year-separator"></div>`;
+      container.innerHTML += yearHTML;
+    });
+
+    if (sortedYears.length === 0) {
+      container.innerHTML = "<p>No trips found for this filter.</p>";
+    }
+  }
+
+  // 4. TOGGLE ALBUM VISIBILITY
+  function toggleAlbum(albumId) {
+    const module = document.getElementById(albumId);
+    if (module.style.display === "none") {
+      module.style.display = "block";
+    } else {
+      module.style.display = "none";
+    }
+  }
+
+  // Initialize on page load
+  document.addEventListener("DOMContentLoaded", renderTrips);
+</script>
