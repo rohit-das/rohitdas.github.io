@@ -19,6 +19,7 @@
 .blog-btn:hover { background: #e0e0e0; }
 .blog-frame-container { display: none; margin-top: 15px; border: 1px solid #ddd; border-radius: 8px; overflow: hidden; background: #fafafa; }
 .blog-iframe { width: 100%; height: 450px; border: none; display: block; }
+.trip-summary { font-size: 0.9em; color: #444; margin-top: 8px; line-height: 1.4; font-style: italic; background: #f9f9f9; padding: 10px; border-left: 3px solid #666; border-radius: 4px; }
 </style>
 
 <div class="filter-bar" id="filter-buttons">
@@ -31,10 +32,41 @@
 <div id="timeline-container"></div>
 
 <script>
+// Trip data array supporting both blogLink (for an interactive drawer) and tripSummary (fallback paragraph)
 const tripData = [
-    { year: 2024, startDate: "Mar 20, 2024", endDate: "Apr 5, 2024", type: "International", country: "Austria", cities: "Vienna, Salzburg, Hallstatt", companions: "Onam", blogLink: "/blog/austria-2024/" },
-    { year: 2024, startDate: "Apr 6, 2024", endDate: "Apr 10, 2024", type: "International", country: "Germany", cities: "Munich, Schwangau", companions: "Onam", blogLink: "" },
-    { year: 2023, startDate: "Nov 1, 2023", endDate: "Nov 15, 2023", type: "International", country: "Egypt", cities: "Cairo, Luxor, Abu Simbel", companions: "Onam", blogLink: "/_posts/2026-08-03-1-million-bc-shoot-2026/" }
+    { 
+        year: 2024, 
+        startDate: "Mar 20, 2024", 
+        endDate: "Apr 5, 2024", 
+        type: "International", 
+        country: "Austria", 
+        cities: "Vienna, Salzburg, Hallstatt", 
+        companions: "Onam", 
+        blogLink: "/blog/austria-2024/", 
+        tripSummary: "" 
+    },
+    { 
+        year: 2024, 
+        startDate: "Apr 6, 2024", 
+        endDate: "Apr 10, 2024", 
+        type: "International", 
+        country: "Germany", 
+        cities: "Munich, Schwangau", 
+        companions: "Onam", 
+        blogLink: "", 
+        tripSummary: "Explored the historic streets of Munich and visited the fairytale Neuschwanstein Castle in Schwangau under gorgeous spring weather." 
+    },
+    { 
+        year: 2022, 
+        startDate: "Feb 10, 2022", 
+        endDate: "Feb 14, 2022", 
+        type: "Domestic", 
+        country: "United States", 
+        cities: "Yosemite NP", 
+        companions: "Friends", 
+        blogLink: "", 
+        tripSummary: "Winter weekend trip catching breathtaking views of El Capitan and Yosemite Falls covered in crisp snow." 
+    }
 ];
 
 let currentFilter = "All";
@@ -70,10 +102,13 @@ function renderTimeline() {
             html += "<div class='trip-header'>" + headerText + "</div>";
             html += "<div class='trip-details'>📅 " + trip.startDate + " to " + trip.endDate + " | 👥 " + trip.companions + "</div>";
             
-            if (trip.blogLink && trip.blogLink !== "") {
+            // Conditional Rendering: Blog drawer button if link exists, otherwise show summary paragraph
+            if (trip.blogLink && trip.blogLink.trim() !== "") {
                 const uniqueId = "blog-drawer-" + Math.random().toString(36).substr(2, 9);
                 html += "<button class='blog-btn' onclick='toggleBlog(\"" + uniqueId + "\")'>📝 Toggle Blog Post</button>";
                 html += "<div id='" + uniqueId + "' class='blog-frame-container'><iframe class='blog-iframe' src='" + trip.blogLink + "'></iframe></div>";
+            } else if (trip.tripSummary && trip.tripSummary.trim() !== "") {
+                html += "<div class='trip-summary'>" + trip.tripSummary + "</div>";
             }
             
             card.innerHTML = html;
