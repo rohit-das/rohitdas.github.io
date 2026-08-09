@@ -1,5 +1,5 @@
 ---
-layout: default
+layout: single
 title: Travel Log
 permalink: /travels/
 ---
@@ -25,5 +25,5 @@ Welcome to my travel log. Here you can explore the countries and sites we've vis
 
 ---
 <div style="text-align: center; color: #888; font-size: 0.85em;">
-  <em>v2.0.0 - Last Updated: 2026-08-08 9:07 pm PST</em>
+  <em>v2.0.0 - Last Updated: 2026-08-08 9:12 pm PST</em>
 </div>
