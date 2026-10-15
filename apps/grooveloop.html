@@ -36,10 +36,11 @@
         }
     </script>
     <style>
-        body {
+        html, body {
+            max-width: 100vw;
+            overflow-x: hidden;
             background-color: #090A0F;
             color: #F3F4F6;
-            overflow-x: hidden;
             user-select: none;
             -webkit-tap-highlight-color: transparent;
             touch-action: manipulation;
@@ -102,82 +103,27 @@
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col pb-12">
+<body class="min-h-screen flex flex-col pb-12 w-full max-w-full overflow-x-hidden">
 
     <!-- Hidden HTML5 Audio Element (Pitch-Preserved MP3 Engine) -->
     <audio id="html5AudioPlayer" preload="metadata" crossorigin="anonymous" class="hidden"></audio>
 
-    <!-- Header & Clean MP3 Input Bar (Scrolls Away Naturally) -->
-    <header class="bg-studio-900 border-b border-studio-800 px-3 sm:px-6 py-3">
-        <div class="max-w-5xl mx-auto flex flex-col gap-2.5">
-            
-            <!-- Top Row: Brand + Upload Local MP3 + Info -->
-            <div class="flex items-center justify-between gap-2">
-                <div class="flex items-center gap-2.5">
-                    <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-studio-accent to-purple-600 flex items-center justify-center shadow-md shadow-studio-accent/20 shrink-0">
-                        <i class="fa-solid fa-wave-square text-white text-sm"></i>
-                    </div>
-                    <div class="flex items-center gap-1.5">
-                        <h1 class="font-extrabold text-base sm:text-lg tracking-tight bg-gradient-to-r from-white via-gray-200 to-studio-cyan bg-clip-text text-transparent">
-                            GROOVELOOP
-                        </h1>
-                        <span class="text-[9px] font-mono uppercase tracking-widest px-1.5 py-0.5 rounded bg-studio-accent/20 text-studio-accent border border-studio-accent/40 font-bold">
-                            MP3 Deck
-                        </span>
-                    </div>
-                </div>
-
-                <!-- Right Action Buttons: Upload Local MP3 & Shortcuts Info -->
-                <div class="flex items-center gap-2">
-                    <label class="cursor-pointer bg-gradient-to-r from-studio-cyan to-teal-400 hover:opacity-95 active:scale-95 text-studio-950 font-extrabold text-xs py-2.5 px-3.5 rounded-xl flex items-center gap-1.5 shadow-md shadow-studio-cyan/10 transition shrink-0">
-                        <i class="fa-solid fa-folder-open text-xs"></i>
-                        <span>Open Local MP3</span>
-                        <input id="localFileInput" type="file" accept="audio/*,.mp3,.wav,.m4a,.aac,.ogg" class="hidden">
-                    </label>
-
-                    <button id="btnShortcuts" class="p-2.5 rounded-xl bg-studio-800 hover:bg-studio-700 text-gray-300 border border-studio-700 text-xs transition" title="Studio Tips & Shortcuts">
-                        <i class="fa-solid fa-circle-info text-studio-cyan"></i>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Second Row: Direct MP3 Link Input Only -->
-            <div class="flex items-center gap-1.5 w-full">
-                <div class="relative flex-1">
-                    <i class="fa-solid fa-link absolute left-3.5 top-1/2 -translate-y-1/2 text-studio-cyan text-xs"></i>
-                    <input 
-                        id="mp3UrlInput" 
-                        type="url" 
-                        placeholder="Paste direct .mp3 / audio URL (or use ?mp3= in link)..." 
-                        class="w-full pl-9 pr-20 py-2.5 bg-studio-950 border border-studio-700 focus:border-studio-cyan rounded-xl text-xs sm:text-sm text-white placeholder-gray-500 focus:outline-none transition"
-                    >
-                    <button 
-                        id="btnLoadMp3Url" 
-                        class="absolute right-1.5 top-1/2 -translate-y-1/2 px-3 py-1.5 bg-studio-accent hover:bg-pink-600 active:scale-95 text-white font-bold text-xs rounded-lg transition"
-                    >
-                        Load URL
-                    </button>
-                </div>
-            </div>
-        </div>
-    </header>
-
-    <!-- STICKY TOP PLAYBACK DECK (Pinned at top: 0 when scrolling down) -->
-    <section class="sticky top-0 z-50 bg-studio-950/95 backdrop-blur-xl border-b border-studio-700/90 shadow-[0_10px_30px_rgba(0,0,0,0.75)] px-3 sm:px-6 py-2.5">
-        <div class="max-w-5xl mx-auto">
+    <!-- FIXED TOP PLAYBACK DECK (100% immune to overflow/DOM updates on iOS/Android/Desktop) -->
+    <section id="stickyDeck" class="fixed top-0 left-0 right-0 z-50 w-full max-w-full bg-studio-950/95 backdrop-blur-xl border-b border-studio-700/90 shadow-[0_10px_30px_rgba(0,0,0,0.8)] px-3 sm:px-6 py-2.5 overflow-hidden">
+        <div class="max-w-5xl w-full mx-auto min-w-0">
             
             <!-- Audio Error Banner (if direct link fails or CORS/404) -->
-            <div id="audioErrorBanner" class="hidden mb-2 bg-red-950/90 border border-red-500/40 rounded-xl px-3.5 py-2 text-xs text-red-200 items-center justify-between gap-2">
-                <div class="flex items-center gap-2">
-                    <i class="fa-solid fa-triangle-exclamation text-red-400"></i>
-                    <span id="audioErrorText">Could not load MP3 link. Check URL or open a local MP3 file.</span>
+            <div id="audioErrorBanner" class="hidden mb-2 bg-red-950/90 border border-red-500/40 rounded-xl px-3.5 py-2 text-xs text-red-200 items-center justify-between gap-2 min-w-0 max-w-full">
+                <div class="flex items-center gap-2 min-w-0 flex-1">
+                    <i class="fa-solid fa-triangle-exclamation text-red-400 shrink-0"></i>
+                    <span id="audioErrorText" class="truncate block min-w-0">Could not load MP3 link. Check URL or open a local MP3 file.</span>
                 </div>
-                <button id="btnDismissError" class="text-red-300 hover:text-white px-2 py-0.5 font-bold">✕</button>
+                <button id="btnDismissError" class="text-red-300 hover:text-white px-2 py-0.5 font-bold shrink-0">✕</button>
             </div>
 
             <!-- Track Info & Time/Speed Status Row -->
-            <div class="flex items-center justify-between gap-2 mb-2">
-                <div class="flex items-center gap-2 min-w-0 flex-1">
+            <div class="flex items-center justify-between gap-2 mb-2 min-w-0 w-full">
+                <div class="flex items-center gap-2 min-w-0 flex-1 overflow-hidden">
                     <div id="eqBarsContainer" class="flex items-end gap-0.5 h-3.5 w-3.5 shrink-0">
                         <div class="eq-bar w-1 h-full bg-studio-accent rounded-t" style="animation-delay: 0s"></div>
                         <div class="eq-bar w-1 h-full bg-studio-cyan rounded-t" style="animation-delay: 0.2s"></div>
@@ -186,25 +132,25 @@
                     <span id="sourceBadge" class="px-1.5 py-0.5 text-[10px] font-mono uppercase rounded bg-studio-800 text-gray-300 border border-studio-700 shrink-0 font-bold">
                         Ready
                     </span>
-                    <h2 id="currentTrackTitle" class="text-xs sm:text-sm font-bold text-gray-100 truncate">
+                    <h2 id="currentTrackTitle" class="text-xs sm:text-sm font-bold text-gray-100 truncate block min-w-0 flex-1">
                         Open a local MP3 or paste an MP3 URL
                     </h2>
                 </div>
 
                 <!-- Active Section Pill -->
-                <div id="activeSectionBadge" class="hidden items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-studio-800 border border-studio-cyan/40 text-studio-cyan text-[11px] font-semibold max-w-[140px] sm:max-w-[200px] truncate shrink-0">
+                <div id="activeSectionBadge" class="hidden items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-studio-800 border border-studio-cyan/40 text-studio-cyan text-[11px] font-semibold max-w-[120px] sm:max-w-[180px] truncate shrink-0">
                     <span class="w-1.5 h-1.5 rounded-full bg-studio-cyan animate-ping shrink-0"></span>
-                    <span id="activeSectionName" class="truncate">Looping</span>
+                    <span id="activeSectionName" class="truncate block min-w-0">Looping</span>
                 </div>
 
                 <!-- Time & Speed Readout -->
-                <div class="flex items-baseline gap-2 font-mono shrink-0">
+                <div class="flex items-baseline gap-1.5 sm:gap-2 font-mono shrink-0">
                     <div>
-                        <span id="currentTimeDisplay" class="text-lg sm:text-2xl font-extrabold text-studio-cyan tracking-tight">00:00.0</span>
+                        <span id="currentTimeDisplay" class="text-base sm:text-2xl font-extrabold text-studio-cyan tracking-tight">00:00.0</span>
                         <span class="text-[11px] text-gray-500">/</span>
-                        <span id="durationDisplay" class="text-xs text-gray-400 font-semibold">00:00.0</span>
+                        <span id="durationDisplay" class="text-[11px] sm:text-xs text-gray-400 font-semibold">00:00.0</span>
                     </div>
-                    <span id="speedReadoutBadge" class="px-1.5 py-0.5 rounded bg-studio-lime/15 border border-studio-lime/40 text-xs text-studio-lime font-extrabold">1.00x</span>
+                    <span id="speedReadoutBadge" class="px-1.5 py-0.5 rounded bg-studio-lime/15 border border-studio-lime/40 text-[11px] sm:text-xs text-studio-lime font-extrabold">1.00x</span>
                 </div>
             </div>
 
@@ -232,48 +178,103 @@
             </div>
 
             <!-- Transport Controls Row with Extra-Large Central Play/Pause Button -->
-            <div class="flex items-center justify-center gap-2.5 sm:gap-4">
+            <div class="flex items-center justify-center gap-2 sm:gap-4 w-full min-w-0">
                 <!-- Jump to A / Start -->
-                <button id="btnJumpToStart" class="flex-1 max-w-[92px] h-12 sm:h-14 rounded-2xl bg-studio-800 hover:bg-studio-700 active:scale-95 text-gray-200 font-semibold text-xs flex flex-col items-center justify-center gap-0.5 border border-studio-700 transition">
+                <button id="btnJumpToStart" class="flex-1 max-w-[92px] h-12 sm:h-14 rounded-2xl bg-studio-800 hover:bg-studio-700 active:scale-95 text-gray-200 font-semibold text-xs flex flex-col items-center justify-center gap-0.5 border border-studio-700 transition min-w-0">
                     <i class="fa-solid fa-backward-step text-sm text-studio-cyan"></i>
-                    <span>To A</span>
+                    <span class="truncate">To A</span>
                 </button>
 
                 <!-- Seek -2s -->
-                <button id="btnSeekBack2" class="flex-1 max-w-[92px] h-12 sm:h-14 rounded-2xl bg-studio-800 hover:bg-studio-700 active:scale-95 text-gray-200 font-mono font-bold text-xs flex flex-col items-center justify-center gap-0.5 border border-studio-700 transition">
+                <button id="btnSeekBack2" class="flex-1 max-w-[92px] h-12 sm:h-14 rounded-2xl bg-studio-800 hover:bg-studio-700 active:scale-95 text-gray-200 font-mono font-bold text-xs flex flex-col items-center justify-center gap-0.5 border border-studio-700 transition min-w-0">
                     <i class="fa-solid fa-rotate-left text-sm"></i>
                     <span>-2s</span>
                 </button>
 
-                <!-- LARGE MASTER PLAY / PAUSE BUTTON (72px x 72px minimum touch target) -->
-                <button id="btnPlayPause" class="w-20 h-16 sm:w-28 sm:h-20 rounded-3xl bg-gradient-to-tr from-studio-accent via-pink-600 to-purple-600 hover:brightness-110 active:scale-90 text-white font-extrabold flex flex-col items-center justify-center gap-1 shadow-[0_0_25px_rgba(255,46,147,0.5)] border-2 border-white/20 transition shrink-0">
+                <!-- LARGE MASTER PLAY / PAUSE BUTTON -->
+                <button id="btnPlayPause" class="w-24 h-16 sm:w-28 sm:h-20 rounded-3xl bg-gradient-to-tr from-studio-accent via-pink-600 to-purple-600 hover:brightness-110 active:scale-90 text-white font-extrabold flex flex-col items-center justify-center gap-1 shadow-[0_0_25px_rgba(255,46,147,0.5)] border-2 border-white/20 transition shrink-0">
                     <i id="playPauseIcon" class="fa-solid fa-play text-2xl sm:text-3xl ml-0.5"></i>
                     <span id="playPauseText" class="text-[10px] sm:text-xs uppercase tracking-widest font-extrabold">Play</span>
                 </button>
 
                 <!-- Seek +2s -->
-                <button id="btnSeekFwd2" class="flex-1 max-w-[92px] h-12 sm:h-14 rounded-2xl bg-studio-800 hover:bg-studio-700 active:scale-95 text-gray-200 font-mono font-bold text-xs flex flex-col items-center justify-center gap-0.5 border border-studio-700 transition">
+                <button id="btnSeekFwd2" class="flex-1 max-w-[92px] h-12 sm:h-14 rounded-2xl bg-studio-800 hover:bg-studio-700 active:scale-95 text-gray-200 font-mono font-bold text-xs flex flex-col items-center justify-center gap-0.5 border border-studio-700 transition min-w-0">
                     <i class="fa-solid fa-rotate-right text-sm"></i>
                     <span>+2s</span>
                 </button>
 
                 <!-- Quick Toggle Loop On/Off -->
-                <button id="btnQuickLoopHeader" class="flex-1 max-w-[92px] h-12 sm:h-14 rounded-2xl bg-studio-800 hover:bg-studio-700 active:scale-95 text-gray-300 font-bold text-xs flex flex-col items-center justify-center gap-0.5 border border-studio-700 transition" title="Toggle A-B Loop">
+                <button id="btnQuickLoopHeader" class="flex-1 max-w-[92px] h-12 sm:h-14 rounded-2xl bg-studio-800 hover:bg-studio-700 active:scale-95 text-gray-300 font-bold text-xs flex flex-col items-center justify-center gap-0.5 border border-studio-700 transition min-w-0" title="Toggle A-B Loop">
                     <i class="fa-solid fa-repeat text-sm text-studio-cyan"></i>
-                    <span id="quickLoopHeaderText" class="text-[11px]">Loop Off</span>
+                    <span id="quickLoopHeaderText" class="text-[11px] truncate">Loop Off</span>
                 </button>
             </div>
         </div>
     </section>
 
+    <!-- Dynamic Spacer matching #stickyDeck height so fixed deck never overlaps content -->
+    <div id="stickyDeckSpacer" class="w-full shrink-0" style="height: 178px;"></div>
+
+    <!-- Header & Clean MP3 Input Bar (Scrolls cleanly underneath the pinned playback deck) -->
+    <header class="bg-studio-900 border-b border-studio-800 px-3 sm:px-6 py-3 w-full max-w-full overflow-hidden">
+        <div class="max-w-5xl w-full mx-auto flex flex-col gap-2.5 min-w-0">
+            
+            <!-- Top Row: Brand + Upload Local MP3 + Info -->
+            <div class="flex items-center justify-between gap-2 min-w-0">
+                <div class="flex items-center gap-2.5 min-w-0">
+                    <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-studio-accent to-purple-600 flex items-center justify-center shadow-md shadow-studio-accent/20 shrink-0">
+                        <i class="fa-solid fa-wave-square text-white text-sm"></i>
+                    </div>
+                    <div class="flex items-center gap-1.5 min-w-0">
+                        <h1 class="font-extrabold text-base sm:text-lg tracking-tight bg-gradient-to-r from-white via-gray-200 to-studio-cyan bg-clip-text text-transparent truncate">
+                            GROOVELOOP
+                        </h1>
+                        <span class="text-[9px] font-mono uppercase tracking-widest px-1.5 py-0.5 rounded bg-studio-accent/20 text-studio-accent border border-studio-accent/40 font-bold shrink-0">
+                            MP3 Deck
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Right Action Buttons: Upload Local MP3 & Shortcuts Info -->
+                <div class="flex items-center gap-2 shrink-0">
+                    <label class="cursor-pointer bg-gradient-to-r from-studio-cyan to-teal-400 hover:opacity-95 active:scale-95 text-studio-950 font-extrabold text-xs py-2.5 px-3.5 rounded-xl flex items-center gap-1.5 shadow-md shadow-studio-cyan/10 transition shrink-0">
+                        <i class="fa-solid fa-folder-open text-xs"></i>
+                        <span>Open Local MP3</span>
+                        <input id="localFileInput" type="file" accept="audio/*,.mp3,.wav,.m4a,.aac,.ogg" class="hidden">
+                    </label>
+
+                    <button id="btnShortcuts" class="p-2.5 rounded-xl bg-studio-800 hover:bg-studio-700 text-gray-300 border border-studio-700 text-xs transition shrink-0" title="Studio Tips & Shortcuts">
+                        <i class="fa-solid fa-circle-info text-studio-cyan"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Second Row: Direct MP3 Link Input Only -->
+            <div class="flex items-center gap-1.5 w-full min-w-0">
+                <div class="relative flex-1 min-w-0">
+                    <i class="fa-solid fa-link absolute left-3.5 top-1/2 -translate-y-1/2 text-studio-cyan text-xs"></i>
+                    <input 
+                        id="mp3UrlInput" 
+                        type="url" 
+                        placeholder="Paste direct .mp3 / audio URL (or use ?mp3= in link)..." 
+                        class="w-full max-w-full min-w-0 pl-9 pr-20 py-2.5 bg-studio-950 border border-studio-700 focus:border-studio-cyan rounded-xl text-xs sm:text-sm text-white placeholder-gray-500 focus:outline-none transition"
+                    >
+                    <button 
+                        id="btnLoadMp3Url" 
+                        class="absolute right-1.5 top-1/2 -translate-y-1/2 px-3 py-1.5 bg-studio-accent hover:bg-pink-600 active:scale-95 text-white font-bold text-xs rounded-lg transition"
+                    >
+                        Load URL
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
     <!-- Main Mobile-First Scrollable Workspace -->
-    <main class="max-w-5xl w-full mx-auto flex-1 px-3 sm:px-6 py-4 grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+    <main class="max-w-5xl w-full mx-auto flex-1 px-3 sm:px-6 py-4 grid grid-cols-1 lg:grid-cols-12 gap-4 items-start min-w-0 overflow-x-hidden">
         
         <!-- LEFT / TOP COLUMN: A-B Loop Controls & Speed Controller (7 cols on lg) -->
-        <div class="lg:col-span-7 flex flex-col gap-4">
-
-            <!-- PRECISION A-B LOOP & BEAT NUDGE DECK -->
-            <div class="bg-studio-900 border border-studio-700 rounded-2xl p-3.5 sm:p-4 shadow-xl">
+        <div class="lg:col-span-7 flex flex-col gap-4 min-w-0 w-full max-w-full">
                 <div class="flex items-center justify-between gap-2 mb-3">
                     <div class="flex items-center gap-2">
                         <i class="fa-solid fa-repeat text-studio-cyan text-sm"></i>
@@ -378,29 +379,29 @@
         </div>
 
         <!-- RIGHT / BOTTOM COLUMN: Tagged Choreography Sections Manager (5 cols on lg) -->
-        <div class="lg:col-span-5 flex flex-col gap-3.5">
+        <div class="lg:col-span-5 flex flex-col gap-3.5 min-w-0 w-full max-w-full">
             
             <!-- Tag New Choreography Section Card -->
-            <div class="bg-studio-900 border border-studio-700 rounded-2xl p-3.5 sm:p-4 shadow-xl">
-                <div class="flex items-center justify-between mb-2.5">
-                    <div class="flex items-center gap-2">
-                        <i class="fa-solid fa-bookmark text-studio-accent text-sm"></i>
-                        <h3 class="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-white">Tag Choreo Section</h3>
+            <div class="bg-studio-900 border border-studio-700 rounded-2xl p-3.5 sm:p-4 shadow-xl min-w-0 w-full max-w-full overflow-hidden">
+                <div class="flex items-center justify-between mb-2.5 gap-2 min-w-0">
+                    <div class="flex items-center gap-2 min-w-0">
+                        <i class="fa-solid fa-bookmark text-studio-accent text-sm shrink-0"></i>
+                        <h3 class="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-white truncate">Tag Choreo Section</h3>
                     </div>
-                    <span id="tagPreviewRange" class="text-[11px] text-studio-cyan font-mono font-semibold">00:00.0 → 00:15.0</span>
+                    <span id="tagPreviewRange" class="text-[11px] text-studio-cyan font-mono font-semibold shrink-0">00:00.0 → 00:15.0</span>
                 </div>
 
-                <div class="flex flex-col gap-2.5">
+                <div class="flex flex-col gap-2.5 min-w-0 w-full">
                     <input 
                         id="sectionNameInput" 
                         type="text" 
                         placeholder="Section name (e.g., Intro 8-Count, Chorus)..." 
-                        class="w-full px-3.5 py-2.5 bg-studio-950 border border-studio-700 focus:border-studio-accent rounded-xl text-sm text-white placeholder-gray-500 focus:outline-none"
+                        class="w-full max-w-full min-w-0 px-3.5 py-2.5 bg-studio-950 border border-studio-700 focus:border-studio-accent rounded-xl text-sm text-white placeholder-gray-500 focus:outline-none"
                     >
 
-                    <div class="flex items-center justify-between gap-2">
+                    <div class="flex items-center justify-between gap-2 min-w-0 w-full">
                         <!-- Color Swatches -->
-                        <div class="flex items-center gap-2 bg-studio-950 px-3 py-2 rounded-xl border border-studio-700">
+                        <div class="flex items-center gap-2 bg-studio-950 px-3 py-2 rounded-xl border border-studio-700 shrink-0">
                             <button type="button" data-color="#FF2E93" class="color-swatch w-6 h-6 rounded-full bg-[#FF2E93] ring-2 ring-white scale-110 transition"></button>
                             <button type="button" data-color="#00F0FF" class="color-swatch w-6 h-6 rounded-full bg-[#00F0FF] opacity-60 hover:opacity-100 transition"></button>
                             <button type="button" data-color="#ADFF2F" class="color-swatch w-6 h-6 rounded-full bg-[#ADFF2F] opacity-60 hover:opacity-100 transition"></button>
@@ -408,28 +409,28 @@
                             <button type="button" data-color="#A855F7" class="color-swatch w-6 h-6 rounded-full bg-[#A855F7] opacity-60 hover:opacity-100 transition"></button>
                         </div>
 
-                        <button id="btnSaveSection" class="flex-1 py-2.5 px-4 rounded-xl bg-gradient-to-r from-studio-accent to-purple-600 active:scale-95 text-white font-bold text-xs shadow-lg shadow-studio-accent/25 transition flex items-center justify-center gap-1.5">
-                            <i class="fa-solid fa-plus"></i>
-                            <span id="saveSectionBtnText">Save Section</span>
+                        <button id="btnSaveSection" class="flex-1 min-w-0 py-2.5 px-4 rounded-xl bg-gradient-to-r from-studio-accent to-purple-600 active:scale-95 text-white font-bold text-xs shadow-lg shadow-studio-accent/25 transition flex items-center justify-center gap-1.5">
+                            <i class="fa-solid fa-plus shrink-0"></i>
+                            <span id="saveSectionBtnText" class="truncate">Save Section</span>
                         </button>
                     </div>
                 </div>
             </div>
 
             <!-- Saved Sections List (One-Tap Rehearsal Cards) -->
-            <div class="bg-studio-900 border border-studio-700 rounded-2xl p-3.5 sm:p-4 shadow-xl flex flex-col flex-1">
-                <div class="flex items-center justify-between gap-2 mb-3 pb-2 border-b border-studio-800">
-                    <div>
+            <div class="bg-studio-900 border border-studio-700 rounded-2xl p-3.5 sm:p-4 shadow-xl flex flex-col flex-1 min-w-0 w-full max-w-full overflow-hidden">
+                <div class="flex items-center justify-between gap-2 mb-3 pb-2 border-b border-studio-800 min-w-0">
+                    <div class="min-w-0">
                         <h3 class="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-white flex items-center gap-2">
-                            <i class="fa-solid fa-layer-group text-studio-cyan"></i>
-                            <span>Tagged Sections</span>
-                            <span id="sectionCountBadge" class="px-2 py-0.5 text-xs rounded-full bg-studio-800 text-studio-cyan font-mono">0</span>
+                            <i class="fa-solid fa-layer-group text-studio-cyan shrink-0"></i>
+                            <span class="truncate">Tagged Sections</span>
+                            <span id="sectionCountBadge" class="px-2 py-0.5 text-xs rounded-full bg-studio-800 text-studio-cyan font-mono shrink-0">0</span>
                         </h3>
-                        <p class="text-[11px] text-gray-400 mt-0.5">Tap any section to loop & practice</p>
+                        <p class="text-[11px] text-gray-400 mt-0.5 truncate">Tap any section to loop & practice</p>
                     </div>
 
                     <!-- Export / Import JSON -->
-                    <div class="flex items-center gap-1.5">
+                    <div class="flex items-center gap-1.5 shrink-0">
                         <button id="btnExportJson" class="px-2.5 py-1.5 rounded-lg bg-studio-800 hover:bg-studio-700 text-gray-300 text-xs font-semibold border border-studio-700 transition" title="Export JSON">
                             <i class="fa-solid fa-download text-studio-cyan"></i>
                         </button>
@@ -441,26 +442,30 @@
                 </div>
 
                 <!-- Dynamic List of Tagged Choreography Cards -->
-                <div id="sectionsListContainer" class="flex flex-col gap-2 overflow-y-auto max-h-[360px] pr-0.5">
+                <div id="sectionsListContainer" class="flex flex-col gap-2 overflow-y-auto max-h-[360px] pr-0.5 min-w-0 w-full max-w-full">
                     <!-- Populated by JS -->
                 </div>
 
-                <!-- Saved Songs History Selector -->
-                <div class="mt-3.5 pt-3 border-t border-studio-800 flex items-center justify-between gap-2">
-                    <span class="text-xs font-semibold text-gray-400 shrink-0"><i class="fa-solid fa-music mr-1 text-studio-amber"></i>Track Library:</span>
-                    <select id="savedSongsSelect" class="flex-1 bg-studio-950 text-gray-200 text-xs py-2 px-2.5 rounded-xl border border-studio-700 focus:outline-none truncate">
-                        <!-- Populated by JS -->
-                    </select>
+                <!-- Saved Songs History Selector (Strictly Width-Limited) -->
+                <div class="mt-3.5 pt-3 border-t border-studio-800 flex items-center justify-between gap-2 min-w-0 w-full max-w-full overflow-hidden">
+                    <span class="text-xs font-semibold text-gray-400 shrink-0">
+                        <i class="fa-solid fa-music mr-1 text-studio-amber"></i>Track Library:
+                    </span>
+                    <div class="flex-1 min-w-0 max-w-full overflow-hidden">
+                        <select id="savedSongsSelect" class="w-full max-w-full min-w-0 bg-studio-950 text-gray-200 text-xs py-2 px-2.5 rounded-xl border border-studio-700 focus:outline-none truncate overflow-hidden text-ellipsis block">
+                            <!-- Populated by JS with truncated option labels -->
+                        </select>
+                    </div>
                 </div>
             </div>
 
         </div>
     </main>
 
-    <!-- Toast Notification Banner -->
-    <div id="toastBanner" class="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 pointer-events-none opacity-0 translate-y-3 transition-all duration-300 bg-studio-800 border border-studio-cyan/60 text-white px-4 py-2.5 rounded-full shadow-2xl flex items-center gap-2.5 text-xs font-bold whitespace-nowrap">
-        <i class="fa-solid fa-circle-check text-studio-cyan text-sm"></i>
-        <span id="toastMessage">Section Saved!</span>
+    <!-- Toast Notification Banner (Constrained to viewport width) -->
+    <div id="toastBanner" class="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 pointer-events-none opacity-0 translate-y-3 transition-all duration-300 bg-studio-800 border border-studio-cyan/60 text-white px-4 py-2.5 rounded-full shadow-2xl flex items-center gap-2.5 text-xs font-bold max-w-[92vw] overflow-hidden">
+        <i class="fa-solid fa-circle-check text-studio-cyan text-sm shrink-0"></i>
+        <span id="toastMessage" class="truncate block min-w-0">Section Saved!</span>
     </div>
 
     <!-- Studio Info & Shortcuts Modal -->
@@ -867,12 +872,31 @@
             document.getElementById('audioErrorText').textContent = msg;
             banner.classList.remove('hidden');
             banner.classList.add('flex');
+            syncStickyDeckSpacer();
         }
 
         function hideAudioError() {
             const banner = document.getElementById('audioErrorBanner');
             banner.classList.add('hidden');
             banner.classList.remove('flex');
+            syncStickyDeckSpacer();
+        }
+
+        function syncStickyDeckSpacer() {
+            const deck = document.getElementById('stickyDeck');
+            const spacer = document.getElementById('stickyDeckSpacer');
+            if (deck && spacer) {
+                spacer.style.height = `${deck.offsetHeight}px`;
+            }
+        }
+
+        function truncateMiddle(str, maxLen = 28) {
+            if (!str) return '';
+            const clean = String(str).trim();
+            if (clean.length <= maxLen) return clean;
+            const keepStart = Math.ceil((maxLen - 3) * 0.65);
+            const keepEnd = Math.floor((maxLen - 3) * 0.35);
+            return clean.slice(0, keepStart) + '...' + clean.slice(clean.length - keepEnd);
         }
 
         audioPlayer.addEventListener('error', () => {
@@ -1249,7 +1273,9 @@
                 const opt = document.createElement('option');
                 opt.value = song.id;
                 const count = song.sections ? song.sections.length : 0;
-                opt.textContent = `${song.title} (${count} sections)`;
+                const shortTitle = truncateMiddle(song.title, 28);
+                opt.textContent = `${shortTitle} (${count} sec${count === 1 ? '' : 's'})`;
+                opt.title = `${song.title} (${count} sections)`;
                 if (song.id === state.currentTrackId) opt.selected = true;
                 sel.appendChild(opt);
             });
@@ -1339,6 +1365,7 @@
             timeline.addEventListener('touchend', () => { isScrubbing = false; });
 
             window.addEventListener('resize', () => {
+                syncStickyDeckSpacer();
                 drawWaveformCanvas();
             });
 
@@ -1604,6 +1631,7 @@
             loadLibraryFromStorage();
             renderSavedSongsDropdown();
             bindStudioEvents();
+            syncStickyDeckSpacer();
             autoLoadInitialAudio();
             requestAnimationFrame(masterMonitorLoop);
         };
