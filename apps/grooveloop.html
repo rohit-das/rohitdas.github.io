@@ -102,220 +102,175 @@
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col pb-8">
+<body class="min-h-screen flex flex-col pb-12">
 
     <!-- Hidden HTML5 Audio Element (Pitch-Preserved MP3 Engine) -->
     <audio id="html5AudioPlayer" preload="metadata" crossorigin="anonymous" class="hidden"></audio>
 
-    <!-- Mobile-First Compact Studio Header & MP3 Source Loader -->
-    <header class="bg-studio-900/95 border-b border-studio-700/80 sticky top-0 z-30 backdrop-blur-md px-3 sm:px-6 py-2.5">
+    <!-- Header & Clean MP3 Input Bar (Scrolls Away Naturally) -->
+    <header class="bg-studio-900 border-b border-studio-800 px-3 sm:px-6 py-3">
         <div class="max-w-5xl mx-auto flex flex-col gap-2.5">
             
-            <!-- Top Row: Brand + Quick Upload Local MP3 + Presets -->
+            <!-- Top Row: Brand + Upload Local MP3 + Info -->
             <div class="flex items-center justify-between gap-2">
                 <div class="flex items-center gap-2.5">
                     <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-studio-accent to-purple-600 flex items-center justify-center shadow-md shadow-studio-accent/20 shrink-0">
                         <i class="fa-solid fa-wave-square text-white text-sm"></i>
                     </div>
-                    <div>
-                        <div class="flex items-center gap-1.5">
-                            <h1 class="font-extrabold text-base sm:text-lg tracking-tight bg-gradient-to-r from-white via-gray-200 to-studio-cyan bg-clip-text text-transparent">
-                                GROOVELOOP
-                            </h1>
-                            <span class="text-[9px] font-mono uppercase tracking-widest px-1.5 py-0.5 rounded bg-studio-accent/20 text-studio-accent border border-studio-accent/40 font-bold">
-                                MP3 Deck
-                            </span>
-                        </div>
+                    <div class="flex items-center gap-1.5">
+                        <h1 class="font-extrabold text-base sm:text-lg tracking-tight bg-gradient-to-r from-white via-gray-200 to-studio-cyan bg-clip-text text-transparent">
+                            GROOVELOOP
+                        </h1>
+                        <span class="text-[9px] font-mono uppercase tracking-widest px-1.5 py-0.5 rounded bg-studio-accent/20 text-studio-accent border border-studio-accent/40 font-bold">
+                            MP3 Deck
+                        </span>
                     </div>
                 </div>
 
-                <!-- Right Action Buttons: Upload Local MP3 & Built-In Demo -->
-                <div class="flex items-center gap-1.5">
-                    <label class="cursor-pointer bg-gradient-to-r from-studio-cyan to-teal-400 hover:opacity-95 active:scale-95 text-studio-950 font-extrabold text-xs py-2 px-3 rounded-xl flex items-center gap-1.5 shadow-md shadow-studio-cyan/10 transition shrink-0">
-                        <i class="fa-solid fa-folder-plus text-xs"></i>
-                        <span>Open MP3</span>
+                <!-- Right Action Buttons: Upload Local MP3 & Shortcuts Info -->
+                <div class="flex items-center gap-2">
+                    <label class="cursor-pointer bg-gradient-to-r from-studio-cyan to-teal-400 hover:opacity-95 active:scale-95 text-studio-950 font-extrabold text-xs py-2.5 px-3.5 rounded-xl flex items-center gap-1.5 shadow-md shadow-studio-cyan/10 transition shrink-0">
+                        <i class="fa-solid fa-folder-open text-xs"></i>
+                        <span>Open Local MP3</span>
                         <input id="localFileInput" type="file" accept="audio/*,.mp3,.wav,.m4a,.aac,.ogg" class="hidden">
                     </label>
 
-                    <button id="btnLoadSynthPreset" class="bg-studio-800 hover:bg-studio-700 active:scale-95 text-studio-lime border border-studio-lime/30 font-bold text-xs py-2 px-2.5 rounded-xl flex items-center gap-1 transition shrink-0" title="Load Built-in 110 BPM Studio Beat">
-                        <i class="fa-solid fa-drum"></i>
-                        <span class="hidden xs:inline">110 BPM</span>
-                    </button>
-
-                    <button id="btnShortcuts" class="p-2 rounded-xl bg-studio-800 hover:bg-studio-700 text-gray-300 border border-studio-700 text-xs transition" title="Studio Tips & Shortcuts">
+                    <button id="btnShortcuts" class="p-2.5 rounded-xl bg-studio-800 hover:bg-studio-700 text-gray-300 border border-studio-700 text-xs transition" title="Studio Tips & Shortcuts">
                         <i class="fa-solid fa-circle-info text-studio-cyan"></i>
                     </button>
                 </div>
             </div>
 
-            <!-- Second Row: Direct MP3 Link Input -->
+            <!-- Second Row: Direct MP3 Link Input Only -->
             <div class="flex items-center gap-1.5 w-full">
                 <div class="relative flex-1">
-                    <i class="fa-solid fa-link absolute left-3 top-1/2 -translate-y-1/2 text-studio-cyan text-xs"></i>
+                    <i class="fa-solid fa-link absolute left-3.5 top-1/2 -translate-y-1/2 text-studio-cyan text-xs"></i>
                     <input 
                         id="mp3UrlInput" 
                         type="url" 
-                        placeholder="Paste direct .mp3 / audio URL or choose preset..." 
-                        class="w-full pl-8 pr-16 py-2 bg-studio-950 border border-studio-700 focus:border-studio-cyan rounded-xl text-xs sm:text-sm text-white placeholder-gray-500 focus:outline-none transition"
+                        placeholder="Paste direct .mp3 / audio URL (or use ?mp3= in link)..." 
+                        class="w-full pl-9 pr-20 py-2.5 bg-studio-950 border border-studio-700 focus:border-studio-cyan rounded-xl text-xs sm:text-sm text-white placeholder-gray-500 focus:outline-none transition"
                     >
                     <button 
                         id="btnLoadMp3Url" 
-                        class="absolute right-1 top-1/2 -translate-y-1/2 px-2.5 py-1 bg-studio-accent hover:bg-pink-600 active:scale-95 text-white font-bold text-xs rounded-lg transition"
+                        class="absolute right-1.5 top-1/2 -translate-y-1/2 px-3 py-1.5 bg-studio-accent hover:bg-pink-600 active:scale-95 text-white font-bold text-xs rounded-lg transition"
                     >
-                        Load
+                        Load URL
                     </button>
                 </div>
-
-                <!-- Sample MP3 Links & Synth Selector -->
-                <select id="presetSelect" aria-label="Load Audio Preset" class="bg-studio-800 hover:bg-studio-700 text-gray-200 text-xs font-semibold py-2 px-2.5 rounded-xl border border-studio-700 focus:outline-none cursor-pointer max-w-[130px] sm:max-w-[180px] truncate">
-                    <option value="">🎵 Demo Tracks...</option>
-                    <option value="SYNTH_BEAT">⚡ 110 BPM 8-Count Beat</option>
-                    <option value="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3">Electro Groove MP3</option>
-                    <option value="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3">Upbeat Pop Funk MP3</option>
-                </select>
             </div>
         </div>
     </header>
 
-    <!-- Count-In Fullscreen Overlay ("5, 6, 7, 8!") -->
-    <div id="countInOverlay" class="fixed inset-0 z-50 bg-studio-950/95 backdrop-blur-md hidden flex-col items-center justify-center p-6 text-center">
-        <div class="text-studio-cyan text-xs sm:text-sm font-mono uppercase tracking-widest mb-2">Get In Position — Rehearsal Count-In</div>
-        <div id="countInNumber" class="text-[7.5rem] sm:text-[11rem] font-extrabold leading-none text-white drop-shadow-[0_0_35px_rgba(255,46,147,0.8)] font-mono">
-            5
-        </div>
-        <div id="countInSubtext" class="text-lg sm:text-xl text-gray-300 font-semibold mt-3">
-            "Five, Six, Seven, Eight..."
-        </div>
-        <button id="btnCancelCountIn" class="mt-8 px-6 py-3.5 rounded-2xl bg-studio-800 active:scale-95 text-white font-bold border border-studio-700 transition text-sm">
-            Cancel Count-In
-        </button>
-    </div>
-
-    <!-- Main Mobile-First Workspace -->
-    <main class="max-w-5xl w-full mx-auto flex-1 px-3 sm:px-6 py-3 grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
-        
-        <!-- LEFT / TOP COLUMN: Compact Audio Deck, Waveform Timeline, Speed & A-B Loop Controls (7 cols on lg) -->
-        <div class="lg:col-span-7 flex flex-col gap-3.5">
+    <!-- STICKY TOP PLAYBACK DECK (Pinned at top: 0 when scrolling down) -->
+    <section class="sticky top-0 z-50 bg-studio-950/95 backdrop-blur-xl border-b border-studio-700/90 shadow-[0_10px_30px_rgba(0,0,0,0.75)] px-3 sm:px-6 py-2.5">
+        <div class="max-w-5xl mx-auto">
             
-            <!-- COMPACT AUDIO STAGE & TIMELINE CARD -->
-            <div class="bg-studio-900 border border-studio-700 rounded-2xl overflow-hidden shadow-xl">
-                
-                <!-- Track Status Bar + Count-In Toggle -->
-                <div class="px-3.5 py-2.5 bg-studio-800/90 border-b border-studio-700 flex items-center justify-between gap-2">
-                    <div class="flex items-center gap-2 min-w-0 flex-1">
-                        <!-- Mini Animated Equalizer Icon -->
-                        <div id="eqBarsContainer" class="flex items-end gap-0.5 h-4 w-4 shrink-0">
-                            <div class="eq-bar w-1 h-full bg-studio-accent rounded-t" style="animation-delay: 0s"></div>
-                            <div class="eq-bar w-1 h-full bg-studio-cyan rounded-t" style="animation-delay: 0.2s"></div>
-                            <div class="eq-bar w-1 h-full bg-studio-lime rounded-t" style="animation-delay: 0.4s"></div>
-                        </div>
-                        <span id="sourceBadge" class="px-1.5 py-0.5 text-[10px] font-mono uppercase rounded bg-studio-lime/20 text-studio-lime border border-studio-lime/30 shrink-0 font-bold">
-                            Synth
-                        </span>
-                        <h2 id="currentTrackTitle" class="text-xs sm:text-sm font-bold text-gray-100 truncate">
-                            110 BPM Studio Metronome Track
-                        </h2>
-                    </div>
+            <!-- Audio Error Banner (if direct link fails or CORS/404) -->
+            <div id="audioErrorBanner" class="hidden mb-2 bg-red-950/90 border border-red-500/40 rounded-xl px-3.5 py-2 text-xs text-red-200 items-center justify-between gap-2">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-triangle-exclamation text-red-400"></i>
+                    <span id="audioErrorText">Could not load MP3 link. Check URL or open a local MP3 file.</span>
+                </div>
+                <button id="btnDismissError" class="text-red-300 hover:text-white px-2 py-0.5 font-bold">✕</button>
+            </div>
 
-                    <!-- Count-in Selector Pill -->
-                    <div class="flex items-center bg-studio-950 border border-studio-700 rounded-xl p-0.5 text-[11px] shrink-0">
-                        <span class="px-1.5 text-gray-400 font-medium hidden sm:inline"><i class="fa-solid fa-stopwatch mr-1 text-studio-amber"></i>Count:</span>
-                        <button data-countin="0" class="countin-btn px-2 py-1 rounded-lg font-mono font-bold bg-studio-accent text-white">OFF</button>
-                        <button data-countin="3" class="countin-btn px-2 py-1 rounded-lg font-mono font-bold text-gray-400 hover:text-white">3s</button>
-                        <button data-countin="5" class="countin-btn px-2 py-1 rounded-lg font-mono font-bold text-gray-400 hover:text-white">5-6-7-8</button>
+            <!-- Track Info & Time/Speed Status Row -->
+            <div class="flex items-center justify-between gap-2 mb-2">
+                <div class="flex items-center gap-2 min-w-0 flex-1">
+                    <div id="eqBarsContainer" class="flex items-end gap-0.5 h-3.5 w-3.5 shrink-0">
+                        <div class="eq-bar w-1 h-full bg-studio-accent rounded-t" style="animation-delay: 0s"></div>
+                        <div class="eq-bar w-1 h-full bg-studio-cyan rounded-t" style="animation-delay: 0.2s"></div>
+                        <div class="eq-bar w-1 h-full bg-studio-lime rounded-t" style="animation-delay: 0.4s"></div>
                     </div>
+                    <span id="sourceBadge" class="px-1.5 py-0.5 text-[10px] font-mono uppercase rounded bg-studio-800 text-gray-300 border border-studio-700 shrink-0 font-bold">
+                        Ready
+                    </span>
+                    <h2 id="currentTrackTitle" class="text-xs sm:text-sm font-bold text-gray-100 truncate">
+                        Open a local MP3 or paste an MP3 URL
+                    </h2>
                 </div>
 
-                <!-- Audio Error Banner (if direct link fails or CORS/404) -->
-                <div id="audioErrorBanner" class="hidden bg-red-950/80 border-b border-red-500/40 px-3.5 py-2.5 text-xs text-red-200 items-center justify-between gap-2">
-                    <div class="flex items-center gap-2">
-                        <i class="fa-solid fa-triangle-exclamation text-red-400"></i>
-                        <span id="audioErrorText">Could not load MP3 link. Check URL or upload a local MP3 file.</span>
-                    </div>
-                    <button id="btnDismissError" class="text-red-300 hover:text-white px-2 py-0.5 font-bold">✕</button>
+                <!-- Active Section Pill -->
+                <div id="activeSectionBadge" class="hidden items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-studio-800 border border-studio-cyan/40 text-studio-cyan text-[11px] font-semibold max-w-[140px] sm:max-w-[200px] truncate shrink-0">
+                    <span class="w-1.5 h-1.5 rounded-full bg-studio-cyan animate-ping shrink-0"></span>
+                    <span id="activeSectionName" class="truncate">Looping</span>
                 </div>
 
-                <!-- Compact Audio Waveform Scrubber & High-Contrast Time Readout -->
-                <div class="p-3.5 sm:p-4 bg-gradient-to-b from-studio-950 to-studio-900">
-                    
-                    <!-- Big Mobile-Friendly Time & Active Loop Readout -->
-                    <div class="flex items-baseline justify-between mb-2.5">
-                        <div class="flex items-baseline gap-1.5 font-mono">
-                            <span id="currentTimeDisplay" class="text-2xl sm:text-3xl font-extrabold text-studio-cyan tracking-tight">00:00.0</span>
-                            <span class="text-xs text-gray-500">/</span>
-                            <span id="durationDisplay" class="text-xs sm:text-sm text-gray-400 font-semibold">01:04.0</span>
-                        </div>
-
-                        <!-- Active Section Pill -->
-                        <div id="activeSectionBadge" class="hidden items-center gap-1.5 px-2.5 py-1 rounded-full bg-studio-800 border border-studio-cyan/40 text-studio-cyan text-[11px] font-semibold max-w-[160px] truncate">
-                            <span class="w-2 h-2 rounded-full bg-studio-cyan animate-ping shrink-0"></span>
-                            <span id="activeSectionName" class="truncate">Looping</span>
-                        </div>
-
-                        <div class="text-right font-mono">
-                            <span class="text-[10px] text-gray-400 uppercase block">Tempo</span>
-                            <strong id="speedReadoutBadge" class="text-sm sm:text-base text-studio-lime font-extrabold">1.00x</strong>
-                        </div>
+                <!-- Time & Speed Readout -->
+                <div class="flex items-baseline gap-2 font-mono shrink-0">
+                    <div>
+                        <span id="currentTimeDisplay" class="text-lg sm:text-2xl font-extrabold text-studio-cyan tracking-tight">00:00.0</span>
+                        <span class="text-[11px] text-gray-500">/</span>
+                        <span id="durationDisplay" class="text-xs text-gray-400 font-semibold">00:00.0</span>
                     </div>
-
-                    <!-- Interactive Touch Waveform & Section Scrubber (Extra Tall for Thumb Scrubbing) -->
-                    <div id="timelineTrack" class="relative w-full h-16 sm:h-20 bg-studio-950 rounded-2xl border border-studio-700 cursor-pointer overflow-hidden mb-3.5 select-none touch-none shadow-inner" title="Drag or tap to scrub audio">
-                        
-                        <!-- Procedural Audio Waveform Canvas Background -->
-                        <canvas id="waveformCanvas" class="absolute inset-0 w-full h-full pointer-events-none opacity-65"></canvas>
-
-                        <!-- Tagged Choreography Sections Layer -->
-                        <div id="timelineSectionsLayer" class="absolute inset-x-0 top-0 h-3 pointer-events-none z-10"></div>
-
-                        <!-- Active A-B Loop Region Overlay -->
-                        <div id="timelineLoopRegion" class="hidden absolute top-0 bottom-0 bg-studio-cyan/20 border-l-2 border-r-2 border-studio-cyan pointer-events-none z-10">
-                            <div class="absolute top-0.5 left-0.5 bg-studio-cyan text-studio-950 text-[9px] font-mono font-extrabold px-1 rounded">A</div>
-                            <div class="absolute bottom-0.5 right-0.5 bg-studio-cyan text-studio-950 text-[9px] font-mono font-extrabold px-1 rounded">B</div>
-                        </div>
-
-                        <!-- Progress Tint -->
-                        <div id="timelineProgressFill" class="absolute top-0 left-0 bottom-0 bg-studio-accent/15 pointer-events-none" style="width: 0%;"></div>
-
-                        <!-- Playhead Needle -->
-                        <div id="timelinePlayhead" class="absolute top-0 bottom-0 w-0.5 bg-studio-accent shadow-[0_0_10px_#FF2E93] pointer-events-none z-20" style="left: 0%;">
-                            <div class="w-3.5 h-3.5 -ml-[6px] rounded-full bg-studio-accent border-2 border-white shadow"></div>
-                        </div>
-                    </div>
-
-                    <!-- Thumb-Friendly Transport Controls -->
-                    <div class="grid grid-cols-5 gap-2 items-center">
-                        <!-- Jump to A / Start -->
-                        <button id="btnJumpToStart" class="h-14 rounded-2xl bg-studio-800 hover:bg-studio-700 active:scale-95 text-gray-200 font-semibold text-[11px] flex flex-col items-center justify-center gap-1 border border-studio-700 transition">
-                            <i class="fa-solid fa-backward-step text-base text-studio-cyan"></i>
-                            <span>To A</span>
-                        </button>
-
-                        <!-- Seek -2s -->
-                        <button id="btnSeekBack2" class="h-14 rounded-2xl bg-studio-800 hover:bg-studio-700 active:scale-95 text-gray-200 font-mono font-bold text-xs flex flex-col items-center justify-center gap-1 border border-studio-700 transition">
-                            <i class="fa-solid fa-rotate-left text-sm"></i>
-                            <span>-2s</span>
-                        </button>
-
-                        <!-- Master Play / Pause (Prominent Center Button) -->
-                        <button id="btnPlayPause" class="h-14 rounded-2xl bg-gradient-to-r from-studio-accent to-pink-600 active:scale-95 text-white font-extrabold text-xs flex flex-col items-center justify-center gap-0.5 shadow-lg shadow-studio-accent/30 transition">
-                            <i id="playPauseIcon" class="fa-solid fa-play text-xl"></i>
-                            <span id="playPauseText" class="text-[10px] uppercase tracking-wider">Play</span>
-                        </button>
-
-                        <!-- Seek +2s -->
-                        <button id="btnSeekFwd2" class="h-14 rounded-2xl bg-studio-800 hover:bg-studio-700 active:scale-95 text-gray-200 font-mono font-bold text-xs flex flex-col items-center justify-center gap-1 border border-studio-700 transition">
-                            <i class="fa-solid fa-rotate-right text-sm"></i>
-                            <span>+2s</span>
-                        </button>
-
-                        <!-- 5-6-7-8 Count-In & Go -->
-                        <button id="btnPlayWithCountIn" class="h-14 rounded-2xl bg-studio-800 hover:bg-studio-700 active:scale-95 text-studio-amber font-bold text-[11px] flex flex-col items-center justify-center gap-1 border border-studio-amber/40 transition" title="Count in 5-6-7-8 and Play from A">
-                            <i class="fa-solid fa-person-running text-base"></i>
-                            <span>5-6-7-8</span>
-                        </button>
-                    </div>
+                    <span id="speedReadoutBadge" class="px-1.5 py-0.5 rounded bg-studio-lime/15 border border-studio-lime/40 text-xs text-studio-lime font-extrabold">1.00x</span>
                 </div>
             </div>
+
+            <!-- Interactive Touch Waveform & Section Scrubber -->
+            <div id="timelineTrack" class="relative w-full h-14 sm:h-16 bg-studio-900 rounded-xl border border-studio-700 cursor-pointer overflow-hidden mb-2.5 select-none touch-none shadow-inner" title="Drag or tap to scrub audio">
+                <!-- Procedural/Decoded Audio Waveform Canvas Background -->
+                <canvas id="waveformCanvas" class="absolute inset-0 w-full h-full pointer-events-none opacity-75"></canvas>
+
+                <!-- Tagged Choreography Sections Layer -->
+                <div id="timelineSectionsLayer" class="absolute inset-x-0 top-0 h-2.5 pointer-events-none z-10"></div>
+
+                <!-- Active A-B Loop Region Overlay -->
+                <div id="timelineLoopRegion" class="hidden absolute top-0 bottom-0 bg-studio-cyan/20 border-l-2 border-r-2 border-studio-cyan pointer-events-none z-10">
+                    <div class="absolute top-0.5 left-0.5 bg-studio-cyan text-studio-950 text-[9px] font-mono font-extrabold px-1 rounded">A</div>
+                    <div class="absolute bottom-0.5 right-0.5 bg-studio-cyan text-studio-950 text-[9px] font-mono font-extrabold px-1 rounded">B</div>
+                </div>
+
+                <!-- Progress Tint -->
+                <div id="timelineProgressFill" class="absolute top-0 left-0 bottom-0 bg-studio-accent/15 pointer-events-none" style="width: 0%;"></div>
+
+                <!-- Playhead Needle -->
+                <div id="timelinePlayhead" class="absolute top-0 bottom-0 w-0.5 bg-studio-accent shadow-[0_0_10px_#FF2E93] pointer-events-none z-20" style="left: 0%;">
+                    <div class="w-3 h-3 -ml-[5px] rounded-full bg-studio-accent border-2 border-white shadow"></div>
+                </div>
+            </div>
+
+            <!-- Transport Controls Row with Extra-Large Central Play/Pause Button -->
+            <div class="flex items-center justify-center gap-2.5 sm:gap-4">
+                <!-- Jump to A / Start -->
+                <button id="btnJumpToStart" class="flex-1 max-w-[92px] h-12 sm:h-14 rounded-2xl bg-studio-800 hover:bg-studio-700 active:scale-95 text-gray-200 font-semibold text-xs flex flex-col items-center justify-center gap-0.5 border border-studio-700 transition">
+                    <i class="fa-solid fa-backward-step text-sm text-studio-cyan"></i>
+                    <span>To A</span>
+                </button>
+
+                <!-- Seek -2s -->
+                <button id="btnSeekBack2" class="flex-1 max-w-[92px] h-12 sm:h-14 rounded-2xl bg-studio-800 hover:bg-studio-700 active:scale-95 text-gray-200 font-mono font-bold text-xs flex flex-col items-center justify-center gap-0.5 border border-studio-700 transition">
+                    <i class="fa-solid fa-rotate-left text-sm"></i>
+                    <span>-2s</span>
+                </button>
+
+                <!-- LARGE MASTER PLAY / PAUSE BUTTON (72px x 72px minimum touch target) -->
+                <button id="btnPlayPause" class="w-20 h-16 sm:w-28 sm:h-20 rounded-3xl bg-gradient-to-tr from-studio-accent via-pink-600 to-purple-600 hover:brightness-110 active:scale-90 text-white font-extrabold flex flex-col items-center justify-center gap-1 shadow-[0_0_25px_rgba(255,46,147,0.5)] border-2 border-white/20 transition shrink-0">
+                    <i id="playPauseIcon" class="fa-solid fa-play text-2xl sm:text-3xl ml-0.5"></i>
+                    <span id="playPauseText" class="text-[10px] sm:text-xs uppercase tracking-widest font-extrabold">Play</span>
+                </button>
+
+                <!-- Seek +2s -->
+                <button id="btnSeekFwd2" class="flex-1 max-w-[92px] h-12 sm:h-14 rounded-2xl bg-studio-800 hover:bg-studio-700 active:scale-95 text-gray-200 font-mono font-bold text-xs flex flex-col items-center justify-center gap-0.5 border border-studio-700 transition">
+                    <i class="fa-solid fa-rotate-right text-sm"></i>
+                    <span>+2s</span>
+                </button>
+
+                <!-- Quick Toggle Loop On/Off -->
+                <button id="btnQuickLoopHeader" class="flex-1 max-w-[92px] h-12 sm:h-14 rounded-2xl bg-studio-800 hover:bg-studio-700 active:scale-95 text-gray-300 font-bold text-xs flex flex-col items-center justify-center gap-0.5 border border-studio-700 transition" title="Toggle A-B Loop">
+                    <i class="fa-solid fa-repeat text-sm text-studio-cyan"></i>
+                    <span id="quickLoopHeaderText" class="text-[11px]">Loop Off</span>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Mobile-First Scrollable Workspace -->
+    <main class="max-w-5xl w-full mx-auto flex-1 px-3 sm:px-6 py-4 grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+        
+        <!-- LEFT / TOP COLUMN: A-B Loop Controls & Speed Controller (7 cols on lg) -->
+        <div class="lg:col-span-7 flex flex-col gap-4">
 
             <!-- PRECISION A-B LOOP & BEAT NUDGE DECK -->
             <div class="bg-studio-900 border border-studio-700 rounded-2xl p-3.5 sm:p-4 shadow-xl">
@@ -363,7 +318,7 @@
                         <div class="flex items-center justify-between">
                             <div>
                                 <span class="text-[10px] font-mono uppercase text-gray-400 block">End Point (B)</span>
-                                <span id="loopBDisplay" class="text-lg font-mono font-extrabold text-studio-accent">00:08.7</span>
+                                <span id="loopBDisplay" class="text-lg font-mono font-extrabold text-studio-accent">00:15.0</span>
                             </div>
                             <button id="btnSetB" class="px-4 py-2.5 rounded-xl bg-studio-accent/15 hover:bg-studio-accent/25 active:scale-95 text-studio-accent border border-studio-accent/40 font-extrabold text-xs transition">
                                 <i class="fa-solid fa-flag mr-1"></i> Set B
@@ -432,7 +387,7 @@
                         <i class="fa-solid fa-bookmark text-studio-accent text-sm"></i>
                         <h3 class="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-white">Tag Choreo Section</h3>
                     </div>
-                    <span id="tagPreviewRange" class="text-[11px] text-studio-cyan font-mono font-semibold">00:00.0 → 00:08.7</span>
+                    <span id="tagPreviewRange" class="text-[11px] text-studio-cyan font-mono font-semibold">00:00.0 → 00:15.0</span>
                 </div>
 
                 <div class="flex flex-col gap-2.5">
@@ -542,7 +497,7 @@
                         <kbd class="px-2 py-0.5 bg-studio-950 border border-studio-700 rounded font-mono text-white">← / →</kbd>
                     </div>
                     <div class="flex justify-between py-1">
-                        <span>5-6-7-8 Count-In & Restart Loop</span>
+                        <span>Jump to Loop Start (Point A)</span>
                         <kbd class="px-2 py-0.5 bg-studio-950 border border-studio-700 rounded font-mono text-studio-amber">R</kbd>
                     </div>
                 </div>
@@ -553,50 +508,25 @@
     <!-- Application Logic -->
     <script>
         /********************************************************************
-         * GROOVELOOP MOBILE AUDIO DECK — STATE & STORAGE
+         * GROOVELOOP MOBILE AUDIO DECK — STATE, STORAGE & INDEXED-DB AUTOLOAD
          ********************************************************************/
-        const STORAGE_KEY = 'grooveloop_mp3_studio_v2';
-
-        const DEFAULT_PRESET_DATA = {
-            'SYNTH_BEAT': {
-                id: 'SYNTH_BEAT',
-                title: '110 BPM 8-Count Studio Beat',
-                sourceType: 'synth',
-                url: '',
-                sections: [
-                    { id: 'syn_1', name: 'Warmup Groove (Counts 1-8)', start: 0.0, end: 8.7, speed: 1.0, color: '#00F0FF' },
-                    { id: 'syn_2', name: 'Footwork Breakdown (Slow)', start: 8.7, end: 17.5, speed: 0.8, color: '#FF2E93' },
-                    { id: 'syn_3', name: 'Chorus Combination (Pocket)', start: 17.5, end: 34.9, speed: 0.9, color: '#ADFF2F' },
-                    { id: 'syn_4', name: 'Full-Out Cardio Drill', start: 34.9, end: 52.4, speed: 1.1, color: '#FFB800' }
-                ]
-            },
-            'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3': {
-                id: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
-                title: 'Electro Groove Demo MP3',
-                sourceType: 'url',
-                url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
-                sections: [
-                    { id: 'mp3_1', name: 'Intro 8-Count Build', start: 0.0, end: 14.5, speed: 1.0, color: '#00F0FF' },
-                    { id: 'mp3_2', name: 'Main Synth Drop Choreo', start: 14.5, end: 32.0, speed: 0.8, color: '#FF2E93' },
-                    { id: 'mp3_3', name: 'Fast Footwork Section', start: 32.0, end: 50.0, speed: 0.6, color: '#ADFF2F' }
-                ]
-            }
-        };
+        const STORAGE_KEY = 'grooveloop_mp3_studio_v3';
+        const LAST_URL_KEY = 'grooveloop_last_mp3_url';
+        const IDB_NAME = 'GrooveLoopAudioCacheDB';
+        const IDB_STORE = 'cachedFiles';
 
         const state = {
-            mode: 'synth', // 'local' | 'url' | 'synth'
-            currentTrackId: 'SYNTH_BEAT',
-            currentTrackTitle: '110 BPM 8-Count Studio Beat',
+            mode: 'none', // 'local' | 'url' | 'none'
+            currentTrackId: 'unloaded',
+            currentTrackTitle: 'Open a local MP3 or paste an MP3 URL',
             isPlaying: false,
             currentTime: 0,
-            duration: 64.0,
+            duration: 0,
             playbackSpeed: 1.0,
-            countInSeconds: 0, // 0, 3, or 5
-            isCountingIn: false,
 
             // A-B Loop State
             loopA: 0.0,
-            loopB: 8.7,
+            loopB: 15.0,
             isLoopActive: false,
             activeSectionId: null,
             editingSectionId: null,
@@ -612,13 +542,59 @@
         };
 
         const audioPlayer = document.getElementById('html5AudioPlayer');
-
-        // Built-in WebAudio Synth Drum / Metronome Track Engine
         let audioCtx = null;
-        let synthTimer = null;
-        let synthStartTime = 0;
-        let synthPausedAt = 0;
-        const SYNTH_DURATION = 64.0;
+
+        function getAudioContext() {
+            if (!audioCtx) {
+                const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+                audioCtx = new AudioContextClass();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            return audioCtx;
+        }
+
+        /********************************************************************
+         * INDEXED-DB HELPER FOR LOCAL MP3 AUTOLOADING ON REFRESH
+         ********************************************************************/
+        function openAudioCacheDB() {
+            return new Promise((resolve, reject) => {
+                const req = indexedDB.open(IDB_NAME, 1);
+                req.onupgradeneeded = (e) => {
+                    const db = e.target.result;
+                    if (!db.objectStoreNames.contains(IDB_STORE)) {
+                        db.createObjectStore(IDB_STORE);
+                    }
+                };
+                req.onsuccess = (e) => resolve(e.target.result);
+                req.onerror = (e) => reject(e.target.error);
+            });
+        }
+
+        async function cacheLocalMp3InIDB(file) {
+            try {
+                const db = await openAudioCacheDB();
+                const tx = db.transaction(IDB_STORE, 'readwrite');
+                tx.objectStore(IDB_STORE).put(file, 'last_local_mp3');
+            } catch (err) {
+                console.warn('Could not cache local MP3 in IndexedDB:', err);
+            }
+        }
+
+        async function getCachedLocalMp3FromIDB() {
+            try {
+                const db = await openAudioCacheDB();
+                return await new Promise((resolve) => {
+                    const tx = db.transaction(IDB_STORE, 'readonly');
+                    const req = tx.objectStore(IDB_STORE).get('last_local_mp3');
+                    req.onsuccess = () => resolve(req.result || null);
+                    req.onerror = () => resolve(null);
+                });
+            } catch (err) {
+                return null;
+            }
+        }
 
         /********************************************************************
          * INITIALIZATION & LOCAL STORAGE PERSISTENCE
@@ -627,16 +603,12 @@
             try {
                 const raw = localStorage.getItem(STORAGE_KEY);
                 if (raw) {
-                    state.library = JSON.parse(raw);
+                    state.library = JSON.parse(raw) || {};
                 } else {
-                    state.library = JSON.parse(JSON.stringify(DEFAULT_PRESET_DATA));
-                    saveLibraryToStorage();
-                }
-                if (!state.library['SYNTH_BEAT']) {
-                    state.library['SYNTH_BEAT'] = DEFAULT_PRESET_DATA['SYNTH_BEAT'];
+                    state.library = {};
                 }
             } catch (e) {
-                state.library = JSON.parse(JSON.stringify(DEFAULT_PRESET_DATA));
+                state.library = {};
             }
         }
 
@@ -666,7 +638,7 @@
         }
 
         /********************************************************************
-         * WAVEFORM VISUALIZER GENERATOR (REAL AUDIO BUFFER OR SYNTH PATTERN)
+         * WAVEFORM VISUALIZER GENERATOR (REAL AUDIO BUFFER OR FALLBACK)
          ********************************************************************/
         function generateSyntheticPeaks(seedString = 'grooveloop', count = 120) {
             let hash = 0;
@@ -676,7 +648,6 @@
             }
             const peaks = [];
             for (let i = 0; i < count; i++) {
-                // Create rhythmic 8-count style peaks
                 const beatAccent = (i % 4 === 0) ? 0.85 : (i % 2 === 0 ? 0.6 : 0.35);
                 const pseudoRand = Math.abs(Math.sin(hash + i * 0.73)) * 0.35;
                 peaks.push(Math.min(0.95, Math.max(0.15, beatAccent + pseudoRand - 0.15)));
@@ -690,24 +661,41 @@
                 const arrayBuffer = await file.arrayBuffer();
                 const ctx = getAudioContext();
                 const audioBuffer = await ctx.decodeAudioData(arrayBuffer);
-                const rawData = audioBuffer.getChannelData(0);
-                const samples = 120;
-                const blockSize = Math.floor(rawData.length / samples);
-                const peaks = [];
-                for (let i = 0; i < samples; i++) {
-                    let blockStart = blockSize * i;
-                    let sum = 0;
-                    for (let j = 0; j < blockSize; j += 10) {
-                        sum += Math.abs(rawData[blockStart + j] || 0);
-                    }
-                    peaks.push(sum / (blockSize / 10));
-                }
-                const maxPeak = Math.max(...peaks, 0.01);
-                state.waveformPeaks = peaks.map(p => Math.max(0.12, Math.min(0.95, p / maxPeak)));
-                drawWaveformCanvas();
+                extractPeaksFromAudioBuffer(audioBuffer);
             } catch (e) {
                 generateSyntheticPeaks(file.name);
             }
+        }
+
+        async function decodeRemoteUrlPeaks(url) {
+            try {
+                const response = await fetch(url, { mode: 'cors' });
+                if (!response.ok) throw new Error('HTTP ' + response.status);
+                const arrayBuffer = await response.arrayBuffer();
+                const ctx = getAudioContext();
+                const audioBuffer = await ctx.decodeAudioData(arrayBuffer);
+                extractPeaksFromAudioBuffer(audioBuffer);
+            } catch (e) {
+                generateSyntheticPeaks(url);
+            }
+        }
+
+        function extractPeaksFromAudioBuffer(audioBuffer) {
+            const rawData = audioBuffer.getChannelData(0);
+            const samples = 120;
+            const blockSize = Math.floor(rawData.length / samples);
+            const peaks = [];
+            for (let i = 0; i < samples; i++) {
+                let blockStart = blockSize * i;
+                let sum = 0;
+                for (let j = 0; j < blockSize; j += 10) {
+                    sum += Math.abs(rawData[blockStart + j] || 0);
+                }
+                peaks.push(sum / (blockSize / 10));
+            }
+            const maxPeak = Math.max(...peaks, 0.01);
+            state.waveformPeaks = peaks.map(p => Math.max(0.12, Math.min(0.95, p / maxPeak)));
+            drawWaveformCanvas();
         }
 
         function drawWaveformCanvas() {
@@ -735,7 +723,6 @@
                 const h = peaks[i] * (rect.height * 0.78);
                 const barTime = (i / barCount) * (state.duration || 1);
 
-                // Highlight bars inside active A-B loop
                 if (state.loopA !== null && state.loopB !== null && barTime >= state.loopA && barTime <= state.loopB) {
                     ctx.fillStyle = state.isLoopActive ? '#00F0FF' : '#6366F1';
                 } else {
@@ -749,7 +736,7 @@
         }
 
         /********************************************************************
-         * AUDIO ENGINE: LOCAL MP3 FILES, DIRECT MP3 URLS & SYNTH BEAT
+         * AUDIO ENGINE: LOCAL MP3 FILES & DIRECT MP3 URLS ONLY
          ********************************************************************/
         function applyPitchPreservedSpeed(rate) {
             audioPlayer.playbackRate = rate;
@@ -763,7 +750,7 @@
             }
         }
 
-        function loadLocalAudioFile(file) {
+        function loadLocalAudioFile(file, autoPlay = true) {
             if (!file) return;
             stopAllPlayback();
             hideAudioError();
@@ -772,6 +759,10 @@
             const fileId = 'local_' + file.name.replace(/[^a-zA-Z0-9]/g, '_');
             state.currentTrackId = fileId;
             state.currentTrackTitle = file.name.replace(/\.[^/.]+$/, '');
+
+            // Cache file in IndexedDB for automatic reload on next session
+            cacheLocalMp3InIDB(file);
+            localStorage.removeItem(LAST_URL_KEY);
 
             const objectUrl = URL.createObjectURL(file);
             audioPlayer.src = objectUrl;
@@ -784,27 +775,27 @@
             decodeAudioFilePeaks(file);
 
             audioPlayer.onloadedmetadata = () => {
-                state.duration = audioPlayer.duration || 120;
+                state.duration = audioPlayer.duration || 0;
                 const savedSecs = state.library[fileId]?.sections || [];
                 if (savedSecs.length > 0) {
                     state.loopA = savedSecs[0].start;
                     state.loopB = savedSecs[0].end;
                 } else {
                     state.loopA = 0;
-                    state.loopB = Math.min(15, state.duration);
+                    state.loopB = Math.min(15, state.duration || 15);
                 }
                 state.isLoopActive = false;
                 state.activeSectionId = null;
                 updateLoopUI();
                 renderSectionsList();
                 renderTimelineMarkers();
-                playMedia();
+                if (autoPlay) playMedia();
             };
 
             showToast(`Loaded MP3: ${state.currentTrackTitle}`);
         }
 
-        function loadDirectMp3Url(url, customTitle = '') {
+        function loadDirectMp3Url(url, customTitle = '', autoPlay = true) {
             const cleanUrl = url.trim();
             if (!cleanUrl) {
                 showToast('Please enter a valid MP3 / audio link');
@@ -815,16 +806,16 @@
 
             state.mode = 'url';
             state.currentTrackId = cleanUrl;
+            localStorage.setItem(LAST_URL_KEY, cleanUrl);
 
-            // Derive readable name from URL if no customTitle
             let derivedName = customTitle;
             if (!derivedName) {
                 try {
-                    const urlObj = new URL(cleanUrl);
-                    const fileName = decodeURIComponent(urlObj.pathname.split('/').pop() || 'Remote MP3 Track');
-                    derivedName = fileName.replace(/\.[^/.]+$/, '') || 'Remote MP3 Track';
+                    const urlObj = new URL(cleanUrl, window.location.href);
+                    const fileName = decodeURIComponent(urlObj.pathname.split('/').pop() || 'Audio Track');
+                    derivedName = fileName.replace(/\.[^/.]+$/, '') || 'Audio Track';
                 } catch (e) {
-                    derivedName = 'Remote Audio Track';
+                    derivedName = 'Audio Track';
                 }
             }
             state.currentTrackTitle = state.library[cleanUrl]?.title || derivedName;
@@ -832,65 +823,31 @@
             audioPlayer.src = cleanUrl;
             applyPitchPreservedSpeed(state.playbackSpeed);
 
-            updateSourceBadge('MP3 Link', 'accent');
+            updateSourceBadge('MP3 URL', 'accent');
             document.getElementById('currentTrackTitle').textContent = state.currentTrackTitle;
 
             ensureTrackInLibrary(cleanUrl, state.currentTrackTitle, 'url', cleanUrl);
-            generateSyntheticPeaks(cleanUrl);
+            decodeRemoteUrlPeaks(cleanUrl);
 
             audioPlayer.onloadedmetadata = () => {
-                state.duration = audioPlayer.duration || 120;
+                state.duration = audioPlayer.duration || 0;
                 const savedSecs = state.library[cleanUrl]?.sections || [];
                 if (savedSecs.length > 0) {
                     state.loopA = savedSecs[0].start;
                     state.loopB = savedSecs[0].end;
                 } else {
                     state.loopA = 0;
-                    state.loopB = Math.min(15, state.duration);
+                    state.loopB = Math.min(15, state.duration || 15);
                 }
                 state.isLoopActive = false;
                 state.activeSectionId = null;
                 updateLoopUI();
                 renderSectionsList();
                 renderTimelineMarkers();
-                playMedia();
+                if (autoPlay) playMedia();
             };
 
-            showToast(`Loading MP3 stream: ${state.currentTrackTitle}`);
-        }
-
-        function loadBuiltInSynthBeat() {
-            stopAllPlayback();
-            hideAudioError();
-
-            state.mode = 'synth';
-            state.currentTrackId = 'SYNTH_BEAT';
-            state.currentTrackTitle = '110 BPM 8-Count Studio Beat';
-            state.duration = SYNTH_DURATION;
-            state.currentTime = 0;
-            synthPausedAt = 0;
-
-            updateSourceBadge('Studio Synth', 'lime');
-            document.getElementById('currentTrackTitle').textContent = state.currentTrackTitle;
-
-            ensureTrackInLibrary('SYNTH_BEAT', state.currentTrackTitle, 'synth');
-            generateSyntheticPeaks('SYNTH_BEAT_110BPM');
-
-            const secs = state.library['SYNTH_BEAT']?.sections || [];
-            if (secs.length > 0) {
-                state.loopA = secs[0].start;
-                state.loopB = secs[0].end;
-            } else {
-                state.loopA = 0;
-                state.loopB = 8.7;
-            }
-            state.isLoopActive = false;
-            state.activeSectionId = null;
-
-            updateLoopUI();
-            renderSectionsList();
-            renderTimelineMarkers();
-            showToast('Ready: 110 BPM 8-Count Studio Beat');
+            showToast(`Loaded MP3 URL: ${state.currentTrackTitle}`);
         }
 
         function updateSourceBadge(text, colorKey) {
@@ -901,7 +858,7 @@
             } else if (colorKey === 'accent') {
                 badge.className = 'px-1.5 py-0.5 text-[10px] font-mono uppercase rounded bg-studio-accent/20 text-studio-accent border border-studio-accent/30 shrink-0 font-bold';
             } else {
-                badge.className = 'px-1.5 py-0.5 text-[10px] font-mono uppercase rounded bg-studio-lime/20 text-studio-lime border border-studio-lime/30 shrink-0 font-bold';
+                badge.className = 'px-1.5 py-0.5 text-[10px] font-mono uppercase rounded bg-studio-800 text-gray-300 border border-studio-700 shrink-0 font-bold';
             }
         }
 
@@ -922,13 +879,14 @@
             if (state.mode === 'url' || state.mode === 'local') {
                 state.isPlaying = false;
                 updatePlayPauseUI();
-                showAudioError('Unable to play this audio link. Make sure it is a direct .mp3/audio URL or open a local MP3 file.');
+                showAudioError('Unable to play this audio source. Verify the direct .mp3 link or open a local MP3 file.');
             }
         });
 
         audioPlayer.addEventListener('ended', () => {
             if (state.isLoopActive && state.loopA !== null) {
-                triggerSeekWithOptionalCountIn(state.loopA);
+                seekTo(state.loopA);
+                playMedia();
             } else {
                 state.isPlaying = false;
                 updatePlayPauseUI();
@@ -940,35 +898,28 @@
             if (!audioPlayer.paused) {
                 audioPlayer.pause();
             }
-            stopSynthEngine();
             updatePlayPauseUI();
         }
 
         function playMedia() {
-            if (state.mode === 'local' || state.mode === 'url') {
-                applyPitchPreservedSpeed(state.playbackSpeed);
-                audioPlayer.play().then(() => {
-                    state.isPlaying = true;
-                    updatePlayPauseUI();
-                }).catch(err => {
-                    console.warn('Playback prevented or failed:', err);
-                    state.isPlaying = false;
-                    updatePlayPauseUI();
-                });
-            } else if (state.mode === 'synth') {
-                startSynthEngine();
+            if (state.mode === 'none' || !audioPlayer.src) {
+                showToast('Open a local MP3 or paste an MP3 URL first');
+                return;
+            }
+            applyPitchPreservedSpeed(state.playbackSpeed);
+            audioPlayer.play().then(() => {
                 state.isPlaying = true;
                 updatePlayPauseUI();
-            }
+            }).catch(err => {
+                console.warn('Playback prevented or failed:', err);
+                state.isPlaying = false;
+                updatePlayPauseUI();
+            });
         }
 
         function pauseMedia() {
             state.isPlaying = false;
-            if (state.mode === 'local' || state.mode === 'url') {
-                audioPlayer.pause();
-            } else if (state.mode === 'synth') {
-                stopSynthEngine();
-            }
+            audioPlayer.pause();
             updatePlayPauseUI();
         }
 
@@ -976,27 +927,18 @@
             if (state.isPlaying) {
                 pauseMedia();
             } else {
-                if (state.countInSeconds > 0) {
-                    runCountInThen(() => playMedia());
-                } else {
-                    playMedia();
-                }
+                playMedia();
             }
         }
 
         function seekTo(seconds) {
-            const target = Math.max(0, Math.min(seconds, state.duration || 3600));
+            const maxDur = state.duration > 0 ? state.duration : 3600;
+            const target = Math.max(0, Math.min(seconds, maxDur));
             state.currentTime = target;
             if (state.mode === 'local' || state.mode === 'url') {
                 try {
                     audioPlayer.currentTime = target;
                 } catch (e) {}
-            } else if (state.mode === 'synth') {
-                synthPausedAt = target;
-                if (state.isPlaying) {
-                    stopSynthEngine();
-                    startSynthEngine();
-                }
             }
             updateTimeReadouts();
         }
@@ -1009,8 +951,6 @@
                 applyPitchPreservedSpeed(clamped);
             }
 
-            // Format display cleanly (e.g., 0.6x, 1x, 1.25x or 2 decimals for fine slider)
-            const formatted = Number.isInteger(clamped * 10) ? `${clamped.toFixed(1)}x` : `${clamped.toFixed(2)}x`;
             document.getElementById('speedReadoutBadge').textContent = `${clamped.toFixed(2)}x`;
             document.getElementById('fineSpeedSlider').value = clamped;
             document.getElementById('fineSpeedValue').textContent = `${clamped.toFixed(2)}x`;
@@ -1027,165 +967,6 @@
         }
 
         /********************************************************************
-         * WEB AUDIO SYNTHESIS ENGINE (COUNT-IN BEEPS & 110 BPM STUDIO BEAT)
-         ********************************************************************/
-        function getAudioContext() {
-            if (!audioCtx) {
-                const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-                audioCtx = new AudioContextClass();
-            }
-            if (audioCtx.state === 'suspended') {
-                audioCtx.resume();
-            }
-            return audioCtx;
-        }
-
-        function playCountInBeep(isFinalGo = false) {
-            try {
-                const ctx = getAudioContext();
-                const osc = ctx.createOscillator();
-                const gain = ctx.createGain();
-                osc.type = isFinalGo ? 'triangle' : 'sine';
-                osc.frequency.setValueAtTime(isFinalGo ? 880 : 587.33, ctx.currentTime);
-                gain.gain.setValueAtTime(0.25, ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.18);
-                osc.connect(gain);
-                gain.connect(ctx.destination);
-                osc.start();
-                osc.stop(ctx.currentTime + 0.19);
-            } catch (e) {}
-        }
-
-        function playDrumHit(beatIndex) {
-            try {
-                const ctx = getAudioContext();
-                const now = ctx.currentTime;
-                const osc = ctx.createOscillator();
-                const gain = ctx.createGain();
-
-                if (beatIndex % 4 === 0) {
-                    // Kick on 1 & 5
-                    osc.frequency.setValueAtTime(145, now);
-                    osc.frequency.exponentialRampToValueAtTime(42, now + 0.12);
-                    gain.gain.setValueAtTime(0.45, now);
-                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
-                } else if (beatIndex % 2 === 1) {
-                    // Snare / Clap on 2, 4, 6, 8
-                    osc.type = 'triangle';
-                    osc.frequency.setValueAtTime(270, now);
-                    gain.gain.setValueAtTime(0.24, now);
-                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.09);
-                } else {
-                    // Hi-hat pulse on 3, 7
-                    osc.type = 'square';
-                    osc.frequency.setValueAtTime(820, now);
-                    gain.gain.setValueAtTime(0.08, now);
-                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
-                }
-
-                osc.connect(gain);
-                gain.connect(ctx.destination);
-                osc.start(now);
-                osc.stop(now + 0.16);
-            } catch (e) {}
-        }
-
-        let lastSynthBeatTriggered = -1;
-        function startSynthEngine() {
-            stopSynthEngine();
-            const ctx = getAudioContext();
-            synthStartTime = ctx.currentTime;
-            lastSynthBeatTriggered = -1;
-
-            synthTimer = setInterval(() => {
-                if (!state.isPlaying || state.mode !== 'synth') return;
-                const elapsed = (ctx.currentTime - synthStartTime) * state.playbackSpeed;
-                state.currentTime = (synthPausedAt + elapsed) % SYNTH_DURATION;
-
-                // 110 BPM = 1.8333 beats per second
-                const currentBeatNumber = Math.floor(state.currentTime * (110 / 60));
-                if (currentBeatNumber !== lastSynthBeatTriggered) {
-                    lastSynthBeatTriggered = currentBeatNumber;
-                    playDrumHit(currentBeatNumber % 8);
-                }
-            }, 25);
-        }
-
-        function stopSynthEngine() {
-            if (synthTimer) {
-                clearInterval(synthTimer);
-                synthTimer = null;
-            }
-            synthPausedAt = state.currentTime;
-        }
-
-        /********************************************************************
-         * 5-6-7-8 REHEARSAL COUNT-IN DELAY OVERLAY
-         ********************************************************************/
-        let countInIntervalId = null;
-
-        function runCountInThen(callback, forceSeconds = null) {
-            const totalSteps = forceSeconds || state.countInSeconds;
-            if (!totalSteps || totalSteps <= 0) {
-                callback();
-                return;
-            }
-
-            pauseMedia();
-            state.isCountingIn = true;
-            const overlay = document.getElementById('countInOverlay');
-            const numEl = document.getElementById('countInNumber');
-            const subEl = document.getElementById('countInSubtext');
-            overlay.classList.remove('hidden');
-            overlay.classList.add('flex');
-
-            const labels = totalSteps === 5 ? ['READY', '5', '6', '7', '8'] : ['3', '2', '1'];
-            let stepIndex = 0;
-
-            const tick = () => {
-                if (stepIndex >= labels.length) {
-                    cancelCountIn();
-                    playCountInBeep(true);
-                    callback();
-                    return;
-                }
-                const label = labels[stepIndex];
-                numEl.textContent = label;
-                subEl.textContent = totalSteps === 5
-                    ? (stepIndex === 0 ? 'Get in your starting pose...' : `Count ${label} — Hit the beat!`)
-                    : `Starting in ${label}...`;
-                playCountInBeep(stepIndex === labels.length - 1);
-                stepIndex++;
-            };
-
-            tick();
-            countInIntervalId = setInterval(tick, 700);
-        }
-
-        function cancelCountIn() {
-            if (countInIntervalId) {
-                clearInterval(countInIntervalId);
-                countInIntervalId = null;
-            }
-            state.isCountingIn = false;
-            const overlay = document.getElementById('countInOverlay');
-            overlay.classList.add('hidden');
-            overlay.classList.remove('flex');
-        }
-
-        function triggerSeekWithOptionalCountIn(targetTime) {
-            seekTo(targetTime);
-            if (state.countInSeconds > 0) {
-                runCountInThen(() => {
-                    seekTo(targetTime);
-                    playMedia();
-                });
-            } else {
-                playMedia();
-            }
-        }
-
-        /********************************************************************
          * REAL-TIME PLAYHEAD & A-B LOOP MONITOR (60FPS POLLING)
          ********************************************************************/
         function masterMonitorLoop() {
@@ -1196,14 +977,10 @@
                 }
             }
 
-            // Check A-B Loop boundary
+            // Enforce A-B Loop boundaries
             if (state.isPlaying && state.isLoopActive && state.loopA !== null && state.loopB !== null) {
                 if (state.currentTime >= state.loopB || state.currentTime < state.loopA - 0.4) {
-                    if (state.countInSeconds > 0) {
-                        triggerSeekWithOptionalCountIn(state.loopA);
-                    } else {
-                        seekTo(state.loopA);
-                    }
+                    seekTo(state.loopA);
                 }
             }
 
@@ -1238,11 +1015,11 @@
             const eqContainer = document.getElementById('eqBarsContainer');
 
             if (state.isPlaying) {
-                icon.className = 'fa-solid fa-pause text-xl';
+                icon.className = 'fa-solid fa-pause text-2xl sm:text-3xl';
                 text.textContent = 'Pause';
                 eqContainer.classList.add('playing');
             } else {
-                icon.className = 'fa-solid fa-play text-xl';
+                icon.className = 'fa-solid fa-play text-2xl sm:text-3xl ml-0.5';
                 text.textContent = 'Play';
                 eqContainer.classList.remove('playing');
             }
@@ -1259,15 +1036,21 @@
 
             const loopBtn = document.getElementById('btnLoopToggle');
             const loopLabel = document.getElementById('loopStateLabel');
+            const quickLoopHeaderBtn = document.getElementById('btnQuickLoopHeader');
+            const quickLoopHeaderText = document.getElementById('quickLoopHeaderText');
             const regionEl = document.getElementById('timelineLoopRegion');
 
             if (state.isLoopActive && state.loopA !== null && state.loopB !== null) {
                 loopLabel.textContent = 'ON';
                 loopBtn.className = 'px-3.5 py-2 rounded-xl font-bold text-xs border border-studio-cyan bg-studio-cyan text-studio-950 active:scale-95 transition flex items-center gap-1.5 loop-active-glow';
+                quickLoopHeaderBtn.className = 'flex-1 max-w-[92px] h-12 sm:h-14 rounded-2xl bg-studio-cyan/20 border border-studio-cyan text-studio-cyan font-extrabold text-xs flex flex-col items-center justify-center gap-0.5 active:scale-95 transition';
+                quickLoopHeaderText.textContent = 'Loop ON';
                 regionEl.classList.remove('hidden');
             } else {
                 loopLabel.textContent = 'OFF';
                 loopBtn.className = 'px-3.5 py-2 rounded-xl font-bold text-xs border border-studio-cyan/50 bg-studio-800 text-gray-300 active:scale-95 transition flex items-center gap-1.5';
+                quickLoopHeaderBtn.className = 'flex-1 max-w-[92px] h-12 sm:h-14 rounded-2xl bg-studio-800 hover:bg-studio-700 active:scale-95 text-gray-300 font-bold text-xs flex flex-col items-center justify-center gap-0.5 border border-studio-700 transition';
+                quickLoopHeaderText.textContent = 'Loop Off';
                 if (state.loopA === null || state.loopB === null) {
                     regionEl.classList.add('hidden');
                 } else {
@@ -1406,7 +1189,8 @@
             }
             updateLoopUI();
             renderSectionsList();
-            triggerSeekWithOptionalCountIn(sec.start);
+            seekTo(sec.start);
+            playMedia();
             showToast(`Looping "${sec.name}" at ${Number((sec.speed || 1).toFixed(2))}x`);
         }
 
@@ -1453,7 +1237,15 @@
         function renderSavedSongsDropdown() {
             const sel = document.getElementById('savedSongsSelect');
             sel.innerHTML = '';
-            Object.values(state.library).forEach(song => {
+            const songs = Object.values(state.library);
+            if (songs.length === 0) {
+                const emptyOpt = document.createElement('option');
+                emptyOpt.value = '';
+                emptyOpt.textContent = 'No saved tracks yet';
+                sel.appendChild(emptyOpt);
+                return;
+            }
+            songs.forEach(song => {
                 const opt = document.createElement('option');
                 opt.value = song.id;
                 const count = song.sections ? song.sections.length : 0;
@@ -1492,7 +1284,7 @@
                     showToast('Paste a direct link to an MP3 file first');
                     return;
                 }
-                loadDirectMp3Url(mp3Input.value);
+                loadDirectMp3Url(mp3Input.value, '', true);
                 mp3Input.value = '';
             };
             document.getElementById('btnLoadMp3Url').addEventListener('click', handleLoadUrl);
@@ -1500,49 +1292,15 @@
                 if (e.key === 'Enter') handleLoadUrl();
             });
 
-            // Quick 110 BPM Beat Button
-            document.getElementById('btnLoadSynthPreset').addEventListener('click', () => {
-                loadBuiltInSynthBeat();
-                playMedia();
-            });
-
-            // Demo Presets Dropdown
-            document.getElementById('presetSelect').addEventListener('change', (e) => {
-                const val = e.target.value;
-                if (!val) return;
-                if (val === 'SYNTH_BEAT') {
-                    loadBuiltInSynthBeat();
-                    playMedia();
-                } else {
-                    const label = e.target.options[e.target.selectedIndex].text;
-                    loadDirectMp3Url(val, label);
-                }
-                e.target.value = '';
-            });
-
             // Local MP3 File Input
             document.getElementById('localFileInput').addEventListener('change', e => {
                 if (e.target.files[0]) {
-                    loadLocalAudioFile(e.target.files[0]);
+                    loadLocalAudioFile(e.target.files[0], true);
                     e.target.value = '';
                 }
             });
 
             document.getElementById('btnDismissError').addEventListener('click', hideAudioError);
-
-            // Count-In Selector Buttons
-            document.querySelectorAll('.countin-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    state.countInSeconds = parseInt(btn.getAttribute('data-countin'), 10);
-                    document.querySelectorAll('.countin-btn').forEach(b => {
-                        b.className = 'countin-btn px-2 py-1 rounded-lg font-mono font-bold text-gray-400 hover:text-white';
-                    });
-                    btn.className = 'countin-btn px-2 py-1 rounded-lg font-mono font-bold bg-studio-accent text-white';
-                    showToast(state.countInSeconds > 0 ? `Count-in set to ${state.countInSeconds}s` : 'Count-in OFF');
-                });
-            });
-
-            document.getElementById('btnCancelCountIn').addEventListener('click', cancelCountIn);
 
             // Transport Deck Buttons
             document.getElementById('btnPlayPause').addEventListener('click', togglePlayPause);
@@ -1552,16 +1310,7 @@
             });
             document.getElementById('btnSeekBack2').addEventListener('click', () => seekTo(state.currentTime - 2));
             document.getElementById('btnSeekFwd2').addEventListener('click', () => seekTo(state.currentTime + 2));
-
-            // 5-6-7-8 Go Button
-            document.getElementById('btnPlayWithCountIn').addEventListener('click', () => {
-                const startPt = state.loopA !== null ? state.loopA : 0;
-                seekTo(startPt);
-                runCountInThen(() => {
-                    seekTo(startPt);
-                    playMedia();
-                }, 5);
-            });
+            document.getElementById('btnQuickLoopHeader').addEventListener('click', toggleLoopState);
 
             // Interactive Timeline Scrubber (Mouse & Mobile Touch)
             const timeline = document.getElementById('timelineTrack');
@@ -1569,7 +1318,7 @@
             const scrubFromEvent = (clientX) => {
                 const rect = timeline.getBoundingClientRect();
                 const ratio = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
-                seekTo(ratio * (state.duration || 64));
+                seekTo(ratio * (state.duration || 60));
             };
             timeline.addEventListener('mousedown', (e) => {
                 isScrubbing = true;
@@ -1589,7 +1338,6 @@
             }, { passive: true });
             timeline.addEventListener('touchend', () => { isScrubbing = false; });
 
-            // Redraw waveform on window resize
             window.addEventListener('resize', () => {
                 drawWaveformCanvas();
             });
@@ -1613,13 +1361,14 @@
                 btn.addEventListener('click', () => {
                     const target = btn.getAttribute('data-nudge');
                     const delta = parseFloat(btn.getAttribute('data-delta'));
+                    const maxDur = state.duration > 0 ? state.duration : 3600;
                     if (target === 'A') {
                         const base = state.loopA !== null ? state.loopA : state.currentTime;
-                        state.loopA = Math.max(0, Math.min(base + delta, (state.loopB || state.duration) - 0.5));
+                        state.loopA = Math.max(0, Math.min(base + delta, (state.loopB || maxDur) - 0.5));
                         seekTo(state.loopA);
                     } else {
                         const base = state.loopB !== null ? state.loopB : state.currentTime;
-                        state.loopB = Math.max((state.loopA || 0) + 0.5, Math.min(base + delta, state.duration));
+                        state.loopB = Math.max((state.loopA || 0) + 0.5, Math.min(base + delta, maxDur));
                     }
                     updateLoopUI();
                 });
@@ -1658,17 +1407,15 @@
                 const trackId = e.target.value;
                 const item = state.library[trackId];
                 if (!item) return;
-                if (item.sourceType === 'synth' || trackId === 'SYNTH_BEAT') {
-                    loadBuiltInSynthBeat();
-                } else if (item.sourceType === 'url' || item.url) {
-                    loadDirectMp3Url(item.url || trackId, item.title);
+                if (item.sourceType === 'url' || item.url) {
+                    loadDirectMp3Url(item.url || trackId, item.title, false);
                 } else {
                     state.currentTrackId = trackId;
                     state.currentTrackTitle = item.title;
                     document.getElementById('currentTrackTitle').textContent = item.title;
                     renderSectionsList();
                     renderTimelineMarkers();
-                    showToast(`Selected "${item.title}" — tap "Open MP3" to load the file from your device`);
+                    showToast(`Selected "${item.title}" — tap "Open Local MP3" if file isn't cached`);
                 }
             });
 
@@ -1702,15 +1449,13 @@
                     toggleLoopState();
                 } else if (e.key === 'r' || e.key === 'R') {
                     e.preventDefault();
-                    triggerSeekWithOptionalCountIn(state.loopA || 0);
+                    seekTo(state.loopA || 0);
                 } else if (e.key === 'ArrowLeft') {
                     e.preventDefault();
                     seekTo(state.currentTime - 2);
                 } else if (e.key === 'ArrowRight') {
                     e.preventDefault();
                     seekTo(state.currentTime + 2);
-                } else if (e.key === 'Escape' && state.isCountingIn) {
-                    cancelCountIn();
                 }
             });
         }
@@ -1753,7 +1498,7 @@
             const track = state.library[state.currentTrackId];
 
             const start = state.loopA !== null ? state.loopA : 0;
-            const end = (state.loopB !== null && state.loopB > start) ? state.loopB : Math.min(state.duration || 60, start + 8.7);
+            const end = (state.loopB !== null && state.loopB > start) ? state.loopB : Math.min(state.duration || 60, start + 8.0);
             const sectionName = rawName || `8-Count Section #${track.sections.length + 1}`;
 
             if (state.editingSectionId) {
@@ -1826,13 +1571,40 @@
         }
 
         /********************************************************************
-         * BOOTSTRAP MOBILE AUDIO APPLICATION ON LOAD
+         * AUTOLOAD INITIALIZATION (?mp3= QUERY PARAM, SAVED URL, OR IDB FILE)
          ********************************************************************/
+        async function autoLoadInitialAudio() {
+            generateSyntheticPeaks('empty_deck_ready');
+            updateLoopUI();
+            renderSectionsList();
+
+            // 1. Check URL query parameter (?mp3=https://... or ?mp3=./track.mp3)
+            const params = new URLSearchParams(window.location.search);
+            const queryMp3 = params.get('mp3');
+            if (queryMp3) {
+                loadDirectMp3Url(queryMp3, '', false);
+                return;
+            }
+
+            // 2. Check last used direct MP3 URL in localStorage
+            const lastUrl = localStorage.getItem(LAST_URL_KEY);
+            if (lastUrl) {
+                loadDirectMp3Url(lastUrl, '', false);
+                return;
+            }
+
+            // 3. Check IndexedDB for last opened local MP3 file
+            const cachedFile = await getCachedLocalMp3FromIDB();
+            if (cachedFile) {
+                loadLocalAudioFile(cachedFile, false);
+            }
+        }
+
         window.onload = function() {
             loadLibraryFromStorage();
             renderSavedSongsDropdown();
             bindStudioEvents();
-            loadBuiltInSynthBeat();
+            autoLoadInitialAudio();
             requestAnimationFrame(masterMonitorLoop);
         };
     </script>
